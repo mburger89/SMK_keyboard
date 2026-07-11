@@ -805,7 +805,7 @@
 
     (symbol "kbd:LVL_SHIFT_BUF" (pin_names (offset 0.254)) (exclude_from_sim no) (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 2.54 0) (effects (font (size 1.27 1.27))))
-      (property "Value" "74AHCT1G125" (at 0 -2.54 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "SN74AHCT1G125DBVR" (at 0 -2.54 0) (effects (font (size 1.27 1.27))))
       (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) (hide yes)))
       (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) (hide yes)))
       (property "Description" "" (at 0 0 0) (effects (font (size 1.27 1.27)) (hide yes)))
@@ -3057,7 +3057,7 @@
     (exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced yes)
     (uuid "8e10180b-ccd0-51f4-bea1-7f387d7b8f6c")
     (property "Reference" "U7" (at 60.96 49.53 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "74AHCT1G125" (at 60.96 59.69 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "SN74AHCT1G125DBVR" (at 60.96 59.69 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "kbd:SOT-23-5" (at 60.96 54.61 0) (effects (font (size 1.27 1.27)) (hide yes)))
     (property "Datasheet" "~" (at 60.96 54.61 0) (effects (font (size 1.27 1.27)) (hide yes)))
     (property "Description" "" (at 60.96 54.61 0) (effects (font (size 1.27 1.27)) (hide yes)))

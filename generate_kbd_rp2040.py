@@ -73,8 +73,18 @@ the account's usage cap mid-session). Confidence by section:
     diagram: UX=8-pad USON 2x3mm package, I=industrial temp range,
     Q=green/RoHS package option -- a validly-constructed, real orderable
     part number, not just a plausible-looking guess.
-  - RGB chain (level shifter, decoupling, series resistor, power budget):
-    MEDIUM-HIGH confidence, standard WS2812-family practice.
+  - RGB chain: HIGH confidence on the level shifter (U7) -- confirmed
+    against TI's SN74AHCT1G125-Q1 datasheet (SCLS504E) that the part is
+    real, comes in SOT-23-5 (TI's "DBV" package -- matches this file's
+    footprint), has the exact OE/A/GND/Y/VCC pinout already modeled here,
+    and specs a 3-5.5V operating range that covers this design's VSYS-fed
+    VCC down to battery-empty voltages. Pinned to the specific TI part
+    (SN74AHCT1G125DBVR) rather than the bare family name, since a same-
+    numbered part from a different vendor (e.g. Nexperia's 74AHCT1G125)
+    isn't a drop-in substitute here -- it doesn't come in SOT-23-5 at all,
+    and specs a narrower 4.5-5.5V range that VSYS can drop below on
+    battery. Decoupling/series resistor/power budget: MEDIUM-HIGH
+    confidence, standard WS2812-family practice.
 Search this file for "VERIFY" to find every flagged item.
 
 Files are written in KiCad 8 format, which KiCad 9 opens natively.
@@ -1035,9 +1045,17 @@ def build_lib_symbols():
         ("passive", 12.7, -15.24, 180, "BT_IF_VDD", "G1"),
         ("power_in", 0, -20.32, 90, "GND", "D4")]))
 
-    # --- single-gate level shifter/buffer, SOT-23-5 (e.g. 74AHCT1G125-style:
-    # 1 OE(active-low, tie GND=enabled) 2 A(in) 3 GND 4 Y(out) 5 VCC) ---
-    L.append(boxsym("LVL_SHIFT_BUF", "U", "74AHCT1G125", 15.24, [
+    # --- single-gate level shifter/buffer, SOT-23-5: TI SN74AHCT1G125DBVR
+    # specifically (not, e.g., Nexperia's 74AHCT1G125, which is real but
+    # doesn't come in SOT-23-5 at all -- only TSSOP5/SC-74A/XSON6/XSON5 --
+    # and specs a narrower 4.5-5.5V VCC range). TI's part is confirmed real
+    # (datasheet SCLS504E) in the DBV=SOT-23-5 package with the exact
+    # OE/A/GND/Y/VCC pinout below, AND specs a 3-5.5V operating range that
+    # comfortably covers this design's VCC source (VSYS, the unregulated
+    # battery/USB rail, which can be as low as ~3.0V on battery) --
+    # Nexperia's part would be out of its guaranteed VCC range there.
+    # 1 OE(active-low, tie GND=enabled) 2 A(in) 3 GND 4 Y(out) 5 VCC
+    L.append(boxsym("LVL_SHIFT_BUF", "U", "SN74AHCT1G125DBVR", 15.24, [
         ("input", -10.16, 2.54, 0, "OE#", 1),
         ("input", -10.16, 0, 0, "A", 2),
         ("power_in", -10.16, -2.54, 0, "GND", 3),
@@ -1344,7 +1362,7 @@ def build_schematic():
     texts.append(sch_text("Per-key RGB -- SK6812MINI-E x59, serpentine chain "
                           "(must match Sources/smk/RGBLighting.swift ledChainIndex)",
                           25.4, 45.72, 3.0))
-    parts.append(sym_inst("LVL_SHIFT_BUF", "U7", "74AHCT1G125", 60.96, 54.61, 0,
+    parts.append(sym_inst("LVL_SHIFT_BUF", "U7", "SN74AHCT1G125DBVR", 60.96, 54.61, 0,
                           ["1","2","3","4","5"], "kbd:SOT-23-5"))
     # y = center_y - local_pin_y (Y-flip, see U1 comment above)
     labels.append(sch_glabel("GND", 50.8, 52.07, 180))     # OE# tied low = enabled
@@ -1543,7 +1561,7 @@ def build_pcb():
 
     # RGB level shifter -- also relocated into the freed-up region, still
     # close to U1's RGB_GPIO exit (a left-side pin) via a short trace.
-    fps.append(fp_sot23_5("U7", "74AHCT1G125", 176.0, 31.0, 0, U("sym", "U7"),
+    fps.append(fp_sot23_5("U7", "SN74AHCT1G125DBVR", 176.0, 31.0, 0, U("sym", "U7"),
                           {1: "GND", 2: "RGB_GPIO", 3: "GND", 4: "LEDD0", 5: "VSYS"}))
     fps.append(fp_0603("R10", "330", 180.0, 31.0, 0, U("sym", "R10"), "LEDD0", "LEDD0_R"))
     fps.append(fp_0603("C19", "10u", 184.0, 31.0, 0, U("sym", "C19"), "VSYS", "GND"))
