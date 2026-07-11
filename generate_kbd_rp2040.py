@@ -16,12 +16,24 @@ This variant was built without live datasheet access (research agents hit
 the account's usage cap mid-session). Confidence by section:
   - Matrix, power tree, USB, charger, LDO: UNCHANGED from the verified
     ESP32 board -- same confidence as before.
-  - RP2040 minimum system (QSPI flash, 12MHz crystal, RUN, core supply via
-    internal SMPS + inductor): HIGH confidence on topology/values, but pin
-    NUMBERS on the RP2040 symbol/footprint are a self-consistent SEQUENTIAL
-    scheme I invented, NOT verified against the real QFN-56 pinout table.
-    MUST be corrected against the RP2040 datasheet pinout diagram before
-    this footprint is fabricated against a real chip.
+  - RP2040 (pinout, package rotation, core supply): HIGH confidence -- pin
+    numbers, dedicated-pin names, and the QFN-56 side rotation (which
+    physical side pins 1-14/15-28/29-42/43-56 sit on) are transcribed from
+    the real Raspberry Pi RP2040 Datasheet (Figure 3 "Pinout for QFN-56",
+    Table 1 "Pin Descriptions", Table 2 "GPIO Bank 0 Functions"), not
+    invented. This caught two real bugs in an earlier version of this file:
+    (1) the core-supply section modeled the on-chip regulator as a buck
+    converter needing an external inductor -- the real regulator (Section
+    2.10, "Core Supply Regulator") is a simple linear/LDO type (VREG_VIN ->
+    VREG_VOUT -> DVDD) needing only decoupling capacitors, no inductor;
+    (2) the wireless UART was wired to GPIO18-21, but UART1's real
+    alternate-function pins are GPIO20-23 (Table 2) -- BT_REG_ON/
+    BT_DEV_WAKE (plain GPIOs) now sit on the freed-up GPIO18/19 instead.
+    Also corrected: the real chip has no perimeter GND pins at all (GND is
+    only the single exposed thermal pad) -- an earlier version invented
+    several. QFN-56 pad pitch/size (0.4mm, 0.25x0.6mm) is still a generic
+    IPC-nominal land pattern, not copied from Raspberry Pi's own drawing --
+    verify that specifically before fab.
   - CYW43439 (wireless): MEDIUM-HIGH confidence -- rewritten against the real
     Infineon/Cypress CYW43439 datasheet (Document 002-30348 Rev *D): package
     is WLBGA-63 (0.4mm ball pitch, ~2.4x4.4mm body, fine-pitch -- needs
@@ -101,8 +113,13 @@ def key_pos(r, c, is2u):
 # ---------------------------------------------------------------- nets
 NETS = ["", "GND", "+3V3", "VBUS", "VSYS", "BAT+", "EN_LDO", "VBAT_SENSE",
         "USB_DP", "USB_DM", "CC1", "CC2", "STAT", "PROG", "LED_A", "RUN", "BOOTSEL",
-        # RP2040 minimum system (VERIFY exact core-supply topology before fab)
-        "VDD_CORE", "SMPS_SW", "XIN", "XOUT",
+        # RP2040 minimum system -- power topology verified against the real
+        # RP2040 datasheet's Core Supply Regulator chapter: the on-chip
+        # regulator (VREG_VIN -> VREG_VOUT -> DVDD) is a simple linear/LDO
+        # type needing only 1uF caps on VREG_VIN and VREG_VOUT plus 100nF on
+        # each DVDD pin -- NO external inductor (an earlier version of this
+        # file wrongly modeled it as a buck regulator with one).
+        "VREG_VIN", "DVDD", "XIN", "XOUT",
         "QSPI_SCLK", "QSPI_SS", "QSPI_SD0", "QSPI_SD1", "QSPI_SD2", "QSPI_SD3",
         "SWCLK", "SWDIO",
         # CYW43439 wireless -- datasheet-verified net plan (Infineon/Cypress
@@ -145,48 +162,57 @@ NETI = {n: i for i, n in enumerate(NETS)}
 
 # ---- RP2040 pinout: single source of truth for BOTH the schematic symbol
 # and the PCB footprint (fp_rp2040 pad numbers), so they can't drift apart.
-# VERIFY: pin NUMBERS (1-56 + 57=thermal pad) are a self-consistent scheme
-# I built for this design, NOT copied from the real RP2040 datasheet pinout
-# table. The functional groupings (GPIO0-29, dedicated QSPI/XIN/XOUT/RUN/
-# SWD/USB pins, ADC only on GPIO26-29) reflect my best recollection of the
-# real chip -- cross-check every entry against the datasheet before fab.
+# Pin numbers and dedicated-pin names below are transcribed from the real
+# Raspberry Pi RP2040 Datasheet (datasheets.raspberrypi.com/rp2040/
+# rp2040-datasheet.pdf), Figure 3 "RP2040 Pinout for QFN-56" and Table 1
+# "Pin Descriptions" -- not invented. The only real chip fact that changed
+# this design: real GND is ONLY the single exposed thermal pad (Table 1:
+# "Single external ground connection, bonded to a number of internal
+# ground pads") -- the chip has no perimeter GND pins, unlike an earlier
+# version of this file which invented several. GPIO function ASSIGNMENTS
+# (which GPIO does which job -- rows/cols/RGB/BT UART/etc.) are this
+# project's own choice within that real physical pin map; UART1's real
+# alternate-function pins are GPIO20-23 (datasheet Table 2), which is why
+# BT_REG_ON/BT_DEV_WAKE (plain GPIOs, no alt-function needed) sit on the
+# freed-up GPIO18/19 instead of GPIO20-23.
 # Tuple: (pin_num, label, net_name)
 RP2040_PINOUT = [
-    # bottom side 1-14: matrix rows + first 9 cols
-    (1, "GPIO0", "ROW0"), (2, "GPIO1", "ROW1"), (3, "GPIO2", "ROW2"),
-    (4, "GPIO3", "ROW3"), (5, "GPIO4", "ROW4"),
-    (6, "GPIO5", "COL0"), (7, "GPIO6", "COL1"), (8, "GPIO7", "COL2"),
-    (9, "GPIO8", "COL3"), (10, "GPIO9", "COL4"), (11, "GPIO10", "COL5"),
-    (12, "GPIO11", "COL6"), (13, "GPIO12", "COL7"), (14, "GPIO13", "COL8"),
-    # right side 15-28: remaining cols, RGB, GND, USB, QSPI
-    (15, "GPIO14", "COL9"), (16, "GPIO15", "COL10"), (17, "GPIO16", "COL11"),
-    (18, "GPIO17", "RGB_GPIO"),
-    (19, "GND", "GND"), (20, "GND", "GND"),
-    (21, "USB_DM", "USB_DM"), (22, "USB_DP", "USB_DP"),
-    (23, "QSPI_SCLK", "QSPI_SCLK"), (24, "QSPI_SD0", "QSPI_SD0"),
-    (25, "QSPI_SD1", "QSPI_SD1"), (26, "QSPI_SD2", "QSPI_SD2"),
-    (27, "QSPI_SD3", "QSPI_SD3"), (28, "QSPI_SS", "QSPI_SS"),
-    # top side 29-42: crystal, debug, run, core supply, wireless interface
-    (29, "XIN", "XIN"), (30, "XOUT", "XOUT"),
-    (31, "GND", "GND"), (32, "IOVDD", "+3V3"),
-    (33, "TESTEN", "GND"), (34, "RUN", "RUN"),
-    (35, "SWCLK", "SWCLK"), (36, "SWDIO", "SWDIO"),
-    (37, "VDD_CORE", "VDD_CORE"), (38, "GND", "GND"),
-    # CYW43439 Bluetooth is a dedicated 4-wire UART (sec. 9.2 of the
-    # datasheet), NOT the WLAN SDIO/gSPI bus -- this variant is BLE-only, so
-    # GPIO18-21 now carry UART1 + BT power control instead of a WLAN SPI bus.
-    (39, "GPIO18/UART1_TX", "BT_UART_RXD"), (40, "GPIO19/UART1_RX", "BT_UART_TXD"),
-    (41, "GPIO20/UART1_RTS", "BT_UART_CTS_N"), (42, "GPIO21/UART1_CTS", "BT_UART_RTS_N"),
-    # left side 43-56: spares, ADC (GPIO26-29 only), power, ground
-    (43, "GPIO22", "BT_REG_ON"), (44, "GPIO23", "BT_DEV_WAKE"),
-    (45, "GPIO26_ADC0", "VBAT_SENSE"), (46, "GPIO27_ADC1", None),
-    (47, "GPIO28_ADC2", "BT_HOST_WAKE"), (48, "GPIO29_ADC3", None),
-    (49, "IOVDD", "+3V3"), (50, "IOVDD", "+3V3"),
-    (51, "GND", "GND"), (52, "GND", "GND"),
-    (53, "GND", "GND"), (54, "GND", "GND"),
-    (55, "USB_VDD", "+3V3"), (56, "ADC_AVDD", "+3V3"),
+    (1, "IOVDD", "+3V3"),
+    (2, "GPIO0", "ROW0"), (3, "GPIO1", "ROW1"), (4, "GPIO2", "ROW2"),
+    (5, "GPIO3", "ROW3"), (6, "GPIO4", "ROW4"),
+    (7, "GPIO5", "COL0"), (8, "GPIO6", "COL1"), (9, "GPIO7", "COL2"),
+    (10, "IOVDD", "+3V3"),
+    (11, "GPIO8", "COL3"), (12, "GPIO9", "COL4"), (13, "GPIO10", "COL5"),
+    (14, "GPIO11", "COL6"), (15, "GPIO12", "COL7"), (16, "GPIO13", "COL8"),
+    (17, "GPIO14", "COL9"), (18, "GPIO15", "COL10"),
+    (19, "TESTEN", "GND"),      # datasheet: "Factory test mode pin. Tie to GND."
+    (20, "XIN", "XIN"), (21, "XOUT", "XOUT"),
+    (22, "IOVDD", "+3V3"),
+    (23, "DVDD", "DVDD"),
+    (24, "SWCLK", "SWCLK"), (25, "SWDIO", "SWDIO"),
+    (26, "RUN", "RUN"),
+    (27, "GPIO16", "COL11"), (28, "GPIO17", "RGB_GPIO"),
+    # CYW43439 Bluetooth is a dedicated 4-wire UART (sec. 9.2 of its own
+    # datasheet), not the WLAN SDIO/gSPI bus -- BLE-only variant.
+    (29, "GPIO18", "BT_REG_ON"), (30, "GPIO19", "BT_DEV_WAKE"),
+    (31, "GPIO20/UART1_TX", "BT_UART_RXD"), (32, "GPIO21/UART1_RX", "BT_UART_TXD"),
+    (33, "IOVDD", "+3V3"),
+    (34, "GPIO22/UART1_CTS", "BT_UART_RTS_N"), (35, "GPIO23/UART1_RTS", "BT_UART_CTS_N"),
+    (36, "GPIO24", None), (37, "GPIO25", None),
+    (38, "GPIO26/ADC0", "VBAT_SENSE"), (39, "GPIO27/ADC1", None),
+    (40, "GPIO28/ADC2", "BT_HOST_WAKE"), (41, "GPIO29/ADC3", None),
+    (42, "IOVDD", "+3V3"),
+    (43, "ADC_AVDD", "+3V3"),
+    (44, "VREG_VIN", "VREG_VIN"), (45, "VREG_VOUT", "DVDD"),
+    (46, "USB_DM", "USB_DM"), (47, "USB_DP", "USB_DP"),
+    (48, "USB_VDD", "+3V3"),
+    (49, "IOVDD", "+3V3"),
+    (50, "DVDD", "DVDD"),
+    (51, "QSPI_SD3", "QSPI_SD3"), (52, "QSPI_SCLK", "QSPI_SCLK"),
+    (53, "QSPI_SD0", "QSPI_SD0"), (54, "QSPI_SD2", "QSPI_SD2"),
+    (55, "QSPI_SD1", "QSPI_SD1"), (56, "QSPI_SS_N", "QSPI_SS"),
 ]
-RP2040_THERMAL_PAD = 57
+RP2040_THERMAL_PAD = 57  # exposed pad -- the chip's only ground connection
 
 def net(name):
     if name is None:
@@ -551,10 +577,13 @@ def fp_hole(ref, x, y):
     return s + "\n".join(b) + "\n  )\n"
 
 # ---- RP2040 (QFN-56, 7x7mm, 0.4mm pitch) -----------------------------------
-# VERIFY: pad geometry follows generic 0.4mm-pitch QFN56 convention (0.25 x
-# 0.6mm pads, land pattern per common IPC practice). Pin NUMBERS 1-56 here are
-# a self-consistent sequential scheme, NOT copied from the real RP2040
-# datasheet pinout table -- cross-check against it before fab.
+# Side rotation now matches the real datasheet pinout diagram (Fig. 3):
+# LEFT=1-14 (top->bottom), BOTTOM=15-28 (left->right), RIGHT=29-42
+# (bottom->top), TOP=43-56 (right->left). An earlier version of this file
+# had all four sides rotated by one position (e.g. treating 1-14 as the
+# bottom side) -- pad SIZE/pitch (0.25 x 0.6mm, 0.4mm pitch) is still a
+# generic IPC-nominal QFN56 land pattern, not copied from Infineon/Raspberry
+# Pi's own land pattern drawing, so verify that specifically before fab.
 def fp_rp2040(ref, x, y, path_uuid, pinnet):
     s = fp_header("kbd:RP2040_QFN56", ref, "RP2040", x, y, 0,
                   ref_at=(0, -4.5), path_uuid=path_uuid, val_at=(0, 4.8))
@@ -565,24 +594,24 @@ def fp_rp2040(ref, x, y, path_uuid, pinnet):
     n_side = 14
     offs = [(-((n_side - 1) / 2) + i) * pitch for i in range(n_side)]
     pin = 1
-    # bottom side (pins 1-14), pads pointing down, numbered left->right
+    # left side (pins 1-14), pads pointing left, numbered top->bottom
+    for oy in offs:
+        b.append(pad(pin, "smd", "rect", -(half_body + pad_len / 2 - 0.15), oy, pad_len, pad_w,
+                     '"F.Cu" "F.Paste" "F.Mask"', pinnet.get(pin)))
+        pin += 1
+    # bottom side (pins 15-28), pads pointing down, numbered left->right
     for ox in offs:
         b.append(pad(pin, "smd", "rect", ox, half_body + pad_len / 2 - 0.15, pad_w, pad_len,
                      '"F.Cu" "F.Paste" "F.Mask"', pinnet.get(pin)))
         pin += 1
-    # right side (pins 15-28), numbered bottom->top
+    # right side (pins 29-42), numbered bottom->top
     for oy in reversed(offs):
         b.append(pad(pin, "smd", "rect", half_body + pad_len / 2 - 0.15, oy, pad_len, pad_w,
                      '"F.Cu" "F.Paste" "F.Mask"', pinnet.get(pin)))
         pin += 1
-    # top side (pins 29-42), numbered right->left
+    # top side (pins 43-56), numbered right->left
     for ox in reversed(offs):
         b.append(pad(pin, "smd", "rect", ox, -(half_body + pad_len / 2 - 0.15), pad_w, pad_len,
-                     '"F.Cu" "F.Paste" "F.Mask"', pinnet.get(pin)))
-        pin += 1
-    # left side (pins 43-56), numbered top->bottom
-    for oy in offs:
-        b.append(pad(pin, "smd", "rect", -(half_body + pad_len / 2 - 0.15), oy, pad_len, pad_w,
                      '"F.Cu" "F.Paste" "F.Mask"', pinnet.get(pin)))
         pin += 1
     # exposed thermal pad (VERIFY exact size against datasheet; ~5x5mm typical for this body)
@@ -1169,31 +1198,39 @@ def build_schematic():
     # ---- RP2040 minimum system: core supply, crystal, QSPI flash ----
     # All coordinates below are multiples of 1.27mm (schematic grid, enforced
     # by g()/sch_text/sch_glabel -- off-grid values raise an assertion).
-    texts.append(sch_text("RP2040 minimum system (core SMPS, 12MHz xtal, QSPI flash)",
+    texts.append(sch_text("RP2040 minimum system (core regulator, 12MHz xtal, QSPI flash)",
                           96.52, 63.5, 3.0))
-    two_pin("L1", "R_kbd", "2.2uH", 96.52, 69.85, "SMPS_SW", "VDD_CORE", R0603)  # VERIFY: inductor, not resistor symbol -- reuses passive footprint
-    two_pin("C9", "C_kbd", "10u", 109.22, 69.85, "VDD_CORE", "GND", C0603)
-    two_pin("C10", "C_kbd", "1u", 96.52, 76.2, "+3V3", "GND", C0603)   # IOVDD bulk
-    two_pin("C11", "C_kbd", "100n", 109.22, 76.2, "+3V3", "GND", C0603)  # IOVDD decoupling
-    two_pin("R9", "R_kbd", "1k", 96.52, 82.55, "RUN", "+3V3", R0603)     # RUN pull-up
-    two_pin("C12", "C_kbd", "100n", 109.22, 82.55, "RUN", "GND", C0603)   # RUN debounce
-    parts.append(sym_inst("XTAL", "Y1", "12MHz", 96.52, 88.9, 0, ["1", "2"], "kbd:XTAL_3225"))
-    labels.append(sch_glabel("XIN", 92.71, 88.9, 180))
-    labels.append(sch_glabel("XOUT", 100.33, 88.9, 0))
-    two_pin("C13", "C_kbd", "18p", 92.71, 95.25, "XIN", "GND", C0603)
-    two_pin("C14", "C_kbd", "18p", 100.33, 95.25, "XOUT", "GND", C0603)
-    parts.append(sym_inst("FLASH_QSPI", "U5", "W25Q16JVUXIQ", 96.52, 101.6, 0,
+    # Core supply per the real RP2040 datasheet's "Core Supply Regulator"
+    # chapter (Fig. 20 application circuit): the on-chip regulator is a
+    # simple linear/LDO type (VREG_VIN -> VREG_VOUT -> DVDD), NOT a buck
+    # converter -- no external inductor. VREG_VIN shares the +3V3 (IOVDD)
+    # rail; VREG_VOUT and both DVDD pins are one net, each needing local
+    # decoupling (1uF at VREG_VOUT, 100nF at each DVDD pin per the datasheet).
+    two_pin("C9", "C_kbd", "1u", 96.52, 69.85, "DVDD", "GND", C0603)      # at VREG_VOUT
+    two_pin("C32", "C_kbd", "100n", 109.22, 69.85, "DVDD", "GND", C0603)  # at DVDD pin 23
+    two_pin("C33", "C_kbd", "100n", 96.52, 76.2, "DVDD", "GND", C0603)    # at DVDD pin 50
+    two_pin("C34", "C_kbd", "1u", 109.22, 76.2, "VREG_VIN", "GND", C0603)
+    two_pin("C10", "C_kbd", "1u", 96.52, 82.55, "+3V3", "GND", C0603)   # IOVDD bulk
+    two_pin("C11", "C_kbd", "100n", 109.22, 82.55, "+3V3", "GND", C0603)  # IOVDD decoupling
+    two_pin("R9", "R_kbd", "1k", 96.52, 88.9, "RUN", "+3V3", R0603)     # RUN pull-up
+    two_pin("C12", "C_kbd", "100n", 109.22, 88.9, "RUN", "GND", C0603)   # RUN debounce
+    parts.append(sym_inst("XTAL", "Y1", "12MHz", 96.52, 95.25, 0, ["1", "2"], "kbd:XTAL_3225"))
+    labels.append(sch_glabel("XIN", 92.71, 95.25, 180))
+    labels.append(sch_glabel("XOUT", 100.33, 95.25, 0))
+    two_pin("C13", "C_kbd", "18p", 92.71, 101.6, "XIN", "GND", C0603)
+    two_pin("C14", "C_kbd", "18p", 102.87, 101.6, "XOUT", "GND", C0603)
+    parts.append(sym_inst("FLASH_QSPI", "U5", "W25Q16JVUXIQ", 96.52, 107.95, 0,
                           ["1","2","3","4","5","6","7","8"], "kbd:FLASH_USON8"))
     # y = center_y - local_pin_y (Y-flip, see U1 comment above)
-    labels.append(sch_glabel("QSPI_SS", 86.36, 97.79, 180))
-    labels.append(sch_glabel("QSPI_SD1", 86.36, 100.33, 180))
-    labels.append(sch_glabel("QSPI_SD2", 86.36, 102.87, 180))
-    labels.append(sch_glabel("GND", 86.36, 105.41, 180))
-    labels.append(sch_glabel("QSPI_SD0", 106.68, 105.41, 0))
-    labels.append(sch_glabel("QSPI_SCLK", 106.68, 102.87, 0))
-    labels.append(sch_glabel("QSPI_SD3", 106.68, 100.33, 0))
-    labels.append(sch_glabel("+3V3", 106.68, 97.79, 0))
-    two_pin("C15", "C_kbd", "100n", 96.52, 107.95, "+3V3", "GND", C0603)
+    labels.append(sch_glabel("QSPI_SS", 86.36, 104.14, 180))
+    labels.append(sch_glabel("QSPI_SD1", 86.36, 106.68, 180))
+    labels.append(sch_glabel("QSPI_SD2", 86.36, 109.22, 180))
+    labels.append(sch_glabel("GND", 86.36, 111.76, 180))
+    labels.append(sch_glabel("QSPI_SD0", 106.68, 111.76, 0))
+    labels.append(sch_glabel("QSPI_SCLK", 106.68, 109.22, 0))
+    labels.append(sch_glabel("QSPI_SD3", 106.68, 106.68, 0))
+    labels.append(sch_glabel("+3V3", 106.68, 104.14, 0))
+    two_pin("C15", "C_kbd", "100n", 96.52, 114.3, "+3V3", "GND", C0603)
 
     # ---- CYW43439 wireless (BLE-only) -- datasheet-verified net plan ----
     # Crystal freq, ball map, BT UART interface and power topology are from
@@ -1252,7 +1289,7 @@ def build_schematic():
     two_pin("C27", "C_kbd", "100n (VERIFY)", 127.0, 154.94, "CYW_BT_VCO_VDD", "GND", C0603)
     two_pin("C28", "C_kbd", "100n (VERIFY)", 127.0, 157.48, "CYW_BTFM_PLL_VDD", "GND", C0603)
     two_pin("C29", "C_kbd", "100n (VERIFY)", 127.0, 160.02, "CYW_BT_IF_VDD", "GND", C0603)
-    two_pin("L3", "R_kbd", "2.2uH", 127.0, 162.56, "CYW_SR_VLX", "CYW_VDD1P5", R0603)  # VERIFY: inductor symbol reuse, see L1
+    two_pin("L3", "R_kbd", "2.2uH", 127.0, 162.56, "CYW_SR_VLX", "CYW_VDD1P5", R0603)  # VERIFY: inductor symbol reuse (R_kbd shape, not a real inductor symbol)
     two_pin("R12", "R_kbd", "22", 127.0, 165.1, "CYW_VOUT_3P3", "CYW_PA_VDD", R0603)
 
     # ---- crystal: 37.4MHz per datasheet sec. 3.1 (default freq ref) ----
@@ -1260,7 +1297,7 @@ def build_schematic():
     labels.append(sch_glabel("CYW_XTAL_XOP", 92.71, 175.26, 180))
     labels.append(sch_glabel("CYW_XTAL_XON", 100.33, 175.26, 0))
     two_pin("C30", "C_kbd", "27p", 92.71, 181.61, "CYW_XTAL_XOP", "GND", C0603)
-    two_pin("C31", "C_kbd", "27p", 100.33, 181.61, "CYW_XTAL_XON_J", "GND", C0603)
+    two_pin("C31", "C_kbd", "27p", 102.87, 181.61, "CYW_XTAL_XON_J", "GND", C0603)
     two_pin("R13", "R_kbd", "0 (ref: Pico W)", 100.33, 187.96,
             "CYW_XTAL_XON", "CYW_XTAL_XON_J", R0603)
 
@@ -1467,10 +1504,15 @@ def build_pcb():
     # the region above/right of U1 that opened up once the wireless section
     # moved to the (previously antenna-only) left edge. Generous spacing to
     # clear U1's and each other's courtyards (verified via analyze_pcb.py).
-    fps.append(fp_0603("L1", "2.2uH", 160.0, 24.5, 0, U("sym", "L1"), "SMPS_SW", "VDD_CORE"))
-    fps.append(fp_0603("C9", "10u", 164.0, 24.5, 0, U("sym", "C9"), "VDD_CORE", "GND"))
-    fps.append(fp_0603("C10", "1u", 168.0, 24.5, 0, U("sym", "C10"), "+3V3", "GND"))
-    fps.append(fp_0603("C11", "100n", 172.0, 24.5, 0, U("sym", "C11"), "+3V3", "GND"))
+    # Core supply per the real RP2040 datasheet (linear/LDO on-chip
+    # regulator, VREG_VIN -> VREG_VOUT -> DVDD -- no external inductor;
+    # see the matching comment in build_schematic for the datasheet basis).
+    fps.append(fp_0603("C9", "1u", 160.0, 24.5, 0, U("sym", "C9"), "DVDD", "GND"))
+    fps.append(fp_0603("C32", "100n", 164.0, 24.5, 0, U("sym", "C32"), "DVDD", "GND"))
+    fps.append(fp_0603("C33", "100n", 168.0, 24.5, 0, U("sym", "C33"), "DVDD", "GND"))
+    fps.append(fp_0603("C34", "1u", 172.0, 24.5, 0, U("sym", "C34"), "VREG_VIN", "GND"))
+    fps.append(fp_0603("C10", "1u", 176.0, 24.5, 0, U("sym", "C10"), "+3V3", "GND"))
+    fps.append(fp_0603("C11", "100n", 180.0, 24.5, 0, U("sym", "C11"), "+3V3", "GND"))
     fps.append(fp_crystal_smd("Y1", "12MHz", 164.0, 30.0, 0, U("sym", "Y1"), "XIN", "XOUT"))
     fps.append(fp_0603("C13", "18p", 161.5, 26.5, 0, U("sym", "C13"), "XIN", "GND"))
     fps.append(fp_0603("C14", "18p", 166.5, 26.5, 0, U("sym", "C14"), "XOUT", "GND"))
@@ -1478,8 +1520,8 @@ def build_pcb():
                          {1: "QSPI_SS", 2: "QSPI_SD1", 3: "QSPI_SD2", 4: "GND",
                           5: "QSPI_SD0", 6: "QSPI_SCLK", 7: "QSPI_SD3", 8: "+3V3"}))
     fps.append(fp_0603("C15", "100n", 172.0, 35.0, 0, U("sym", "C15"), "+3V3", "GND"))
-    fps.append(fp_0603("R9", "1k", 176.0, 24.5, 0, U("sym", "R9"), "RUN", "+3V3"))
-    fps.append(fp_0603("C12", "100n", 180.0, 24.5, 0, U("sym", "C12"), "RUN", "GND"))
+    fps.append(fp_0603("R9", "1k", 184.0, 24.5, 0, U("sym", "R9"), "RUN", "+3V3"))
+    fps.append(fp_0603("C12", "100n", 188.0, 24.5, 0, U("sym", "C12"), "RUN", "GND"))
 
     # RGB level shifter -- also relocated into the freed-up region, still
     # close to U1's RGB_GPIO exit (a left-side pin) via a short trace.

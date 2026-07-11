@@ -14,7 +14,7 @@
   (property "Description" "" (at 0 0 0) (layer "F.Fab") (hide yes) (uuid "c62be956-879c-50dc-91ed-99e6970f1e7f")
     (effects (font (size 1.27 1.27))))
   (attr exclude_from_pos_files exclude_from_bom)
-    (pad "" np_thru_hole circle (at 0 0) (size 2.2 2.2) (drill 2.2) (layers "F&B.Cu" "*.Mask") (uuid "839028e8-7c76-5750-91e3-6982bcd3ea9e"))
+    (pad "" np_thru_hole circle (at 0 0) (size 2.2 2.2) (drill 2.2) (layers "F&B.Cu" "*.Mask") (uuid "f973032c-3b6d-5c0b-88cf-702786531c94"))
     (fp_circle (center 0 0) (end 2.1 0) (stroke (width 0.15) (type solid)) (fill none) (layer "F.SilkS") (uuid "ddf6a057-bec1-5fe4-9b12-ebd62c422b2c"))
     (fp_circle (center 0 0) (end 2.2 0) (stroke (width 0.05) (type solid)) (fill none) (layer "F.CrtYd") (uuid "896736e8-7012-5936-a034-b7668cc78991"))
   )
