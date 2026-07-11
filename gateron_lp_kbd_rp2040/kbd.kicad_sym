@@ -858,6 +858,28 @@
       )
     )
 
+    (symbol "ANT_JOHANSON" (pin_names (offset 0.254)) (exclude_from_sim no) (in_bom yes) (on_board yes)
+      (property "Reference" "ANT" (at 0 2.54 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "2450AT18B100E" (at 0 -2.54 0) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) (hide yes)))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) (hide yes)))
+      (property "Description" "" (at 0 0 0) (effects (font (size 1.27 1.27)) (hide yes)))
+      (symbol "ANT_JOHANSON_0_1"
+        (rectangle (start -5.08 2.54) (end 5.08 -2.54)
+          (stroke (width 0.254) (type default)) (fill (type background)))
+      )
+      (symbol "ANT_JOHANSON_1_1"
+      (pin input line (at -6.35 0 0) (length 2.54)
+        (name "FEED" (effects (font (size 1.27 1.27))))
+        (number "1" (effects (font (size 1.27 1.27))))
+      )
+      (pin no_connect line (at 6.35 0 180) (length 2.54)
+        (name "NC" (effects (font (size 1.27 1.27))))
+        (number "2" (effects (font (size 1.27 1.27))))
+      )
+      )
+    )
+
     (symbol "MCP73831" (pin_names (offset 0.254)) (exclude_from_sim no) (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 2.54 0) (effects (font (size 1.27 1.27))))
       (property "Value" "MCP73831-2ACI/OT" (at 0 -2.54 0) (effects (font (size 1.27 1.27))))

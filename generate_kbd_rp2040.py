@@ -97,6 +97,23 @@ the account's usage cap mid-session). Confidence by section:
     actually has a south-facing light window at the PITCH/2 offset used
     for LED placement -- that requires the switch's own drawing, not this
     LED's datasheet.
+  - Antenna (ANT1, keepout zone): a real, meaningful gap here, not just an
+    unverified value -- an earlier version of this file had an antenna
+    KEEPOUT ZONE but no actual antenna connected to it (WLRF_ANT_MID dead-
+    ended at the DNP C18 with nothing beyond it), and that zone's own rules
+    (pads/footprints not_allowed) would have made it impossible to ever
+    place a real antenna there anyway. Fixed by adding a real, purchasable
+    2.4GHz chip antenna (Johanson 2450AT18B100E, real datasheet, Ver. 4.0
+    2018) inside the (now correctly-scoped) keepout zone, and switching
+    L2/C17's matching values from the Pico W's own reference (which is
+    tuned for a completely different, proprietary PCB-trace antenna, not
+    this chip antenna) to Johanson's own published matching-network
+    reference for this exact part. Remaining VERIFY: the feed trace from
+    L2/C17/C18 to ANT1 isn't drawn yet (this variant ships unrouted by
+    design), and the final matching values still need real RF tuning on
+    this board's own layout -- true of any antenna matching network,
+    confirmed by Johanson's own datasheet explicitly offering a free
+    layout review before fab.
 Search this file for "VERIFY" to find every flagged item.
 
 Files are written in KiCad 8 format, which KiCad 9 opens natively.
@@ -834,6 +851,29 @@ def fp_sk6812mini(ref, x, y, rot, path_uuid, pinnet):
     b.append(fprect(-1.9, -1.7, 1.9, 1.7, "F.CrtYd", 0.05))
     return s + "\n".join(b) + "\n  )\n"
 
+# ---- Johanson 2450AT18B100E, 2.4GHz SMT chip antenna -----------------------
+# Real, purchasable part (Johanson Technology datasheet, Ver. 4.0, 2018):
+# 2400-2500MHz, 50 ohm, 0.5dBi peak gain, 2-terminal (1=FEED, 2=NC). Body
+# L=3.20mm x W=1.60mm x T=1.30mm, terminal width "a"=0.50mm. Added because
+# an earlier version of this file had an antenna KEEPOUT zone but no actual
+# antenna connected to it -- WLRF_ANT_MID dead-ended at the (DNP) matching
+# cap with nothing beyond it. VERIFY: exact pad length/placement is a
+# reasonable IPC-style estimate from the body dims, not a copied land-
+# pattern drawing (Johanson's own datasheet doesn't publish one -- it
+# offers a free layout review instead, which is worth using before fab).
+def fp_antenna_johanson(ref, x, y, rot, path_uuid, n_feed):
+    s = fp_header("kbd:ANT_JOHANSON_2450AT18B100", ref, "2450AT18B100E", x, y, rot,
+                  ref_at=(0, -1.3), path_uuid=path_uuid, val_at=(0, 1.3))
+    b = []
+    b.append(pad(1, "smd", "rect", -1.35, 0, 0.7, 1.4,
+                 '"F.Cu" "F.Paste" "F.Mask"', n_feed, rot=rot))
+    b.append(pad(2, "smd", "rect", 1.35, 0, 0.7, 1.4,
+                 '"F.Cu" "F.Paste" "F.Mask"', None, rot=rot))  # NC per datasheet
+    b.append(fprect(-1.6, -0.8, 1.6, 0.8, "F.Fab"))
+    b.append(fpline(-1.9, -1.0, -1.3, -1.0, "F.SilkS"))  # pin 1 (FEED) mark
+    b.append(fprect(-1.9, -1.05, 1.9, 1.05, "F.CrtYd", 0.05))
+    return s + "\n".join(b) + "\n  )\n"
+
 # ============================================================ SCHEMATIC ====
 GRID = 1.27
 def g(v):   # snap-assert to schematic grid
@@ -1088,6 +1128,10 @@ def build_lib_symbols():
         ("power_in", -8.89, -2.54, 0, "GND", 3),
         ("output", 8.89, 2.54, 180, "DOUT", 2),
         ("power_in", 8.89, -2.54, 180, "VDD", 1)]))
+    # --- 2.4GHz chip antenna (Johanson 2450AT18B100E): 1=FEED, 2=NC ---
+    L.append(boxsym("ANT_JOHANSON", "ANT", "2450AT18B100E", 10.16, [
+        ("input", -6.35, 0, 0, "FEED", 1),
+        ("no_connect", 6.35, 0, 180, "NC", 2)]))
 
     # --- MCP73831 (SOT-23-5): 1 STAT 2 VSS 3 VBAT 4 VDD 5 PROG ---
     L.append(boxsym("MCP73831", "U", "MCP73831-2ACI/OT", 15.24, [
@@ -1360,23 +1404,31 @@ def build_schematic():
     # antenna matching pi-network -- values now grounded in Raspberry Pi's
     # own public Pico W hardware design files (RPi-PicoW-PUBLIC-20220607.zip,
     # RPI-PICOW-R2.DSN), which uses the same CYW43439/BCM43438 die and a
-    # 37.4MHz crystal (confirms this file's Y2). That BOM shows a 4.7nH 0603
-    # chip inductor (CML0306-4N7-H-NH) plus a small C0G chip cap selected
-    # from a documented "BOM Variants" family spanning 0.2/0.3/0.36/0.5/0.8/
-    # 1.3/2.0pF (Murata GJM1555C1H series) -- i.e. even Raspberry Pi's own
-    # production board doesn't use one fixed universal value here; the exact
-    # pF is chosen per their specific PCB trace/antenna during RF
-    # characterization. L2=4.7nH and C17=1pF below are that same real
-    # component family/footprint as a much better-grounded starting point
-    # than an arbitrary guess, but the final pF still needs empirical tuning
-    # for THIS board's own antenna/trace -- C18 is left DNP (the Pico W BOM
-    # also has unpopulated "NO FIT" positions in this same network), i.e.
-    # start as an L-match and only populate the second shunt cap if the
-    # tuned network needs a pi rather than an L topology.
-    two_pin("L2", "R_kbd", "4.7nH (ref: Pico W)", 96.52, 194.31, "WLRF_ANT", "WLRF_ANT_MID", "kbd:RC_0201")
-    two_pin("C17", "C_kbd", "1p (VERIFY, tune 0.2-2p)", 90.17, 196.85, "WLRF_ANT", "GND", "kbd:RC_0402")
+    # 37.4MHz crystal (confirms this file's Y2). Raspberry Pi's own BOM
+    # there shows a 4.7nH 0603 chip inductor plus a small C0G chip cap
+    # selected from a documented "BOM Variants" family spanning
+    # 0.2/0.3/0.36/0.5/0.8/1.3/2.0pF (Murata GJM1555C1H series) -- i.e. even
+    # Raspberry Pi's own production board doesn't use one fixed universal
+    # value here; the exact pF is chosen per their specific PCB
+    # trace/antenna during RF characterization. But that reference pairs
+    # the CYW43439 with Abracon/Proant's own proprietary PCB-trace antenna
+    # (undocumented geometry) -- this design instead terminates in a real,
+    # purchasable chip antenna (Johanson 2450AT18B100E, see
+    # fp_antenna_johanson), so L2/C17 below use JOHANSON'S OWN published
+    # reference matching values for that exact antenna (datasheet Ver. 4.0,
+    # "Mounting Considerations": 2.7nH series inductor + 1.2pF shunt cap,
+    # against a 50-ohm source) as the better-grounded starting point. C18
+    # stays DNP as a second tuning element (their reference circuit uses a
+    # 2nd series inductor rather than a 2nd shunt cap -- topology, not just
+    # values, will need real RF tuning on this board's own layout either way).
+    two_pin("L2", "R_kbd", "2.7nH (ref: Johanson)", 96.52, 194.31, "WLRF_ANT", "WLRF_ANT_MID", "kbd:RC_0201")
+    two_pin("C17", "C_kbd", "1.2p (ref: Johanson)", 90.17, 196.85, "WLRF_ANT", "GND", "kbd:RC_0402")
     two_pin("C18", "C_kbd", "DNP (VERIFY, tune)", 102.87, 196.85, "WLRF_ANT_MID", "GND", "kbd:RC_0402")
     labels.append(sch_glabel("WLRF_ANT_MID", 96.52, 200.66, 270))
+    parts.append(sym_inst("ANT_JOHANSON", "ANT1", "2450AT18B100E", 96.52, 205.74, 0,
+                          ["1", "2"], "kbd:ANT_JOHANSON_2450AT18B100"))
+    labels.append(sch_glabel("WLRF_ANT_MID", 90.17, 205.74, 180))
+    ncs.append(sch_nc(102.87, 205.74))
 
     # ---- per-key RGB chain (59x SK6812MINI-E) ----
     texts.append(sch_text("Per-key RGB -- SK6812MINI-E x59, serpentine chain "
@@ -1600,9 +1652,13 @@ def build_pcb():
     fps.append(fp_0603("C31", "27p", 58.0, 30.0, 0, U("sym", "C31"), "CYW_XTAL_XON_J", "GND"))
     fps.append(fp_0603("R13", "0 (ref: Pico W)", 62.0, 30.0, 0, U("sym", "R13"),
                        "CYW_XTAL_XON", "CYW_XTAL_XON_J"))
-    fps.append(fp_0201("L2", "4.7nH (ref: Pico W)", 45.0, 34.5, 90, U("sym", "L2"), "WLRF_ANT", "WLRF_ANT_MID"))
-    fps.append(fp_0402("C17", "1p (VERIFY, tune 0.2-2p)", 49.0, 34.5, 0, U("sym", "C17"), "WLRF_ANT", "GND"))
+    fps.append(fp_0201("L2", "2.7nH (ref: Johanson)", 45.0, 34.5, 90, U("sym", "L2"), "WLRF_ANT", "WLRF_ANT_MID"))
+    fps.append(fp_0402("C17", "1.2p (ref: Johanson)", 49.0, 34.5, 0, U("sym", "C17"), "WLRF_ANT", "GND"))
     fps.append(fp_0402("C18", "DNP (VERIFY, tune)", 53.0, 34.5, 0, U("sym", "C18"), "WLRF_ANT_MID", "GND"))
+    # Real antenna, placed inside the antenna_keepout zone (below, y 22-26)
+    # rather than leaving that zone empty -- see the file header and the
+    # build_schematic comment above for why this specific part.
+    fps.append(fp_antenna_johanson("ANT1", 45.0, 24.5, 0, U("sym", "ANT1"), "WLRF_ANT_MID"))
     fps.append(fp_0603("C20", "4.7u", 58.0, 34.5, 0, U("sym", "C20"), "CYW_VDD1P5", "GND"))
     fps.append(fp_0603("C21", "100n", 62.0, 34.5, 0, U("sym", "C21"), "CYW_XTAL_VDD1P2", "GND"))
     fps.append(fp_0603("C22", "2.2u", 66.0, 34.5, 0, U("sym", "C22"), "CYW_VOUT_CLDO", "GND"))
@@ -1691,10 +1747,16 @@ def build_pcb():
     if os.path.exists(tp):
         tracks = open(tp).read()
     ax, ay = 45.0, 30.0   # CYW43439 position: antenna keepout above it (y 22-26), clear of L2/C17/C18 at y=34.5
+    # This zone now holds a real antenna (ANT1, see fp_antenna_johanson) --
+    # so it must NOT forbid pads/footprints/tracks (an earlier version did,
+    # which would have made it impossible to ever place or route an actual
+    # antenna here). Real antenna keepouts keep the GROUND PLANE/POUR and
+    # stitching VIAS away (both would detune the antenna); they don't
+    # forbid the antenna's own footprint or its feed trace.
     zones = f'''  (zone (net 0) (net_name "") (layers "F.Cu" "B.Cu") (uuid "{NU("antzone")}") (name "antenna_keepout") (hatch edge 0.508)
     (connect_pads (clearance 0))
     (min_thickness 0.254) (filled_areas_thickness no)
-    (keepout (tracks not_allowed) (vias not_allowed) (pads not_allowed) (copperpour not_allowed) (footprints not_allowed))
+    (keepout (tracks allowed) (vias not_allowed) (pads allowed) (copperpour not_allowed) (footprints allowed))
     (fill (thermal_gap 0.508) (thermal_bridge_width 0.508))
     (polygon (pts (xy {ax-7:g} {ay-4.0:g}) (xy {ax-7:g} {BOARD["y1"]}) (xy {ax+7:g} {BOARD["y1"]}) (xy {ax+7:g} {ay-4.0:g})))
   )
@@ -1884,6 +1946,7 @@ def export_libs():
         ("XTAL_3225", fp_crystal_smd("REF**", "XTAL", 0, 0, 0, None, None, None)),
         ("CYW43439_WLBGA63", fp_cyw43439("REF**", 0, 0, None, empty)),
         ("SK6812MINI_E", fp_sk6812mini("REF**", 0, 0, 0, None, empty)),
+        ("ANT_JOHANSON_2450AT18B100", fp_antenna_johanson("REF**", 0, 0, 0, None, None)),
     ]
     for name, body in items:
         # strip instance placement, keep local geometry; body starts with header
