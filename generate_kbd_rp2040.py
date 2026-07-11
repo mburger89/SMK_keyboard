@@ -31,13 +31,19 @@ the account's usage cap mid-session). Confidence by section:
     wired over its own dedicated 4-wire UART per datasheet sec. 9.2 -- NOT
     the WLAN SDIO/gSPI bus the original placeholder guessed. This variant is
     BLE-only, so WLAN is left permanently in reset (WL_REG_ON -> GND) and its
-    SDIO/gSPI bus and GPIOs are unconnected. Remaining VERIFY items: (1) RF
-    antenna-matching component values -- the datasheet itself defers these to
-    "reference schematics" (vendor/antenna-specific, not resolvable from the
-    datasheet alone); (2) the crystal's series-resistor value (datasheet:
-    "determined by crystal drive level"); (3) several internal-rail
-    decoupling cap values marked VERIFY where the datasheet's power-topology
-    figures didn't give an explicit number for that specific ball.
+    SDIO/gSPI bus and GPIOs are unconnected. The RF antenna-matching network
+    (L2/C17/C18) and crystal load caps (C30/C31) are now cross-checked
+    against Raspberry Pi's own public Pico W hardware design files
+    (RPi-PicoW-PUBLIC-20220607.zip, RPI-PICOW-R2.DSN -- same CYW43439 die,
+    confirms 37.4MHz and gives real component families: 4.7nH match
+    inductor, 27pF crystal load caps, a documented 0.2-2pF tuning-cap
+    family). Remaining VERIFY items: (1) the antenna network's final
+    capacitor value -- even Raspberry Pi's own BOM shows this as an
+    empirically-tuned per-board/per-antenna variant, not one fixed number,
+    so it still needs real tuning on THIS board's own antenna/trace; (2) the
+    crystal's series-resistor value (datasheet: "determined by crystal drive
+    level"); (3) a few internal-rail decoupling cap values marked VERIFY
+    where neither source gave an explicit number for that specific ball.
   - RGB chain (level shifter, decoupling, series resistor, power budget):
     MEDIUM-HIGH confidence, standard WS2812-family practice.
 Search this file for "VERIFY" to find every flagged item.
@@ -1202,18 +1208,30 @@ def build_schematic():
     parts.append(sym_inst("XTAL", "Y2", "37.4MHz", 96.52, 175.26, 0, ["1", "2"], "kbd:XTAL_3225"))
     labels.append(sch_glabel("CYW_XTAL_XOP", 92.71, 175.26, 180))
     labels.append(sch_glabel("CYW_XTAL_XON", 100.33, 175.26, 0))
-    two_pin("C30", "C_kbd", "18p", 92.71, 181.61, "CYW_XTAL_XOP", "GND", C0603)
-    two_pin("C31", "C_kbd", "18p", 100.33, 181.61, "CYW_XTAL_XON_J", "GND", C0603)
+    two_pin("C30", "C_kbd", "27p", 92.71, 181.61, "CYW_XTAL_XOP", "GND", C0603)
+    two_pin("C31", "C_kbd", "27p", 100.33, 181.61, "CYW_XTAL_XON_J", "GND", C0603)
     two_pin("R13", "R_kbd", "0 (VERIFY per xtal drive level)", 100.33, 187.96,
             "CYW_XTAL_XON", "CYW_XTAL_XON_J", R0603)
 
-    # antenna matching pi-network -- VERIFY: values are placeholders (DNP),
-    # topology (series L, shunt C x2) is common practice but needs tuning
-    # against the real antenna/CYW43439 RF output impedance (datasheet
-    # explicitly defers this to "reference schematics", i.e. vendor-specific).
-    two_pin("L2", "R_kbd", "DNP (VERIFY)", 96.52, 194.31, "WLRF_ANT", "WLRF_ANT_MID", R0603)
-    two_pin("C17", "C_kbd", "DNP (VERIFY)", 90.17, 196.85, "WLRF_ANT", "GND", C0603)
-    two_pin("C18", "C_kbd", "DNP (VERIFY)", 102.87, 196.85, "WLRF_ANT_MID", "GND", C0603)
+    # antenna matching pi-network -- values now grounded in Raspberry Pi's
+    # own public Pico W hardware design files (RPi-PicoW-PUBLIC-20220607.zip,
+    # RPI-PICOW-R2.DSN), which uses the same CYW43439/BCM43438 die and a
+    # 37.4MHz crystal (confirms this file's Y2). That BOM shows a 4.7nH 0603
+    # chip inductor (CML0306-4N7-H-NH) plus a small C0G chip cap selected
+    # from a documented "BOM Variants" family spanning 0.2/0.3/0.36/0.5/0.8/
+    # 1.3/2.0pF (Murata GJM1555C1H series) -- i.e. even Raspberry Pi's own
+    # production board doesn't use one fixed universal value here; the exact
+    # pF is chosen per their specific PCB trace/antenna during RF
+    # characterization. L2=4.7nH and C17=1pF below are that same real
+    # component family/footprint as a much better-grounded starting point
+    # than an arbitrary guess, but the final pF still needs empirical tuning
+    # for THIS board's own antenna/trace -- C18 is left DNP (the Pico W BOM
+    # also has unpopulated "NO FIT" positions in this same network), i.e.
+    # start as an L-match and only populate the second shunt cap if the
+    # tuned network needs a pi rather than an L topology.
+    two_pin("L2", "R_kbd", "4.7nH (ref: Pico W)", 96.52, 194.31, "WLRF_ANT", "WLRF_ANT_MID", R0603)
+    two_pin("C17", "C_kbd", "1p (VERIFY, tune 0.2-2p)", 90.17, 196.85, "WLRF_ANT", "GND", C0603)
+    two_pin("C18", "C_kbd", "DNP (VERIFY, tune)", 102.87, 196.85, "WLRF_ANT_MID", "GND", C0603)
     labels.append(sch_glabel("WLRF_ANT_MID", 96.52, 200.66, 270))
 
     # ---- per-key RGB chain (59x SK6812MINI-E) ----
@@ -1429,13 +1447,13 @@ def build_pcb():
     fps.append(fp_cyw43439("U6", 45.0, 30.0, U("sym", "U6"), cyw_pinnet()))
     fps.append(fp_crystal_smd("Y2", "37.4MHz", 50.0, 30.0, 0, U("sym", "Y2"),
                               "CYW_XTAL_XOP", "CYW_XTAL_XON"))
-    fps.append(fp_0603("C30", "18p", 54.0, 30.0, 0, U("sym", "C30"), "CYW_XTAL_XOP", "GND"))
-    fps.append(fp_0603("C31", "18p", 58.0, 30.0, 0, U("sym", "C31"), "CYW_XTAL_XON_J", "GND"))
+    fps.append(fp_0603("C30", "27p", 54.0, 30.0, 0, U("sym", "C30"), "CYW_XTAL_XOP", "GND"))
+    fps.append(fp_0603("C31", "27p", 58.0, 30.0, 0, U("sym", "C31"), "CYW_XTAL_XON_J", "GND"))
     fps.append(fp_0603("R13", "0 (VERIFY)", 62.0, 30.0, 0, U("sym", "R13"),
                        "CYW_XTAL_XON", "CYW_XTAL_XON_J"))
-    fps.append(fp_0603("L2", "DNP (VERIFY)", 45.0, 34.5, 90, U("sym", "L2"), "WLRF_ANT", "WLRF_ANT_MID"))
-    fps.append(fp_0603("C17", "DNP (VERIFY)", 49.0, 34.5, 0, U("sym", "C17"), "WLRF_ANT", "GND"))
-    fps.append(fp_0603("C18", "DNP (VERIFY)", 53.0, 34.5, 0, U("sym", "C18"), "WLRF_ANT_MID", "GND"))
+    fps.append(fp_0603("L2", "4.7nH (ref: Pico W)", 45.0, 34.5, 90, U("sym", "L2"), "WLRF_ANT", "WLRF_ANT_MID"))
+    fps.append(fp_0603("C17", "1p (VERIFY, tune 0.2-2p)", 49.0, 34.5, 0, U("sym", "C17"), "WLRF_ANT", "GND"))
+    fps.append(fp_0603("C18", "DNP (VERIFY, tune)", 53.0, 34.5, 0, U("sym", "C18"), "WLRF_ANT_MID", "GND"))
     fps.append(fp_0603("C20", "4.7u", 58.0, 34.5, 0, U("sym", "C20"), "CYW_VDD1P5", "GND"))
     fps.append(fp_0603("C21", "100n", 62.0, 34.5, 0, U("sym", "C21"), "CYW_XTAL_VDD1P2", "GND"))
     fps.append(fp_0603("C22", "2.2u", 66.0, 34.5, 0, U("sym", "C22"), "CYW_VOUT_CLDO", "GND"))
