@@ -62,6 +62,17 @@ the account's usage cap mid-session). Confidence by section:
     needs real tuning on THIS board's own antenna/trace; and a few
     internal-rail decoupling cap values marked VERIFY where neither source
     gave an explicit number for that specific ball.
+  - QSPI flash (U5, W25Q16JVUXIQ): HIGH confidence -- this is the exact part
+    Raspberry Pi's own Pico (RP2040's reference board) uses, confirmed
+    against the official Winbond W25Q16JV datasheet (Rev G). Pin mapping
+    (CS/DO-IO1/WP-IO2/GND/DI-IO0/CLK/HOLD-IO3/VCC) already matched the real
+    pinout exactly. The footprint's body/pad dimensions were corrected to
+    the datasheet's real USON-8 2x3x0.6mm land pattern (Section 11.4) --
+    an earlier version used placeholder dimensions with the wrong aspect
+    ratio. The "UXIQ" suffix decodes per the datasheet's ordering-code
+    diagram: UX=8-pad USON 2x3mm package, I=industrial temp range,
+    Q=green/RoHS package option -- a validly-constructed, real orderable
+    part number, not just a plausible-looking guess.
   - RGB chain (level shifter, decoupling, series resistor, power budget):
     MEDIUM-HIGH confidence, standard WS2812-family practice.
 Search this file for "VERIFY" to find every flagged item.
@@ -627,19 +638,26 @@ def fp_rp2040(ref, x, y, path_uuid, pinnet):
 # VERIFY: package dims are a placeholder (approximating a small SOIC-8/
 # USON-8 style land pattern); confirm against the exact flash MPN chosen.
 def fp_flash8(ref, x, y, rot, path_uuid, pinnet):
+    # Dimensions transcribed from the real Winbond W25Q16JV datasheet
+    # (Section 11.4, "8-Pad USON 2x3x0.6-mm (Package Code UX)"): body
+    # 3.00 x 2.00mm nominal (D x E), 0.5mm pin pitch, pad width 0.25mm (b),
+    # pad length 0.45mm (L) -- not the placeholder dims an earlier version
+    # of this file used (which were too small/wrong aspect ratio).
     s = fp_header("kbd:FLASH_USON8", ref, "W25Q16JVUXIQ", x, y, rot,
                   ref_at=(0, -2.2), path_uuid=path_uuid, val_at=(0, 2.2))
     b = []
     ys = [-0.75, -0.25, 0.25, 0.75]
+    pad_len, pad_w = 0.45, 0.25
+    pad_x = 1.275  # D/2 - pad_len/2 = 1.5 - 0.225
     for i, py in enumerate(ys, start=1):
-        b.append(pad(i, "smd", "rect", -1.35, py, 0.9, 0.25,
+        b.append(pad(i, "smd", "rect", -pad_x, py, pad_len, pad_w,
                      '"F.Cu" "F.Paste" "F.Mask"', pinnet.get(i), rot=rot))
     for i, py in enumerate(reversed(ys), start=5):
-        b.append(pad(i, "smd", "rect", 1.35, py, 0.9, 0.25,
+        b.append(pad(i, "smd", "rect", pad_x, py, pad_len, pad_w,
                      '"F.Cu" "F.Paste" "F.Mask"', pinnet.get(i), rot=rot))
-    b.append(fprect(-1.0, -0.9, 1.0, 0.9, "F.Fab"))
-    b.append(fpline(-1.5, -1.05, -0.8, -1.05, "F.SilkS"))
-    b.append(fprect(-2.0, -1.4, 2.0, 1.4, "F.CrtYd", 0.05))
+    b.append(fprect(-1.5, -1.0, 1.5, 1.0, "F.Fab"))
+    b.append(fpline(-1.8, -1.15, -1.0, -1.15, "F.SilkS"))
+    b.append(fprect(-1.8, -1.3, 1.8, 1.3, "F.CrtYd", 0.05))
     return s + "\n".join(b) + "\n  )\n"
 
 # ---- 2-pin crystal, small SMD (e.g. 3.2x2.5mm) -----------------------------
