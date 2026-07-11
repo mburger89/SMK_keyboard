@@ -85,6 +85,18 @@ the account's usage cap mid-session). Confidence by section:
     and specs a narrower 4.5-5.5V range that VSYS can drop below on
     battery. Decoupling/series resistor/power budget: MEDIUM-HIGH
     confidence, standard WS2812-family practice.
+    LED (SK6812MINI-E, D1-D59): HIGH confidence -- confirmed against the
+    real manufacturer datasheet (Dongguan Opsco Optoelectronics, Document
+    SPC/SK6812MINI-E Rev. 02). Body is 3.2 x 2.8mm (an earlier version of
+    this footprint modeled it as a 3.2x3.2 square) and, more importantly,
+    pins 2 (DOUT) and 4 (DIN) were at swapped physical corners -- a bug
+    invisible to the netlist (this script's own pin-to-net mapping was
+    self-consistent either way) that would have put DOUT/DIN on the wrong
+    physical pads with a real part soldered down. Both fixed. Still
+    unverified: whether the Gateron KS-33's real mechanical drawing
+    actually has a south-facing light window at the PITCH/2 offset used
+    for LED placement -- that requires the switch's own drawing, not this
+    LED's datasheet.
 Search this file for "VERIFY" to find every flagged item.
 
 Files are written in KiCad 8 format, which KiCad 9 opens natively.
@@ -797,21 +809,29 @@ def fp_cyw43439(ref, x, y, path_uuid, pinnet):
 
 # ---- SK6812MINI-E per-key RGB LED (4-pad: VDD, DOUT, GND, DIN) -------------
 def fp_sk6812mini(ref, x, y, rot, path_uuid, pinnet):
-    # VERIFY: kept deliberately tight -- adjacent switch courtyards at this
-    # board's 19.05mm pitch leave only a ~4.05mm gap between rows (7mm
-    # switch half-body + 7.5mm courtyard vs. 19.05mm pitch), so this
-    # footprint's courtyard must stay under that or DRC will flag overlap.
-    # Confirm the real SK6812MINI-E package outline before fab.
+    # Confirmed against the real manufacturer datasheet (Dongguan Opsco
+    # Optoelectronics, Document SPC/SK6812MINI-E Rev. 02): body 3.2 x 2.8mm
+    # (was modeled as a 3.2x3.2 square -- corrected to the real, non-square
+    # aspect ratio), and pin layout is 1=VDD (top-left), 2=DOUT
+    # (bottom-left), 3=GND (bottom-right), 4=DIN (top-right) -- an earlier
+    # version of this footprint had pins 2 and 4 at swapped corners
+    # (2 at top-right, 4 at bottom-left). That bug was invisible to the
+    # netlist (this script's own pin-to-net mapping was self-consistent
+    # either way) but would have put DOUT/DIN on the wrong physical pads
+    # once real parts were soldered down. Kept deliberately tight in Y:
+    # adjacent switch courtyards at this board's 19.05mm pitch leave only
+    # a ~4.05mm gap between rows (7mm switch half-body + 7.5mm courtyard
+    # vs. 19.05mm pitch).
     s = fp_header("kbd:SK6812MINI_E", ref, "SK6812MINI-E", x, y, rot,
                   ref_at=(0, -2.0), path_uuid=path_uuid, val_at=(0, 2.0))
     b = []
-    corners = [(1, -1.1, -1.1), (2, 1.1, -1.1), (3, 1.1, 1.1), (4, -1.1, 1.1)]
+    corners = [(1, -1.1, -1.1), (2, -1.1, 1.1), (3, 1.1, 1.1), (4, 1.1, -1.1)]
     for n, px, py in corners:
         b.append(pad(n, "smd", "rect", px, py, 0.6, 0.6,
                      '"F.Cu" "F.Paste" "F.Mask"', pinnet.get(n), rot=rot))
-    b.append(fprect(-1.6, -1.6, 1.6, 1.6, "F.Fab"))
-    b.append(fpline(-1.85, -1.85, -1.3, -1.85, "F.SilkS"))  # pin 1 corner mark
-    b.append(fprect(-1.9, -1.9, 1.9, 1.9, "F.CrtYd", 0.05))
+    b.append(fprect(-1.6, -1.4, 1.6, 1.4, "F.Fab"))
+    b.append(fpline(-1.9, -1.65, -1.3, -1.65, "F.SilkS"))  # pin 1 corner mark
+    b.append(fprect(-1.9, -1.7, 1.9, 1.7, "F.CrtYd", 0.05))
     return s + "\n".join(b) + "\n  )\n"
 
 # ============================================================ SCHEMATIC ====
