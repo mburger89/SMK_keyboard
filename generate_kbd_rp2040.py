@@ -114,6 +114,29 @@ the account's usage cap mid-session). Confidence by section:
     this board's own layout -- true of any antenna matching network,
     confirmed by Johanson's own datasheet explicitly offering a free
     layout review before fab.
+    ANTENNA FEED TRACE -- ROUTING REQUIREMENT (calculated, not a guess):
+    this board's actual stackup is 1.6mm, 2-layer FR4, 1oz copper (both
+    confirmed in this file -- `(general (thickness 1.6))` in build_pcb, and
+    only F.Cu/B.Cu declared in the layer table). Solving the standard
+    Hammerstad-Jensen microstrip equations for 50 ohm on that stackup
+    (er~4.3-4.5) gives a required trace width of ~3.0mm -- NOT the thin
+    (~0.2-0.3mm) traces used for this board's digital signals, which on
+    this same stackup would present ~125-140 ohm, a severe mismatch right
+    at the antenna feed. Whoever routes this board (route_kbd.py or manual
+    KiCad routing) must use a ~3mm-wide trace from U1's WLRF_2G_RF-fed net
+    through L2/C17/C18 to ANT1's FEED pin, with a continuous, unbroken
+    ground-plane reference on the opposite copper layer along its entire
+    length outside the antenna_keepout zone (inside that zone there's
+    intentionally no ground reference, by design, right up to the antenna
+    itself -- standard practice, not an oversight). Secondary consideration
+    for the same routing pass: U6's ball K1 (WLRF_2G_RF) sits on the SOUTH
+    side of the chip (y=31.4) while ANT1 sits north of it (y=24.5) and L2
+    sits further south still (y=34.5) -- the feed trace will have to jog
+    around U6's own footprint rather than running in a straight line. At
+    2.4GHz in this dielectric (er_eff~3.3), one wavelength is ~69mm, so a
+    few mm of extra jog is a small fraction of a wavelength and not
+    expected to be a functional blocker, but minimizing it is worth doing
+    when real copper gets drawn.
 Search this file for "VERIFY" to find every flagged item.
 
 Files are written in KiCad 8 format, which KiCad 9 opens natively.
@@ -1652,6 +1675,13 @@ def build_pcb():
     fps.append(fp_0603("C31", "27p", 58.0, 30.0, 0, U("sym", "C31"), "CYW_XTAL_XON_J", "GND"))
     fps.append(fp_0603("R13", "0 (ref: Pico W)", 62.0, 30.0, 0, U("sym", "R13"),
                        "CYW_XTAL_XON", "CYW_XTAL_XON_J"))
+    # ROUTING NOTE for whoever routes U6-K1 -> L2 -> C17 -> C18 -> ANT1:
+    # this trace needs to be ~3.0mm wide for 50-ohm on this board's real
+    # 1.6mm/2-layer/1oz stackup (calculated via Hammerstad-Jensen, not a
+    # guess -- see the file header "ANTENNA FEED TRACE" section), with an
+    # unbroken ground reference on the opposite layer outside the
+    # antenna_keepout zone. NOT the thin digital-signal trace width used
+    # elsewhere on this board.
     fps.append(fp_0201("L2", "2.7nH (ref: Johanson)", 45.0, 34.5, 90, U("sym", "L2"), "WLRF_ANT", "WLRF_ANT_MID"))
     fps.append(fp_0402("C17", "1.2p (ref: Johanson)", 49.0, 34.5, 0, U("sym", "C17"), "WLRF_ANT", "GND"))
     fps.append(fp_0402("C18", "DNP (VERIFY, tune)", 53.0, 34.5, 0, U("sym", "C18"), "WLRF_ANT_MID", "GND"))
