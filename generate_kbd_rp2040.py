@@ -35,15 +35,21 @@ the account's usage cap mid-session). Confidence by section:
     (L2/C17/C18) and crystal load caps (C30/C31) are now cross-checked
     against Raspberry Pi's own public Pico W hardware design files
     (RPi-PicoW-PUBLIC-20220607.zip, RPI-PICOW-R2.DSN -- same CYW43439 die,
-    confirms 37.4MHz and gives real component families: 4.7nH match
-    inductor, 27pF crystal load caps, a documented 0.2-2pF tuning-cap
-    family). Remaining VERIFY items: (1) the antenna network's final
-    capacitor value -- even Raspberry Pi's own BOM shows this as an
-    empirically-tuned per-board/per-antenna variant, not one fixed number,
-    so it still needs real tuning on THIS board's own antenna/trace; (2) the
-    crystal's series-resistor value (datasheet: "determined by crystal drive
-    level"); (3) a few internal-rail decoupling cap values marked VERIFY
-    where neither source gave an explicit number for that specific ball.
+    confirms 37.4MHz). C30/C31 (crystal load caps, 27pF) and R13 (crystal
+    series resistor, 0R) are both confirmed against clean reference-
+    designator-level evidence in that file (C257/C258 map 1:1 to the 27pF
+    footprint -- exactly the pair a crystal load network needs -- and a 0R
+    chip resistor sits on the same net as the wireless chip's crystal clock
+    line; 27pF externals also work out to a physically sensible ~15.5-18.5pF
+    effective load capacitance with typical PCB/pin stray, matching a
+    standard-CL crystal). L2 (4.7nH match inductor) is likewise a confirmed
+    real component family. Remaining VERIFY item: the antenna network's
+    final capacitor value (C17, nominally 1pF here) -- even Raspberry Pi's
+    own BOM shows this as an empirically-tuned per-board/per-antenna
+    variant picked from a 0.2-2pF family, not one fixed number, so it still
+    needs real tuning on THIS board's own antenna/trace; and a few
+    internal-rail decoupling cap values marked VERIFY where neither source
+    gave an explicit number for that specific ball.
   - RGB chain (level shifter, decoupling, series resistor, power budget):
     MEDIUM-HIGH confidence, standard WS2812-family practice.
 Search this file for "VERIFY" to find every flagged item.
@@ -1255,7 +1261,7 @@ def build_schematic():
     labels.append(sch_glabel("CYW_XTAL_XON", 100.33, 175.26, 0))
     two_pin("C30", "C_kbd", "27p", 92.71, 181.61, "CYW_XTAL_XOP", "GND", C0603)
     two_pin("C31", "C_kbd", "27p", 100.33, 181.61, "CYW_XTAL_XON_J", "GND", C0603)
-    two_pin("R13", "R_kbd", "0 (VERIFY per xtal drive level)", 100.33, 187.96,
+    two_pin("R13", "R_kbd", "0 (ref: Pico W)", 100.33, 187.96,
             "CYW_XTAL_XON", "CYW_XTAL_XON_J", R0603)
 
     # antenna matching pi-network -- values now grounded in Raspberry Pi's
@@ -1494,7 +1500,7 @@ def build_pcb():
                               "CYW_XTAL_XOP", "CYW_XTAL_XON"))
     fps.append(fp_0603("C30", "27p", 54.0, 30.0, 0, U("sym", "C30"), "CYW_XTAL_XOP", "GND"))
     fps.append(fp_0603("C31", "27p", 58.0, 30.0, 0, U("sym", "C31"), "CYW_XTAL_XON_J", "GND"))
-    fps.append(fp_0603("R13", "0 (VERIFY)", 62.0, 30.0, 0, U("sym", "R13"),
+    fps.append(fp_0603("R13", "0 (ref: Pico W)", 62.0, 30.0, 0, U("sym", "R13"),
                        "CYW_XTAL_XON", "CYW_XTAL_XON_J"))
     fps.append(fp_0201("L2", "4.7nH (ref: Pico W)", 45.0, 34.5, 90, U("sym", "L2"), "WLRF_ANT", "WLRF_ANT_MID"))
     fps.append(fp_0402("C17", "1p (VERIFY, tune 0.2-2p)", 49.0, 34.5, 0, U("sym", "C17"), "WLRF_ANT", "GND"))

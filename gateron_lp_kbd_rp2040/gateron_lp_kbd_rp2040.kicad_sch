@@ -2985,7 +2985,7 @@
     (exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced yes)
     (uuid "41749204-3fbe-57b0-9500-8ed96032b0ea")
     (property "Reference" "R13" (at 100.33 182.88 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "0 (VERIFY per xtal drive level)" (at 100.33 193.04 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "0 (ref: Pico W)" (at 100.33 193.04 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "kbd:RC_0603" (at 100.33 187.96 0) (effects (font (size 1.27 1.27)) (hide yes)))
     (property "Datasheet" "~" (at 100.33 187.96 0) (effects (font (size 1.27 1.27)) (hide yes)))
     (property "Description" "" (at 100.33 187.96 0) (effects (font (size 1.27 1.27)) (hide yes)))

@@ -4498,7 +4498,7 @@
   (property "Reference" "R13" (at 0 -1.5 0) (layer "F.SilkS") (uuid "b463b592-59ff-5598-9c90-902a91384e90")
     (effects (font (size 1 1) (thickness 0.15)))
   )
-  (property "Value" "0 (VERIFY)" (at 0 1.5 0) (layer "F.Fab") (uuid "6f8225ae-7fb4-5260-823a-08a8dbd3bcfa")
+  (property "Value" "0 (ref: Pico W)" (at 0 1.5 0) (layer "F.Fab") (uuid "6f8225ae-7fb4-5260-823a-08a8dbd3bcfa")
     (effects (font (size 1 1) (thickness 0.15)))
   )
   (property "Footprint" "kbd:RC_0603" (at 0 0 0) (layer "F.Fab") (hide yes) (uuid "91817b1d-db51-58d1-b843-88b18ab37ef4")
