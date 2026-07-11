@@ -412,6 +412,51 @@ def fp_0603(ref, val, x, y, rot, path_uuid, n1, n2, led=False):
     b.append(fprect(-1.5, -0.9, 1.5, 0.9, "F.CrtYd", 0.05))
     return s + "\n".join(b) + "\n  )\n"
 
+# ---- 0402 imperial (1005 metric) chip R/C/L -- IPC-nominal land pattern ----
+# Used for the antenna-matching caps (C17/C18): the real Pico W reference
+# parts (Murata GJM1555C1H series) are 0402, not the 0603 this file's other
+# passives use -- a too-large pad here works electrically but doesn't match
+# the real component footprint. VERIFY against the exact vendor's land
+# pattern drawing before fab; these are generic IPC-nominal dimensions.
+def fp_0402(ref, val, x, y, rot, path_uuid, n1, n2):
+    s = fp_header("kbd:RC_0402", ref, val, x, y, rot,
+                  ref_at=(0, -1.1), path_uuid=path_uuid, val_at=(0, 1.1))
+    b = []
+    b.append(pad(1, "smd", "roundrect", -0.485, 0, 0.54, 0.64,
+                 '"F.Cu" "F.Paste" "F.Mask"', n1, rot=rot,
+                 extra=" (roundrect_rratio 0.25)"))
+    b.append(pad(2, "smd", "roundrect", 0.485, 0, 0.54, 0.64,
+                 '"F.Cu" "F.Paste" "F.Mask"', n2, rot=rot,
+                 extra=" (roundrect_rratio 0.25)"))
+    b.append(fprect(-0.5, -0.25, 0.5, 0.25, "F.Fab"))
+    b.append(fpline(-0.99, -0.55, 0.99, -0.55, "F.SilkS"))
+    b.append(fpline(-0.99, 0.55, 0.99, 0.55, "F.SilkS"))
+    b.append(fprect(-1.0, -0.6, 1.0, 0.6, "F.CrtYd", 0.05))
+    return s + "\n".join(b) + "\n  )\n"
+
+# ---- 0201 imperial (0603 metric) chip R/C/L -- IPC-nominal land pattern ----
+# Used for the antenna-matching inductor (L2): the real Pico W reference
+# part (Cyntec CML0306-4N7-HNH, now obsolete; DigiKey's listed direct
+# substitute is Murata LQP03TN4N7H02D) is this much smaller 0201 package,
+# not the 0603 this file's other passives use. This is genuinely a
+# reflow/stencil-only part -- not realistically hand-solderable. VERIFY
+# against the exact vendor's land pattern drawing before fab.
+def fp_0201(ref, val, x, y, rot, path_uuid, n1, n2):
+    s = fp_header("kbd:RC_0201", ref, val, x, y, rot,
+                  ref_at=(0, -0.7), path_uuid=path_uuid, val_at=(0, 0.7))
+    b = []
+    b.append(pad(1, "smd", "roundrect", -0.245, 0, 0.3, 0.25,
+                 '"F.Cu" "F.Paste" "F.Mask"', n1, rot=rot,
+                 extra=" (roundrect_rratio 0.25)"))
+    b.append(pad(2, "smd", "roundrect", 0.245, 0, 0.3, 0.25,
+                 '"F.Cu" "F.Paste" "F.Mask"', n2, rot=rot,
+                 extra=" (roundrect_rratio 0.25)"))
+    b.append(fprect(-0.3, -0.15, 0.3, 0.15, "F.Fab"))
+    b.append(fpline(-0.61, -0.28, 0.61, -0.28, "F.SilkS"))
+    b.append(fpline(-0.61, 0.28, 0.61, 0.28, "F.SilkS"))
+    b.append(fprect(-0.61, -0.33, 0.61, 0.33, "F.CrtYd", 0.05))
+    return s + "\n".join(b) + "\n  )\n"
+
 def fp_jst_ph2(ref, x, y, rot, path_uuid, n1, n2):
     s = fp_header("kbd:JST_PH_S2B_2pin", ref, "Battery JST-PH", x, y, rot,
                   attr="through_hole", ref_at=(1.0, -4.6), path_uuid=path_uuid,
@@ -1229,9 +1274,9 @@ def build_schematic():
     # also has unpopulated "NO FIT" positions in this same network), i.e.
     # start as an L-match and only populate the second shunt cap if the
     # tuned network needs a pi rather than an L topology.
-    two_pin("L2", "R_kbd", "4.7nH (ref: Pico W)", 96.52, 194.31, "WLRF_ANT", "WLRF_ANT_MID", R0603)
-    two_pin("C17", "C_kbd", "1p (VERIFY, tune 0.2-2p)", 90.17, 196.85, "WLRF_ANT", "GND", C0603)
-    two_pin("C18", "C_kbd", "DNP (VERIFY, tune)", 102.87, 196.85, "WLRF_ANT_MID", "GND", C0603)
+    two_pin("L2", "R_kbd", "4.7nH (ref: Pico W)", 96.52, 194.31, "WLRF_ANT", "WLRF_ANT_MID", "kbd:RC_0201")
+    two_pin("C17", "C_kbd", "1p (VERIFY, tune 0.2-2p)", 90.17, 196.85, "WLRF_ANT", "GND", "kbd:RC_0402")
+    two_pin("C18", "C_kbd", "DNP (VERIFY, tune)", 102.87, 196.85, "WLRF_ANT_MID", "GND", "kbd:RC_0402")
     labels.append(sch_glabel("WLRF_ANT_MID", 96.52, 200.66, 270))
 
     # ---- per-key RGB chain (59x SK6812MINI-E) ----
@@ -1451,9 +1496,9 @@ def build_pcb():
     fps.append(fp_0603("C31", "27p", 58.0, 30.0, 0, U("sym", "C31"), "CYW_XTAL_XON_J", "GND"))
     fps.append(fp_0603("R13", "0 (VERIFY)", 62.0, 30.0, 0, U("sym", "R13"),
                        "CYW_XTAL_XON", "CYW_XTAL_XON_J"))
-    fps.append(fp_0603("L2", "4.7nH (ref: Pico W)", 45.0, 34.5, 90, U("sym", "L2"), "WLRF_ANT", "WLRF_ANT_MID"))
-    fps.append(fp_0603("C17", "1p (VERIFY, tune 0.2-2p)", 49.0, 34.5, 0, U("sym", "C17"), "WLRF_ANT", "GND"))
-    fps.append(fp_0603("C18", "DNP (VERIFY, tune)", 53.0, 34.5, 0, U("sym", "C18"), "WLRF_ANT_MID", "GND"))
+    fps.append(fp_0201("L2", "4.7nH (ref: Pico W)", 45.0, 34.5, 90, U("sym", "L2"), "WLRF_ANT", "WLRF_ANT_MID"))
+    fps.append(fp_0402("C17", "1p (VERIFY, tune 0.2-2p)", 49.0, 34.5, 0, U("sym", "C17"), "WLRF_ANT", "GND"))
+    fps.append(fp_0402("C18", "DNP (VERIFY, tune)", 53.0, 34.5, 0, U("sym", "C18"), "WLRF_ANT_MID", "GND"))
     fps.append(fp_0603("C20", "4.7u", 58.0, 34.5, 0, U("sym", "C20"), "CYW_VDD1P5", "GND"))
     fps.append(fp_0603("C21", "100n", 62.0, 34.5, 0, U("sym", "C21"), "CYW_XTAL_VDD1P2", "GND"))
     fps.append(fp_0603("C22", "2.2u", 66.0, 34.5, 0, U("sym", "C22"), "CYW_VOUT_CLDO", "GND"))
@@ -1723,6 +1768,8 @@ def export_libs():
         ("SOT-23-6", fp_sot23_5("REF**", "SOT-23-6", 0, 0, 0, None, empty, npins=6)),
         ("SOT-23", fp_sot23("REF**", "SOT-23", 0, 0, 0, None, empty)),
         ("RC_0603", fp_0603("REF**", "0603", 0, 0, 0, None, None, None)),
+        ("RC_0402", fp_0402("REF**", "0402", 0, 0, 0, None, None, None)),
+        ("RC_0201", fp_0201("REF**", "0201", 0, 0, 0, None, None, None)),
         ("LED_0603", fp_0603("REF**", "LED", 0, 0, 0, None, None, None, led=True)),
         ("JST_SH_SM02B_2pin_Back", fp_jst_sh("REF**", 0, 0, 0, None, None, None)),
         ("SW_Slide_MSK12C02", fp_slide("REF**", 0, 0, 0, None, empty)),
