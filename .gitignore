@@ -1,0 +1,14 @@
+__pycache__/
+.DS_Store
+*.lck
+*.zip
+
+# kicad-happy analyzer output -- regenerable, timestamped per run
+analysis/
+
+# KiCad's own per-file version-history folders (embedded git repos)
+.history/
+
+# stray/unidentified files found in this directory before git init
+zi3NjsFM
+*kleplace*
