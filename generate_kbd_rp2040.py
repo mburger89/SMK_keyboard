@@ -83,8 +83,25 @@ the account's usage cap mid-session). Confidence by section:
     numbered part from a different vendor (e.g. Nexperia's 74AHCT1G125)
     isn't a drop-in substitute here -- it doesn't come in SOT-23-5 at all,
     and specs a narrower 4.5-5.5V range that VSYS can drop below on
-    battery. Decoupling/series resistor/power budget: MEDIUM-HIGH
-    confidence, standard WS2812-family practice.
+    battery. Power budget: HIGH confidence, now a calculated figure rather
+    than "several amps" -- SK6812MINI-E's own datasheet (Dongguan Opsco,
+    SPC/SK6812MINI-E Rev. 02) confirms 12mA/channel x 3 channels = 36mA/LED
+    at full white, so 59 LEDs = 2.12A max. Two things this surfaced that
+    weren't previously flagged: (1) D60 (B5819W Schottky, ~1A average
+    current rating per its datasheet) sits in the VSYS path whenever
+    USB-powered, and 2.12A would exceed it by >2x -- not just the
+    already-documented AP2112K-3.3 LDO mismatch, which is correctly
+    bypassed, but D60 is NOT bypassed; (2) the SK6812MINI-E's own VDD spec
+    is 3.7-5.5V, and VSYS (fed from a single-cell Li-ion) can sag below
+    3.7V within normal discharge range, not just as a battery-dead edge
+    case -- the level shifter (verified separately, see above) only
+    guarantees the DIN logic threshold is met, not that VDD itself stays
+    in spec. Also added: a local 100nF decoupling cap per LED (C100-C158),
+    matching the SK6812MINI-E datasheet's own typical application circuit
+    ("even the capacitance between beads is essential") -- an earlier
+    version of this file had only one bulk cap (C19) at the chain's start,
+    59 LEDs away from the far end. Series resistor (R10, 330 ohm) and
+    topology: MEDIUM-HIGH confidence, standard WS2812-family practice.
     LED (SK6812MINI-E, D1-D59): HIGH confidence -- confirmed against the
     real manufacturer datasheet (Dongguan Opsco Optoelectronics, Document
     SPC/SK6812MINI-E Rev. 02). Body is 3.2 x 2.8mm (an earlier version of
@@ -1467,11 +1484,18 @@ def build_schematic():
     labels.append(sch_glabel("VSYS", 71.12, 52.07, 0))      # level shifter VCC from VSYS (not the 3.3V rail -- see RGB power note below)
     two_pin("R10", "R_kbd", "330", 60.96, 60.96, "LEDD0", "LEDD0_R", R0603)
     two_pin("C19", "C_kbd", "10u", 71.12, 60.96, "VSYS", "GND", C0603)
-    texts.append(sch_text("RGB chain fed from VSYS (unregulated battery/USB), NOT the "
-                          "3.3V LDO -- 59 LEDs at full white can draw several amps, far "
-                          "beyond the AP2112K-3.3's rating. Firmware must cap brightness/"
-                          "concurrent-on count. Level shifter keeps DIN threshold margin "
-                          "safe across the VSYS voltage range.", 25.4, 40.64, 1.8))
+    texts.append(sch_text("RGB power budget (calculated from the SK6812MINI-E datasheet, "
+                          "12mA/channel x 3 x 59 LEDs = 2.12A max at full white): fed from "
+                          "VSYS, NOT the 3.3V LDO (AP2112K-3.3 isn't remotely rated for this). "
+                          "D60 (B5819W, ~1A avg rating) IS in this path when USB-powered and "
+                          "WOULD be exceeded by 2.12A -- firmware must cap brightness/"
+                          "concurrent-on count well below full-white-all-keys regardless of "
+                          "power source. Also VERIFY: SK6812MINI-E's own datasheet specs VDD "
+                          "3.7-5.5V, and VSYS (Li-ion battery) can sag below 3.7V well within "
+                          "normal discharge range -- LEDs may misbehave on a low battery even "
+                          "with brightness capped. Level shifter keeps DIN threshold margin "
+                          "safe across the VSYS voltage range (separate from the VDD-minimum "
+                          "concern above).", 25.4, 38.1, 1.6))
     for i, (r, c) in enumerate(LED_CHAIN):
         ref = f"RGB{i+1}"
         din_net = "LEDD0_R" if i == 0 else f"LEDD{i}"
@@ -1487,6 +1511,13 @@ def build_schematic():
         labels.append(sch_glabel("GND", lx - 8.89, ly + 2.54, 180))
         labels.append(sch_glabel(dout_net, lx + 8.89, ly - 2.54, 0))
         labels.append(sch_glabel("VSYS", lx + 8.89, ly + 2.54, 0))
+        # Local decoupling per LED, not just one bulk cap at the chain's
+        # start (C19) -- the SK6812MINI-E datasheet's own typical
+        # application circuit shows a cap at every LED ("even the
+        # capacitance between beads is essential"); with 59 in a chain and
+        # trace inductance between them, one cap far upstream wouldn't hold
+        # up the local rail during each LED's own fast PWM current step.
+        two_pin(f"C{100+i}", "C_kbd", "100n", lx, ly + 6.35, "VSYS", "GND", C0603)
     ncs.append(sch_nc(25.4 + LED_CHAIN[-1][1] * 30.48 + 8.89, 30.48 + LED_CHAIN[-1][0] * 12.7 + 3.81 - 2.54))
 
     # ---------------- USB ----------------
@@ -1714,6 +1745,12 @@ def build_pcb():
         dout_net = f"LEDD{i + 1}"
         fps.append(fp_sk6812mini(f"RGB{i+1}", x, ly, 0, U("sym", f"RGB{i+1}"),
                                  {1: "VSYS", 2: dout_net, 3: "GND", 4: din_net}))
+        # Local decoupling cap per LED (datasheet's own recommendation --
+        # see build_schematic comment). Offset +4mm in X, clear of the
+        # LED's own +-1.9mm courtyard (1.1mm margin) and of the switch
+        # courtyards above/below (+-7.5mm from key center; this Y position
+        # is already validated clear of those, same as the LED itself).
+        fps.append(fp_0402(f"C{100+i}", "100n", x + 4.0, ly, 0, U("sym", f"C{100+i}"), "VSYS", "GND"))
     # ---- USB ----
     usb_net = {"A1": "GND", "B12": "GND", "A12": "GND", "B1": "GND", "S1": "GND",
                "A4": "VBUS", "B9": "VBUS", "A9": "VBUS", "B4": "VBUS",
