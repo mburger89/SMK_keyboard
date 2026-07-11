@@ -658,12 +658,17 @@ def fp_btn6mm(ref, val, x, y, rot, path_uuid, n1, n2, side="F"):
     return s + "\n".join(b) + "\n  )\n"
 
 def fp_hole(ref, x, y):
+    # M2 clearance hole, "normal fit" per ISO 273 (2.4mm, vs. 2.2mm "close
+    # fit" / 2.6mm "loose fit") -- close fit assumes precise alignment with
+    # injection-molded mounting bosses; this board's case is 3D-printed,
+    # which has looser dimensional tolerances, so normal fit is the safer
+    # choice to avoid a boss binding against an undersized hole.
     s = fp_header("kbd:MountingHole_M2", ref, "M2", x, y, 0,
                   attr="exclude_from_pos_files exclude_from_bom",
                   ref_at=(0, -2.8), val_at=(0, 2.8))
-    b = [npth(0, 0, 2.2),
-         f'    (fp_circle (center 0 0) (end 2.1 0) (stroke (width 0.15) (type solid)) (fill none) (layer "F.SilkS") (uuid "{U("holec",ref)}"))',
-         f'    (fp_circle (center 0 0) (end 2.2 0) (stroke (width 0.05) (type solid)) (fill none) (layer "F.CrtYd") (uuid "{U("holecy",ref)}"))']
+    b = [npth(0, 0, 2.4),
+         f'    (fp_circle (center 0 0) (end 2.3 0) (stroke (width 0.15) (type solid)) (fill none) (layer "F.SilkS") (uuid "{U("holec",ref)}"))',
+         f'    (fp_circle (center 0 0) (end 2.4 0) (stroke (width 0.05) (type solid)) (fill none) (layer "F.CrtYd") (uuid "{U("holecy",ref)}"))']
     return s + "\n".join(b) + "\n  )\n"
 
 # ---- RP2040 (QFN-56, 7x7mm, 0.4mm pitch) -----------------------------------
