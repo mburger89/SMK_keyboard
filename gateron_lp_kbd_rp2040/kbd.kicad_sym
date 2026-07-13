@@ -658,7 +658,7 @@
       (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) (hide yes)))
       (property "Description" "" (at 0 0 0) (effects (font (size 1.27 1.27)) (hide yes)))
       (symbol "XTAL_0_1"
-        (rectangle (start -2.032 1.27) (end 2.032 -1.27)) (stroke (width 0.254) (type default)) (fill (type none))
+        (rectangle (start -2.032 1.27) (end 2.032 -1.27) (stroke (width 0.254) (type default)) (fill (type none)))
       )
       (symbol "XTAL_1_1"
       (pin passive line (at -3.81 0 0) (length 1.27)

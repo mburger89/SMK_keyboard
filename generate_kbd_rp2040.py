@@ -109,11 +109,15 @@ the account's usage cap mid-session). Confidence by section:
     pins 2 (DOUT) and 4 (DIN) were at swapped physical corners -- a bug
     invisible to the netlist (this script's own pin-to-net mapping was
     self-consistent either way) that would have put DOUT/DIN on the wrong
-    physical pads with a real part soldered down. Both fixed. Still
-    unverified: whether the Gateron KS-33's real mechanical drawing
-    actually has a south-facing light window at the PITCH/2 offset used
-    for LED placement -- that requires the switch's own drawing, not this
-    LED's datasheet.
+    physical pads with a real part soldered down. Both fixed.
+    LED placement offset: was PITCH/2 (9.525mm) south of key center -- the
+    midpoint of the gap to the NEXT row, nowhere near either switch's own
+    south wall, so the LED illuminated nothing. Fixed to 5.9mm south, the
+    standard south-facing SMD LED offset used across the open-source
+    keyboard community for Cherry MX-compatible/low-profile switches
+    (falls inside the switch's own 7.5mm courtyard, where south-facing
+    switch housings have a light-pipe window -- confirmed clear of the
+    switch's own SMD pads, which sit offset in X at this Y range).
   - Antenna (ANT1, keepout zone): a real, meaningful gap here, not just an
     unverified value -- an earlier version of this file had an antenna
     KEEPOUT ZONE but no actual antenna connected to it (WLRF_ANT_MID dead-
@@ -132,20 +136,28 @@ the account's usage cap mid-session). Confidence by section:
     confirmed by Johanson's own datasheet explicitly offering a free
     layout review before fab.
     ANTENNA FEED TRACE -- ROUTING REQUIREMENT (calculated, not a guess):
-    this board's actual stackup is 1.6mm, 2-layer FR4, 1oz copper (both
-    confirmed in this file -- `(general (thickness 1.6))` in build_pcb, and
-    only F.Cu/B.Cu declared in the layer table). Solving the standard
-    Hammerstad-Jensen microstrip equations for 50 ohm on that stackup
-    (er~4.3-4.5) gives a required trace width of ~3.0mm -- NOT the thin
-    (~0.2-0.3mm) traces used for this board's digital signals, which on
-    this same stackup would present ~125-140 ohm, a severe mismatch right
-    at the antenna feed. Whoever routes this board (route_kbd.py or manual
-    KiCad routing) must use a ~3mm-wide trace from U1's WLRF_2G_RF-fed net
-    through L2/C17/C18 to ANT1's FEED pin, with a continuous, unbroken
-    ground-plane reference on the opposite copper layer along its entire
-    length outside the antenna_keepout zone (inside that zone there's
-    intentionally no ground reference, by design, right up to the antenna
-    itself -- standard practice, not an oversight). Secondary consideration
+    this board is now a 4-layer stackup (F.Cu/prepreg/In1.Cu/core/In2.Cu/
+    prepreg/B.Cu, 1.6mm overall -- see the `(setup (stackup ...))` block in
+    build_pcb), converted from the original 2-layer board to resolve
+    routing congestion elsewhere on the board (LED chain, QSPI escape).
+    This changes the antenna feed trace's reference plane: the nearest
+    continuous copper to F.Cu is no longer B.Cu 1.6mm away, it's In1.Cu
+    only 0.2104mm away (the F.Cu-to-In1.Cu prepreg). Solving the standard
+    Hammerstad-Jensen microstrip equations for 50 ohm against that much
+    thinner dielectric (er~4.4) gives a required trace width of ~0.40mm --
+    much narrower than the old 2-layer board's ~3.0mm figure, and closer
+    to (but still distinct from) the ~0.25-0.3mm traces used for this
+    board's ordinary digital signals. Whoever routes this board
+    (route_kbd_rp2040.py or manual KiCad routing) must use a ~0.40mm-wide
+    trace from U1's WLRF_2G_RF-fed net through L2/C17/C18 to ANT1's FEED
+    pin, with a continuous, unbroken GND pour on In1.Cu directly beneath
+    its entire length outside the antenna_keepout zone (inside that zone
+    there's intentionally no ground reference, by design, right up to the
+    antenna itself -- standard practice, not an oversight). Because In1.Cu
+    is also being used for the matrix ROW trunks in the new stackup, this
+    reference plane must be kept clear of trunk copper under the antenna
+    feed specifically -- verify with the analyzer's zone/copper-presence
+    check once routing is redone, not assumed. Secondary consideration
     for the same routing pass: U6's ball K1 (WLRF_2G_RF) sits on the SOUTH
     side of the chip (y=31.4) while ANT1 sits north of it (y=24.5) and L2
     sits further south still (y=34.5) -- the feed trace will have to jog
@@ -331,6 +343,29 @@ def fprect(x1, y1, x2, y2, layer, w=0.1):
     return (f'    (fp_rect (start {x1:g} {y1:g}) (end {x2:g} {y2:g}) '
             f'(stroke (width {w}) (type solid)) (fill none) (layer "{layer}") (uuid "{NU("r",layer,x1,y1,x2,y2)}"))')
 
+def fparc(sx, sy, mx, my, ex, ey, layer, w=0.12):
+    return (f'    (fp_arc (start {sx:g} {sy:g}) (mid {mx:g} {my:g}) (end {ex:g} {ey:g}) '
+            f'(stroke (width {w}) (type solid)) (layer "{layer}") (uuid "{NU("a",layer,sx,sy,ex,ey)}"))')
+
+# ---------------------------------------------------------------- 3D models
+# KiCad's own standard library, referenced by absolute path -- this machine's
+# KiCad 10 install has no env var configured for it (checked
+# ~/Library/Preferences/kicad/10.0/kicad_common.json, "vars": null), so a
+# portable ${KICADxx_3DMODEL_DIR}-style reference isn't reliable here. If you
+# move this project to another machine, re-point KICAD3D or add the env var
+# in KiCad's own path configuration dialog.
+KICAD3D = "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels"
+# This project's own hand-modeled/vendor-STEP parts, referenced relative to
+# the project directory so they stay portable across machines.
+PROJ3D = "${KIPRJMOD}/3dmodels"
+
+def model(path, scale=(1, 1, 1), offset=(0, 0, 0), rotate=(0, 0, 0)):
+    return (f'    (model "{path}"\n'
+            f'      (offset (xyz {offset[0]:g} {offset[1]:g} {offset[2]:g}))\n'
+            f'      (scale (xyz {scale[0]:g} {scale[1]:g} {scale[2]:g}))\n'
+            f'      (rotate (xyz {rotate[0]:g} {rotate[1]:g} {rotate[2]:g}))\n'
+            f'    )')
+
 def fp_header(lib_fp, ref, val, x, y, rot, layer="F.Cu", attr="smd",
               ref_at=(0, -3.5), ref_layer=None, path_uuid=None, val_at=(0, 3.5)):
     rl = ref_layer or ("B.SilkS" if layer == "B.Cu" else "F.SilkS")
@@ -384,6 +419,17 @@ def fp_gateron(ref, x, y, n_pad1, n_pad2, path_uuid, is2u=False):
                     '"B.Cu" "B.Paste" "B.Mask"', n_pad1))
     body.append(pad(2, "smd", "rect", 6.475, 5.75, 2.55, 2.55,
                     '"B.Cu" "B.Paste" "B.Mask"', n_pad2))
+    # Two models: the hot-swap socket itself (soldered to B.Cu, sits behind
+    # the board) and the switch that plugs into it (sits in front) -- both
+    # centered on this footprint's own origin already (confirmed: the real
+    # Gateron_KS-33.step bounding box is exactly -7.5..7.5mm in X/Y, matching
+    # this footprint's own F.CrtYd). gateron_socket.wrl is a simple hand-
+    # authored placeholder (no real vendor model for the KS-2P02B01-02
+    # socket), scaled 2.54 per its own inch-like native units (verified
+    # against usb_c_hro.wrl's body block, which matches this footprint's
+    # real 8.94x7.30mm F.Fab size exactly at that scale).
+    body.append(model(f"{PROJ3D}/Gateron_KS-33.step"))
+    body.append(model(f"{PROJ3D}/gateron_socket.wrl", scale=(2.54, 2.54, 2.54)))
     return s + "\n".join(body) + "\n  )\n"
 
 # ---- SOD-123 diode on the back --------------------------------------------
@@ -401,6 +447,7 @@ def fp_diode(ref, x, y, rot, n_k, n_a, path_uuid):
     b.append(fpline(-2.3, -1.0, 1.6, -1.0, "B.SilkS", 0.12))
     b.append(fpline(-2.3, 1.0, 1.6, 1.0, "B.SilkS", 0.12))
     b.append(fprect(-2.5, -1.15, 2.5, 1.15, "B.CrtYd", 0.05))
+    b.append(model(f"{KICAD3D}/Diode_SMD.3dshapes/D_SOD-123.step"))
     # NB: (path) header line: fp_header already handled path via arg
     return s + "\n".join(b) + "\n  )\n"
 
@@ -481,6 +528,11 @@ def fp_usbc(ref, x, y, rot, path_uuid, padnet):
     b.append(fpline(-4.7, 2.0, -4.7, 3.9, "F.SilkS"))
     b.append(fpline(4.7, 2.0, 4.7, 3.9, "F.SilkS"))
     b.append(fpline(-4.7, 3.9, 4.7, 3.9, "F.SilkS"))
+    # usb_c_hro.wrl's main body block is 3.5197x2.8740 native units; at the
+    # 2.54 scale below that's 8.94x7.30mm, matching this footprint's own
+    # F.Fab rect (8.94x7.30mm) exactly -- confirms both the scale factor and
+    # that the model is already centered on this footprint's origin.
+    b.append(model(f"{PROJ3D}/usb_c_hro.wrl", scale=(2.54, 2.54, 2.54)))
     return s + "\n".join(b) + "\n  )\n"
 
 # ---- small generic packages ------------------------------------------------
@@ -500,6 +552,7 @@ def fp_sot23_5(ref, val, x, y, rot, path_uuid, pinnet, npins=5):
     b.append(fpline(-1.45, 1.0, -1.45, 0.85, "F.SilkS"))
     b.append(fpline(-1.7, 1.75, -1.45, 1.75, "F.SilkS"))  # pin1 mark
     b.append(fprect(-1.7, -2.0, 1.7, 2.0, "F.CrtYd", 0.05))
+    b.append(model(f"{KICAD3D}/Package_TO_SOT_SMD.3dshapes/SOT-23-{npins}.step"))
     return s + "\n".join(b) + "\n  )\n"
 
 def fp_sot23(ref, val, x, y, rot, path_uuid, pinnet):
@@ -514,6 +567,7 @@ def fp_sot23(ref, val, x, y, rot, path_uuid, pinnet):
                  '"F.Cu" "F.Paste" "F.Mask"', pinnet.get(3), rot=rot))
     b.append(fprect(-1.45, -0.65, 1.45, 0.65, "F.Fab"))
     b.append(fprect(-1.7, -1.8, 1.7, 1.8, "F.CrtYd", 0.05))
+    b.append(model(f"{KICAD3D}/Package_TO_SOT_SMD.3dshapes/SOT-23.step"))
     return s + "\n".join(b) + "\n  )\n"
 
 def fp_0603(ref, val, x, y, rot, path_uuid, n1, n2, led=False):
@@ -532,6 +586,10 @@ def fp_0603(ref, val, x, y, rot, path_uuid, n1, n2, led=False):
     b.append(fpline(-1.48, -0.75, 1.48, -0.75, "F.SilkS"))
     b.append(fpline(-1.48, 0.75, 1.48, 0.75, "F.SilkS"))
     b.append(fprect(-1.5, -0.9, 1.5, 0.9, "F.CrtYd", 0.05))
+    if led:
+        b.append(model(f"{KICAD3D}/LED_SMD.3dshapes/LED_0603_1608Metric.step"))
+    else:
+        b.append(model(f"{KICAD3D}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"))
     return s + "\n".join(b) + "\n  )\n"
 
 # ---- 0402 imperial (1005 metric) chip R/C/L -- IPC-nominal land pattern ----
@@ -554,6 +612,7 @@ def fp_0402(ref, val, x, y, rot, path_uuid, n1, n2):
     b.append(fpline(-0.99, -0.55, 0.99, -0.55, "F.SilkS"))
     b.append(fpline(-0.99, 0.55, 0.99, 0.55, "F.SilkS"))
     b.append(fprect(-1.0, -0.6, 1.0, 0.6, "F.CrtYd", 0.05))
+    b.append(model(f"{KICAD3D}/Resistor_SMD.3dshapes/R_0402_1005Metric.step"))
     return s + "\n".join(b) + "\n  )\n"
 
 # ---- 0201 imperial (0603 metric) chip R/C/L -- IPC-nominal land pattern ----
@@ -577,6 +636,7 @@ def fp_0201(ref, val, x, y, rot, path_uuid, n1, n2):
     b.append(fpline(-0.61, -0.28, 0.61, -0.28, "F.SilkS"))
     b.append(fpline(-0.61, 0.28, 0.61, 0.28, "F.SilkS"))
     b.append(fprect(-0.61, -0.33, 0.61, 0.33, "F.CrtYd", 0.05))
+    b.append(model(f"{KICAD3D}/Resistor_SMD.3dshapes/R_0201_0603Metric.step"))
     return s + "\n".join(b) + "\n  )\n"
 
 def fp_jst_ph2(ref, x, y, rot, path_uuid, n1, n2):
@@ -621,6 +681,7 @@ def fp_jst_sh(ref, x, y, rot, path_uuid, n1, n2):
     plus += '      (effects (font (size 1 1) (thickness 0.15)) (justify mirror)))'
     b.append(plus % NU("jsttxt", ref))
     b.append(fprect(-2.9, -3.28, 2.9, 3.28, "B.CrtYd", 0.05))
+    b.append(model(f"{PROJ3D}/jst_sh_2p.wrl", scale=(2.54, 2.54, 2.54)))
     return s + "\n".join(b) + "\n  )\n"
 
 def fp_slide(ref, x, y, rot, path_uuid, pinnet):
@@ -639,6 +700,7 @@ def fp_slide(ref, x, y, rot, path_uuid, pinnet):
     b.append(fpline(-0.5, -2.2, 0, -2.6, "F.SilkS"))
     b.append(fpline(0.5, -2.2, 0, -2.6, "F.SilkS"))
     b.append(fprect(-5.3, -2.9, 5.3, 3.1, "F.CrtYd", 0.05))
+    b.append(model(f"{PROJ3D}/slide_msk12c02.wrl", scale=(2.54, 2.54, 2.54)))
     return s + "\n".join(b) + "\n  )\n"
 
 def fp_btn6mm(ref, val, x, y, rot, path_uuid, n1, n2, side="F"):
@@ -655,6 +717,7 @@ def fp_btn6mm(ref, val, x, y, rot, path_uuid, n1, n2, side="F"):
     b.append(fprect(-3.0, -3.0, 3.0, 3.0, side + ".SilkS", 0.12))
     b.append(fprect(-3.0, -3.0, 3.0, 3.0, side + ".Fab"))
     b.append(fprect(-4.4, -3.5, 4.4, 3.5, side + ".CrtYd", 0.05))
+    b.append(model(f"{KICAD3D}/Button_Switch_THT.3dshapes/SW_PUSH_6mm.step"))
     return s + "\n".join(b) + "\n  )\n"
 
 def fp_hole(ref, x, y):
@@ -716,6 +779,12 @@ def fp_rp2040(ref, x, y, path_uuid, pinnet):
     b.append(fprect(-4.2, -4.2, 4.2, 4.2, "F.CrtYd", 0.05))
     b.append(fpline(-3.9, -3.9, -3.2, -3.9, "F.SilkS"))
     b.append(fpline(-3.9, -3.9, -3.9, -3.2, "F.SilkS"))  # pin 1 corner mark
+    # EP3.2x3.2mm variant matches the real RP2040's own exposed pad size,
+    # not this footprint's own placeholder 5x5mm pad (see the comment on
+    # that pad above) -- fine for visualization since the body/pin envelope
+    # (7x7mm, 0.4mm pitch) is what's actually accurate here.
+    b.append(model(f"{KICAD3D}/Package_DFN_QFN.3dshapes/"
+                    "QFN-56-1EP_7x7mm_P0.4mm_EP3.2x3.2mm.step"))
     return s + "\n".join(b) + "\n  )\n"
 
 # ---- External QSPI NOR flash, small 8-pad package --------------------------
@@ -742,6 +811,10 @@ def fp_flash8(ref, x, y, rot, path_uuid, pinnet):
     b.append(fprect(-1.5, -1.0, 1.5, 1.0, "F.Fab"))
     b.append(fpline(-1.8, -1.15, -1.0, -1.15, "F.SilkS"))
     b.append(fprect(-1.8, -1.3, 1.8, 1.3, "F.CrtYd", 0.05))
+    # exact vendor match: real Winbond USON-8, 3x2mm body, 0.5mm pitch --
+    # same package this footprint models.
+    b.append(model(f"{KICAD3D}/Package_SON.3dshapes/"
+                    "Winbond_USON-8-1EP_3x2mm_P0.5mm_EP0.2x1.6mm.step"))
     return s + "\n".join(b) + "\n  )\n"
 
 # ---- 2-pin crystal, small SMD (e.g. 3.2x2.5mm) -----------------------------
@@ -755,6 +828,11 @@ def fp_crystal_smd(ref, val, x, y, rot, path_uuid, n1, n2):
                  '"F.Cu" "F.Paste" "F.Mask"', n2, rot=rot))
     b.append(fprect(-1.6, -1.25, 1.6, 1.25, "F.Fab"))
     b.append(fprect(-1.9, -1.55, 1.9, 1.55, "F.CrtYd", 0.05))
+    # 4-pin real crystal package vs. this footprint's simplified 2-pad
+    # land pattern -- same 3.2x2.5mm body size, close enough for a 3D
+    # preview even though the pad count doesn't match 1:1.
+    b.append(model(f"{KICAD3D}/Crystal.3dshapes/"
+                    "Crystal_SMD_3225-4Pin_3.2x2.5mm.step"))
     return s + "\n".join(b) + "\n  )\n"
 
 # ---- Infineon CYW43439 wireless (WLBGA-63, 0.4mm ball pitch) --------------
@@ -871,29 +949,64 @@ def fp_cyw43439(ref, x, y, path_uuid, pinnet):
 
 # ---- SK6812MINI-E per-key RGB LED (4-pad: VDD, DOUT, GND, DIN) -------------
 def fp_sk6812mini(ref, x, y, rot, path_uuid, pinnet):
-    # Confirmed against the real manufacturer datasheet (Dongguan Opsco
-    # Optoelectronics, Document SPC/SK6812MINI-E Rev. 02): body 3.2 x 2.8mm
-    # (was modeled as a 3.2x3.2 square -- corrected to the real, non-square
-    # aspect ratio), and pin layout is 1=VDD (top-left), 2=DOUT
-    # (bottom-left), 3=GND (bottom-right), 4=DIN (top-right) -- an earlier
-    # version of this footprint had pins 2 and 4 at swapped corners
-    # (2 at top-right, 4 at bottom-left). That bug was invisible to the
-    # netlist (this script's own pin-to-net mapping was self-consistent
-    # either way) but would have put DOUT/DIN on the wrong physical pads
-    # once real parts were soldered down. Kept deliberately tight in Y:
-    # adjacent switch courtyards at this board's 19.05mm pitch leave only
-    # a ~4.05mm gap between rows (7mm switch half-body + 7.5mm courtyard
-    # vs. 19.05mm pitch).
-    s = fp_header("kbd:SK6812MINI_E", ref, "SK6812MINI-E", x, y, rot,
-                  ref_at=(0, -2.0), path_uuid=path_uuid, val_at=(0, 2.0))
+    # Transcribed directly from KiCad 10's own standard library footprint
+    # (LED_SMD.pretty/LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount.kicad_mod),
+    # placed exactly as KiCad's own footprint editor places it for back-side
+    # reverse mounting: layer B.Cu, footprint rotation +180 on top of the
+    # native F.Cu pad layout (mirroring is implicit in the stored B.Cu pad
+    # coordinates below, not something this code computes). Net-to-pad-number
+    # mapping (1=GND, 2=DOUT, 3=VDD, 4=DIN) is the real part's own physical
+    # layout, cross-checked against a real board reference using this exact
+    # footprint (see LED_CHAIN_48/49 nets on pads 4/2 respectively -- pad 4
+    # takes the incoming link from the previous LED, pad 2 sends the
+    # outgoing link to the next one).
+    #
+    # The Edge.Cuts geometry below is the library's own purpose-built
+    # light-transmission cutout for this exact reverse-mount application --
+    # not a plain round hole -- so it's copied verbatim rather than
+    # approximated. It's bilaterally symmetric on both axes, so it renders
+    # identically regardless of the mirror/rotation applied to the pads.
+    s = fp_header("kbd:SK6812MINI_E", ref, "SK6812MINI-E", x, y,
+                  (rot + 180) % 360, layer="B.Cu", attr="smd",
+                  ref_at=(0, 2.6), val_at=(0, -2.54), path_uuid=path_uuid)
     b = []
-    corners = [(1, -1.1, -1.1), (2, -1.1, 1.1), (3, 1.1, 1.1), (4, 1.1, -1.1)]
+    corners = [(1, -2.725, -0.75), (2, -2.725, 0.75), (3, 2.725, 0.75), (4, 2.725, -0.75)]
     for n, px, py in corners:
-        b.append(pad(n, "smd", "rect", px, py, 0.6, 0.6,
-                     '"F.Cu" "F.Paste" "F.Mask"', pinnet.get(n), rot=rot))
-    b.append(fprect(-1.6, -1.4, 1.6, 1.4, "F.Fab"))
-    b.append(fpline(-1.9, -1.65, -1.3, -1.65, "F.SilkS"))  # pin 1 corner mark
-    b.append(fprect(-1.9, -1.7, 1.9, 1.7, "F.CrtYd", 0.05))
+        b.append(pad(n, "smd", "roundrect", px, py, 1.35, 0.82,
+                     '"B.Cu" "B.Mask" "B.Paste"', pinnet.get(n), rot=rot,
+                     extra=" (roundrect_rratio 0.25)"))
+    for x1, y1, x2, y2 in [(3.65, 1.875, 3.65, -1.875), (3.65, -1.875, -2.925, -1.875),
+                           (-3.65, 1.875, 3.65, 1.875), (-3.65, -1.15, -2.925, -1.875),
+                           (-3.65, -1.15, -3.65, 1.875)]:
+        b.append(fpline(x1, y1, x2, y2, "B.SilkS"))
+    b.append(f'    (fp_poly (pts (xy -2.725 -1.45) (xy -2.575 -1.65) (xy -2.875 -1.65)) '
+             f'(stroke (width 0.12) (type solid)) (fill yes) (layer "B.SilkS") '
+             f'(uuid "{NU("ledpoly",ref)}"))')
+    for x1, y1, x2, y2 in [(1.7, 0, 1.7, 0.700353), (1.7, 0, 1.7, -0.700353),
+                           (0, 1.5, 0.900353, 1.5), (0, 1.5, -0.900353, 1.5),
+                           (0, -1.5, 0.900353, -1.5), (0, -1.5, -0.900353, -1.5),
+                           (-1.7, 0, -1.7, 0.700353), (-1.7, 0, -1.7, -0.700353)]:
+        b.append(fpline(x1, y1, x2, y2, "Edge.Cuts"))
+    for sx, sy, mx, my, ex, ey in [
+        (1.743934, 0.856655, 1.711191, 0.781533, 1.7, 0.700353),
+        (1.743934, 0.856655, 1.670713, 1.470713, 1.056655, 1.543934),
+        (1.7, -0.700353, 1.711181, -0.781538, 1.743934, -0.856655),
+        (1.056655, -1.543934, 1.670711, -1.470711, 1.743934, -0.856655),
+        (1.056655, -1.543934, 0.981533, -1.511191, 0.900353, -1.5),
+        (0.900353, 1.5, 0.981532, 1.511193, 1.056655, 1.543934),
+        (-0.900353, -1.5, -0.981533, -1.511192, -1.056655, -1.543934),
+        (-1.056655, 1.543934, -0.981533, 1.511192, -0.900353, 1.5),
+        (-1.056655, 1.543934, -1.670711, 1.470711, -1.743934, 0.856655),
+        (-1.7, 0.700353, -1.711192, 0.781533, -1.743934, 0.856655),
+        (-1.743934, -0.856655, -1.670711, -1.470711, -1.056655, -1.543934),
+        (-1.743934, -0.856655, -1.711192, -0.781533, -1.7, -0.700353),
+    ]:
+        b.append(fparc(sx, sy, mx, my, ex, ey, "Edge.Cuts"))
+    b.append(fprect(-3.65, 1.87, 3.65, -1.87, "B.CrtYd", 0.05))
+    b.append(fpline(-0.8, -1.4, -1.6, -0.6, "B.Fab"))
+    b.append(fprect(-1.6, 1.4, 1.6, -1.4, "B.Fab"))
+    b.append(model(f"{KICAD3D}/LED_SMD.3dshapes/"
+                    "LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount.step"))
     return s + "\n".join(b) + "\n  )\n"
 
 # ---- Johanson 2450AT18B100E, 2.4GHz SMT chip antenna -----------------------
@@ -917,6 +1030,7 @@ def fp_antenna_johanson(ref, x, y, rot, path_uuid, n_feed):
     b.append(fprect(-1.6, -0.8, 1.6, 0.8, "F.Fab"))
     b.append(fpline(-1.9, -1.0, -1.3, -1.0, "F.SilkS"))  # pin 1 (FEED) mark
     b.append(fprect(-1.9, -1.05, 1.9, 1.05, "F.CrtYd", 0.05))
+    b.append(model(f"{KICAD3D}/RF_Antenna.3dshapes/Johanson_2450AT18x100.step"))
     return s + "\n".join(b) + "\n  )\n"
 
 # ============================================================ SCHEMATIC ====
@@ -1112,8 +1226,8 @@ def build_lib_symbols():
         ("power_in", 10.16, 3.81, 180, "VCC", 8)]))
 
     # --- 2-pin crystal ---
-    body = ('        (rectangle (start -2.032 1.27) (end 2.032 -1.27)) '
-            '(stroke (width 0.254) (type default)) (fill (type none))\n')
+    body = ('        (rectangle (start -2.032 1.27) (end 2.032 -1.27) '
+            '(stroke (width 0.254) (type default)) (fill (type none)))\n')
     L.append(two_pin_sym("XTAL", "Y", "12MHz", body))
 
     # --- CYW43439 wireless (WLBGA-63, BLE via dedicated UART) ---
@@ -1676,7 +1790,16 @@ def build_pcb():
     # see the matching comment in build_schematic for the datasheet basis).
     fps.append(fp_0603("C9", "1u", 160.0, 24.5, 0, U("sym", "C9"), "DVDD", "GND"))
     fps.append(fp_0603("C32", "100n", 164.0, 24.5, 0, U("sym", "C32"), "DVDD", "GND"))
-    fps.append(fp_0603("C33", "100n", 168.0, 24.5, 0, U("sym", "C33"), "DVDD", "GND"))
+    # moved off the C9/C32/... row entirely (was 168.0, 24.5): that whole
+    # row sits in a genuine pinch between SW61 (BOOTSEL)'s NW through-hole
+    # pad and QSPI_SD1's own deterministic F-layer lane/elevator column
+    # (y=23.75, x=170.0) -- the two obstacles' required clearance zones
+    # overlap by design, leaving no legal x anywhere on that row (checked
+    # the full band algebraically: SW61 needs center>=168.525, QSPI's
+    # elevator needs center<=168.525 -- a single point, not a window).
+    # Moved south instead, still reasonably close to U1's DVDD pins 45/50
+    # (27.35) for decoupling, clear of Y1/C13/C14 and the row above.
+    fps.append(fp_0603("C33", "100n", 168.0, 33.0, 0, U("sym", "C33"), "DVDD", "GND"))
     fps.append(fp_0603("C34", "1u", 172.0, 24.5, 0, U("sym", "C34"), "VREG_VIN", "GND"))
     fps.append(fp_0603("C10", "1u", 176.0, 24.5, 0, U("sym", "C10"), "+3V3", "GND"))
     fps.append(fp_0603("C11", "100n", 180.0, 24.5, 0, U("sym", "C11"), "+3V3", "GND"))
@@ -1712,12 +1835,13 @@ def build_pcb():
     fps.append(fp_0603("R13", "0 (ref: Pico W)", 62.0, 30.0, 0, U("sym", "R13"),
                        "CYW_XTAL_XON", "CYW_XTAL_XON_J"))
     # ROUTING NOTE for whoever routes U6-K1 -> L2 -> C17 -> C18 -> ANT1:
-    # this trace needs to be ~3.0mm wide for 50-ohm on this board's real
-    # 1.6mm/2-layer/1oz stackup (calculated via Hammerstad-Jensen, not a
-    # guess -- see the file header "ANTENNA FEED TRACE" section), with an
-    # unbroken ground reference on the opposite layer outside the
-    # antenna_keepout zone. NOT the thin digital-signal trace width used
-    # elsewhere on this board.
+    # this trace needs to be ~0.40mm wide for 50-ohm on this board's 4-layer
+    # stackup, referenced to In1.Cu just 0.2104mm below F.Cu (calculated via
+    # Hammerstad-Jensen, not a guess -- see the file header "ANTENNA FEED
+    # TRACE" section), with an unbroken GND pour on In1.Cu directly beneath
+    # it outside the antenna_keepout zone. NOT the old 2-layer board's
+    # ~3.0mm figure, and NOT the thin digital-signal trace width used
+    # elsewhere on this board either.
     fps.append(fp_0201("L2", "2.7nH (ref: Johanson)", 45.0, 34.5, 90, U("sym", "L2"), "WLRF_ANT", "WLRF_ANT_MID"))
     fps.append(fp_0402("C17", "1.2p (ref: Johanson)", 49.0, 34.5, 0, U("sym", "C17"), "WLRF_ANT", "GND"))
     fps.append(fp_0402("C18", "DNP (VERIFY, tune)", 53.0, 34.5, 0, U("sym", "C18"), "WLRF_ANT_MID", "GND"))
@@ -1739,23 +1863,57 @@ def build_pcb():
     fps.append(fp_0603("R12", "22", 73.0, 38.5, 0, U("sym", "R12"), "CYW_VOUT_3P3", "CYW_PA_VDD"))
 
     # ---- per-key RGB chain (59x SK6812MINI-E) ----
-    # Placed south of each key center, in the ~4mm gap between adjacent
-    # switch courtyards at this board's 19.05mm pitch (see fp_sk6812mini
-    # comment). VERIFY the Gateron KS-33 actually has a south light window
-    # before committing to this exact offset/orientation.
+    # Placed NORTH of each key center (negative Y), per the switch
+    # manufacturer's own "PCB Layout" mechanical drawing: the light-pipe
+    # window sits on the OPPOSITE side of the stem from the two leg-
+    # mounting NPTH holes, not the same side. The drawing gives the window
+    # as a 6.40 x 0.55mm slot, centered on X=0, spanning 5.75-6.30mm from
+    # switch center on the side away from the legs -- confirmed against
+    # this footprint's own real hole positions (local (-4.4,4.7) and
+    # (2.6,5.75), both south/+Y), which match the drawing's own dimensions
+    # for those same two holes (4.70, 5.75, 2.60, 4.40) exactly. Window
+    # center = -(5.75+6.30)/2 = -6.025.
+    #
+    # Earlier revisions of this fix (see git history) placed the LED SOUTH
+    # of center instead -- at PITCH/2 (9.525mm, illuminated nothing, it
+    # was the midpoint of the gap to the next row) and then at 5.9mm/5.4mm
+    # (under the switch, but on the SAME side as the leg holes, which is
+    # why the LED's own DIN pin kept landing inside a hole's keepout no
+    # matter how it was routed -- that side is simply the wrong side).
+    # This position is on the empty north side of the switch, clear of the
+    # holes/pads by construction rather than by a tuned offset.
+    LED_OFFSET_Y = -6.025
     for i, (r, c) in enumerate(LED_CHAIN):
         x, y = key_xy(r, c)
-        ly = y + PITCH / 2  # = 9.525mm, midpoint between this row and the next
+        ly = y + LED_OFFSET_Y
         din_net = "LEDD0_R" if i == 0 else f"LEDD{i}"
         dout_net = f"LEDD{i + 1}"
+        # Pad numbering is the real KiCad standard footprint's own physical
+        # layout (1=GND, 2=DOUT, 3=VDD, 4=DIN) -- see fp_sk6812mini.
         fps.append(fp_sk6812mini(f"RGB{i+1}", x, ly, 0, U("sym", f"RGB{i+1}"),
-                                 {1: "VSYS", 2: dout_net, 3: "GND", 4: din_net}))
+                                 {1: "GND", 2: dout_net, 3: "VSYS", 4: din_net}))
         # Local decoupling cap per LED (datasheet's own recommendation --
-        # see build_schematic comment). Offset +4mm in X, clear of the
-        # LED's own +-1.9mm courtyard (1.1mm margin) and of the switch
-        # courtyards above/below (+-7.5mm from key center; this Y position
-        # is already validated clear of those, same as the LED itself).
-        fps.append(fp_0402(f"C{100+i}", "100n", x + 4.0, ly, 0, U("sym", f"C{100+i}"), "VSYS", "GND"))
+        # see build_schematic comment). Was offset +4mm in X at the LED's
+        # own Y -- with the LED now sitting inside the switch's own
+        # courtyard (south-facing fix above), that line ran straight
+        # through the switch's own leg-mounting hole (a real NPTH,
+        # unrelated to any net, at switch-local (2.6, 5.75)). A pure
+        # +2mm-in-Y offset (tried next, straight south of the LED) cleared
+        # that leg hole but sat inside the LED's OWN light-transmission
+        # cutout (added later, after the reverse-mount LED redesign, and
+        # never re-checked against this cap's position): the cutout's
+        # radius (~2.23mm) needs ~2.83mm total clearance for a via/pad,
+        # and +2mm falls well inside that. Straight south has no gap at
+        # all between this cutout and the next row's own switch leg hole
+        # (found by direct computation: the two required-clearance zones
+        # butt up against each other with ~0mm to spare) -- so the offset
+        # needs an X component too, not just more Y. -1.8mm X / +3.1mm Y
+        # (found via grid search against the real accumulated board
+        # items, checking BOTH of this 0402's own pads -- its footprint
+        # is 0.97mm pad-to-pad, so a fix verified against only one pad
+        # left the other one still inside a hole's keepout) clears both
+        # holes, on both pads, with real margin.
+        fps.append(fp_0402(f"C{100+i}", "100n", x - 1.8, ly + 3.1, 0, U("sym", f"C{100+i}"), "VSYS", "GND"))
     # ---- USB ----
     usb_net = {"A1": "GND", "B12": "GND", "A12": "GND", "B1": "GND", "S1": "GND",
                "A4": "VBUS", "B9": "VBUS", "A9": "VBUS", "B4": "VBUS",
@@ -1850,6 +2008,8 @@ def build_pcb():
   )
   (layers
     (0 "F.Cu" signal)
+    (1 "In1.Cu" signal)
+    (2 "In2.Cu" signal)
     (31 "B.Cu" signal)
     (32 "B.Adhes" user "B.Adhesive")
     (33 "F.Adhes" user "F.Adhesive")
@@ -1871,6 +2031,26 @@ def build_pcb():
     (49 "F.Fab" user)
   )
   (setup
+    (stackup
+      (layer "F.Cu" (type "copper") (thickness 0.035))
+      (layer "dielectric 1" (type "prepreg") (thickness 0.2104) (material "FR4")
+        (epsilon_r 4.4) (loss_tangent 0.02))
+      (layer "In1.Cu" (type "copper") (thickness 0.035))
+      (layer "dielectric 2" (type "core") (thickness 1.065) (material "FR4")
+        (epsilon_r 4.4) (loss_tangent 0.02))
+      (layer "In2.Cu" (type "copper") (thickness 0.035))
+      (layer "dielectric 3" (type "prepreg") (thickness 0.2104) (material "FR4")
+        (epsilon_r 4.4) (loss_tangent 0.02))
+      (layer "B.Cu" (type "copper") (thickness 0.035))
+      (layer "F.SilkS" (type "Top Silk Screen"))
+      (layer "F.Paste" (type "Top Solder Paste"))
+      (layer "F.Mask" (type "Top Solder Mask") (thickness 0.01))
+      (layer "B.Mask" (type "Bottom Solder Mask") (thickness 0.01))
+      (layer "B.Paste" (type "Bottom Solder Paste"))
+      (layer "B.SilkS" (type "Bottom Silk Screen"))
+      (copper_finish "None")
+      (dielectric_constraints no)
+    )
     (pad_to_mask_clearance 0)
     (allow_soldermask_bridges_in_footprints no)
     (pcbplotparams
