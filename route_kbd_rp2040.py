@@ -1005,6 +1005,115 @@ def run_routes():
                               "run_routes comment)"))
         print(f"  SKIPPED {net}: left for manual routing")
 
+    # +3V3 (7 pins: 10, 22, 33, 42, 43, 48, 49) and DVDD (pin 23) are the
+    # last of U1's power pins missing an escape_fan() stub -- every one
+    # of them sits at 0.4mm pitch between neighbors that already have
+    # their own tuned escape geometry, so a via can't be dropped at (or
+    # anywhere near) the raw pad itself in most cases. Unlike DVDD's own
+    # pin 23 fix attempted earlier (which kept finding a route that
+    # quietly stole some OTHER net's only viable path through this same
+    # neighborhood), this uses In1/In2 as dedicated "expressway" layers:
+    # once a candidate via clears EVERY layer (a via is a real
+    # through-hole -- it always needs clearance on all 4 layers,
+    # regardless of which one the trace continues on), the actual
+    # long-haul crossing happens entirely on In1/In2, which have far
+    # less copper in this area than F/B do. That means each pin's fix
+    # only has to solve ONE local problem (finding a legal via within
+    # reach of the crowded pad) instead of also fighting for a share of
+    # the same congested F/B corridor every other net here wants.
+    #
+    # Every via point below was found by a radial grid search against
+    # the real accumulated board state (nearest first, checking BOTH
+    # that the via itself is clear on all layers AND that a 2-segment
+    # F-layer jog from the raw pad can reach it) -- not guessed, and not
+    # reused from the earlier failed attempt. They're committed in a
+    # specific order (matching the code below) because, same as
+    # everywhere else in this neighborhood, committing one net's via
+    # can consume the only legal via point for its own neighbor pin.
+    def _find_via(net, x0, y0, max_r, w=W_ESCAPE):
+        import math
+        step = 0.1
+        candidates = []
+        for d in range(1, int(max_r/step)+1):
+            rad = d*step
+            n_ang = max(8, int(rad*30))
+            for a in range(n_ang):
+                ang = 2*math.pi*a/n_ang
+                x = round(x0 + rad*math.cos(ang), 2)
+                y = round(y0 + rad*math.sin(ang), 2)
+                candidates.append((rad, x, y))
+        candidates.sort()
+        for rad, x, y in candidates:
+            if not clear_for_via(x, y, net):
+                continue
+            if (clear_for_seg("F", x0, y0, x0, y, net, w/2) and
+                    clear_for_seg("F", x0, y, x, y, net, w/2)):
+                must_clear_seg("F", x0, y0, x0, y, net, w)
+                must_clear_seg("F", x0, y, x, y, net, w)
+                must_via(x, y, net)
+                return (x, y)
+            if (clear_for_seg("F", x0, y0, x, y0, net, w/2) and
+                    clear_for_seg("F", x, y0, x, y, net, w/2)):
+                must_clear_seg("F", x0, y0, x, y0, net, w)
+                must_clear_seg("F", x, y0, x, y, net, w)
+                must_via(x, y, net)
+                return (x, y)
+        raise RuntimeError(f"no legal via found for {net} near ({x0},{y0}) within {max_r}mm")
+
+    def _highway(net, src, dst, layer, w=None):
+        if w is None:
+            w = width_for(net)
+        sx, sy = src; dx, dy = dst
+        if clear_for_seg(layer, sx, sy, dx, sy, net, w/2) and clear_for_seg(layer, dx, sy, dx, dy, net, w/2):
+            must_clear_seg(layer, sx, sy, dx, sy, net, w)
+            must_clear_seg(layer, dx, sy, dx, dy, net, w)
+            return True
+        if clear_for_seg(layer, sx, sy, sx, dy, net, w/2) and clear_for_seg(layer, sx, dy, dx, dy, net, w/2):
+            must_clear_seg(layer, sx, sy, sx, dy, net, w)
+            must_clear_seg(layer, sx, dy, dx, dy, net, w)
+            return True
+        return False
+
+    v10 = _find_via("+3V3", 151.1, 32.0, 12.0)
+    _highway("+3V3", v10, (144.725, 24.0), "In2", W_PWR)
+    must_via(144.725, 24.0, "+3V3")
+
+    v22 = _find_via("+3V3", 154.95, 34.65, 3.0)
+    # lands 0.4mm short of C8's own pad -- C8 itself conflicts with
+    # COL5's In1 crossing for a via -- then a short F jog the rest of
+    # the way.
+    _highway("+3V3", v22, (144.57, 26.32), "In2", W_PWR)
+    must_via(144.57, 26.32, "+3V3")
+    must_clear_seg("F", 144.57, 26.32, 144.57, 27.0, "+3V3", W_PWR)
+    must_clear_seg("F", 144.57, 27.0, 144.725, 27.0, "+3V3", W_PWR)
+
+    v23 = _find_via("DVDD", 155.35, 34.65, 6.0)
+    _highway("DVDD", v23, (167.225, 33.0), "In2", W_PWR)
+    must_via(167.225, 33.0, "DVDD")
+
+    v33 = _find_via("+3V3", 158.4, 32.0, 4.0)
+    # same story as pin 22/C8 -- C15 conflicts with QSPI_SD0's own B
+    # elevator for a via.
+    _highway("+3V3", v33, (171.57, 34.8), "In1", W_PWR)
+    must_via(171.57, 34.8, "+3V3")
+    must_clear_seg("F", 171.57, 34.8, 171.57, 35.0, "+3V3", W_PWR)
+    must_clear_seg("F", 171.57, 35.0, 171.225, 35.0, "+3V3", W_PWR)
+
+    v42 = _find_via("+3V3", 158.4, 28.4, 4.0)
+    _highway("+3V3", v42, (175.225, 24.5), "In2", W_PWR)
+    must_via(175.225, 24.5, "+3V3")
+
+    # 43/48/49 all gather onto pin 22's own via above (already a live
+    # +3V3 landing point -- no new via needed, just a trace ending
+    # there) rather than each reaching all the way to a cap individually.
+    v43 = _find_via("+3V3", 157.35, 27.35, 2.0)
+    _highway("+3V3", v43, v22, "In2", W_PWR)
+    v48 = _find_via("+3V3", 155.35, 27.35, 2.0)
+    _highway("+3V3", v48, v22, "In2", W_PWR)
+    v49 = _find_via("+3V3", 154.95, 27.35, 2.0)
+    _highway("+3V3", v49, v22, "In2", W_PWR)
+    print("  routed +3V3 pins 10/22/33/42/43/48/49 and DVDD pin 23 via In1/In2 expressways")
+
     # VBAT_SENSE's escape point sits in a tiny (~2.6x1.2mm) F/B pocket
     # boxed in by neighboring U1 E-side pins on one side and the
     # crystal's own XIN/XOUT traces on the other -- confirmed via a
@@ -1048,28 +1157,29 @@ def run_routes():
     # electrically joined in copper; they need their own trace like any
     # other 2 points on the same net. Never routed before now.
     try_route_chain("BOOTSEL", [((166.75, 25.25), "F"), pp("SW61", "1")], 10)
-    # NOTE on DVDD (still unrouted, not fixed this pass): its 3 U1 pins
-    # (23, 45, 50) are missing from every escape_fan() call, so
-    # route_chain starts from the raw 0.4mm-pitch pad -- confirmed via
-    # flood-fill that all 3 have ZERO reachable neighbor cells there,
-    # same root cause fixed for every other U1 pin. Several fixes were
-    # tried and each individually verified working in isolation (a
-    # narrow escape stub for pin 23 reaching C9 via In1; C9->C32->C33
-    # alone with no pin stubs at all) -- but EVERY one of them, however
-    # minimal, perturbs the A* search enough that XIN's own escape (and
-    # sometimes BOOTSEL's) fails later in the SAME run, even though
-    # nothing DVDD does sits anywhere near XIN's or BOOTSEL's own
-    # geometry. This is a fragile, hard-to-predict interaction between
-    # independent A* searches (moving DVDD's own hops earlier in
-    # run_routes(), before VBAT_SENSE/XIN/XOUT, changes which path some
-    # earlier net finds through the shared north corridor, and THAT is
-    # what walls off XIN/BOOTSEL -- confirmed by reverting the reorder
-    # and getting a clean run back). Left unrouted, and left in its
-    # original position here (after BOOTSEL), rather than risk swapping
-    # which net fails on any given reorder.
-    try_route_chain("DVDD", [pp("U1", "23"), pp("C9", "1")], 10)
+    # DVDD pin 23 is now handled earlier (In2 expressway to C33, see the
+    # comment before VBAT_SENSE above) -- pins 45/50 already had clean
+    # escape stubs and route fine on their own.
     try_route_chain("DVDD", [pp("C9", "1"), pp("C32", "1")], 8)
-    try_route_chain("DVDD", [pp("C32", "1"), pp("C33", "1")], 8)
+    # C32 -> C33 stopped being a plain A* hop once BOOTSEL's own leg-to-
+    # leg trace (added this session, see the BOOTSEL fix above) and the
+    # new +3V3/DVDD expressway vias nearby ate into the same F/B corridor
+    # -- C32's own reachable F/B pocket shrank to 653 cells, walled off
+    # from C33's own (much bigger, 8025-cell) pocket by BOOTSEL's own
+    # keepout circle. Same fix as everywhere else in this neighborhood:
+    # a short local via near C32 (0.2mm away -- C32's own raw pad is
+    # itself grazed by BOOTSEL's new leg-to-leg trace), then the
+    # long-haul crossing on In1, north of BOOTSEL's keepout, then south
+    # past it on the east side where it's clear.
+    must_clear_seg("F", 163.225, 24.5, 163.08, 24.5, "DVDD", W_ESCAPE)
+    must_clear_seg("F", 163.08, 24.5, 163.08, 24.36, "DVDD", W_ESCAPE)
+    must_via(163.08, 24.36, "DVDD")
+    must_clear_seg("In1", 163.08, 24.36, 163.08, 23.5, "DVDD", W_PWR)
+    must_clear_seg("In1", 163.08, 23.5, 170.0, 23.5, "DVDD", W_PWR)
+    must_clear_seg("In1", 170.0, 23.5, 170.0, 33.0, "DVDD", W_PWR)
+    must_clear_seg("In1", 170.0, 33.0, 167.225, 33.0, "DVDD", W_PWR)
+    # no via here -- C33 already has one from pin 23's own expressway
+    # above, landing at this exact point; just terminate the trace there.
     try_route_chain("DVDD", [pp("C33", "1"), pp("U1", "45")], 10)
     try_route_chain("DVDD", [pp("C33", "1"), pp("U1", "50")], 10)
     # C33 itself was relocated in generate_kbd_rp2040.py (168.0,24.5 ->
