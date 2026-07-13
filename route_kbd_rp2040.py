@@ -1180,8 +1180,23 @@ def run_routes():
     must_clear_seg("In1", 170.0, 33.0, 167.225, 33.0, "DVDD", W_PWR)
     # no via here -- C33 already has one from pin 23's own expressway
     # above, landing at this exact point; just terminate the trace there.
-    try_route_chain("DVDD", [pp("C33", "1"), pp("U1", "45")], 10)
-    try_route_chain("DVDD", [pp("C33", "1"), pp("U1", "50")], 10)
+    #
+    # U1.45/U1.50 themselves can't reach C33's via directly: the whole
+    # x=[152,168]/y=[29,36] pocket between U1's N-side escapes and C33
+    # is packed with other nets' own vias (+3V3 pins 22/33/43/48/49,
+    # DVDD pin 23's own highway, QSPI_SD0, VBAT_SENSE, XOUT, a GND
+    # keepout) -- no lane at any y in that band clears on any layer.
+    # Fix: go the OTHER way, north of the pocket entirely, joining the
+    # C32->C33 highway's own y=23.5 In1 lane (see above) at y=23.7 --
+    # confirmed clear at that specific y for both pins (23.5 itself is
+    # blocked by a BOOTSEL via at (157.3,23.0), and every y tried in the
+    # 29-36 pocket is blocked somewhere along the run).
+    for pin_num, x0, y0 in (("45", 156.55, 27.35), ("50", 154.55, 27.35)):
+        vx, vy = _find_via("DVDD", x0, y0, 10.0)
+        must_clear_seg("In1", vx, vy, vx, 23.7, "DVDD", W_PWR)
+        must_clear_seg("In1", vx, 23.7, 163.08, 23.7, "DVDD", W_PWR)
+        must_clear_seg("In1", 163.08, 23.7, 163.08, 23.5, "DVDD", W_PWR)
+    print("  routed DVDD pins 45/50 to C33 via a y=23.7 In1 lane north of the pocket")
     # C33 itself was relocated in generate_kbd_rp2040.py (168.0,24.5 ->
     # 168.0,33.0) -- its pad center used to sit 0.89mm from BOOTSEL's own
     # 1.0mm-radius through-hole pad, closer than the 1.2mm even a
