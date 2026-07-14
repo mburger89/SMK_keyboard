@@ -601,6 +601,63 @@ def must_via(x, y, net):
         raise RuntimeError(f"deterministic via violates clearance: {net} at ({x},{y})")
     add_via(x, y, net)
 
+def _find_via(net, x0, y0, max_r, w=W_ESCAPE, x_min=None, y_min=None):
+    """Radial search from (x0,y0) for the nearest point that clears a via
+    on every layer AND is reachable from (x0,y0) via a 2-segment F-layer
+    L-path (either ordering). Commits the escape jog + via and returns
+    (x,y) on success. x_min/y_min, if given, discard candidates west/
+    north of them -- useful when the near side is known to be a dead
+    end (e.g. a long fixed wall) and searching it first would just
+    waste candidates."""
+    import math
+    step = 0.1
+    candidates = []
+    for d in range(1, int(max_r/step)+1):
+        rad = d*step
+        n_ang = max(8, int(rad*30))
+        for a in range(n_ang):
+            ang = 2*math.pi*a/n_ang
+            x = round(x0 + rad*math.cos(ang), 2)
+            y = round(y0 + rad*math.sin(ang), 2)
+            candidates.append((rad, x, y))
+    candidates.sort()
+    for rad, x, y in candidates:
+        if x_min is not None and x < x_min:
+            continue
+        if y_min is not None and y < y_min:
+            continue
+        if not clear_for_via(x, y, net):
+            continue
+        if (clear_for_seg("F", x0, y0, x0, y, net, w/2) and
+                clear_for_seg("F", x0, y, x, y, net, w/2)):
+            must_clear_seg("F", x0, y0, x0, y, net, w)
+            must_clear_seg("F", x0, y, x, y, net, w)
+            must_via(x, y, net)
+            return (x, y)
+        if (clear_for_seg("F", x0, y0, x, y0, net, w/2) and
+                clear_for_seg("F", x, y0, x, y, net, w/2)):
+            must_clear_seg("F", x0, y0, x, y0, net, w)
+            must_clear_seg("F", x, y0, x, y, net, w)
+            must_via(x, y, net)
+            return (x, y)
+    raise RuntimeError(f"no legal via found for {net} near ({x0},{y0}) within {max_r}mm")
+
+def _highway(net, src, dst, layer, w=None):
+    """2-segment L-path (either ordering) between two already-via'd
+    points on a given layer. Commits and returns True on success."""
+    if w is None:
+        w = width_for(net)
+    sx, sy = src; dx, dy = dst
+    if clear_for_seg(layer, sx, sy, dx, sy, net, w/2) and clear_for_seg(layer, dx, sy, dx, dy, net, w/2):
+        must_clear_seg(layer, sx, sy, dx, sy, net, w)
+        must_clear_seg(layer, dx, sy, dx, dy, net, w)
+        return True
+    if clear_for_seg(layer, sx, sy, sx, dy, net, w/2) and clear_for_seg(layer, sx, dy, dx, dy, net, w/2):
+        must_clear_seg(layer, sx, sy, sx, dy, net, w)
+        must_clear_seg(layer, sx, dy, dx, dy, net, w)
+        return True
+    return False
+
 def escape_jog(stage, net, nx, ny):
     """narrow manual jog away from a too-close neighboring escape stub,
     for a net whose raw escape point has no legal A* step in any
@@ -997,13 +1054,8 @@ def run_routes():
         must_clear_seg("F", tx, ty, *pp("U5", {"QSPI_SD3": "7", "QSPI_SCLK": "6",
                                                "QSPI_SD0": "5"}[net])[0], net, W_SIG)
         print(f"  routed {net}: deterministic B-layer QSPI lane at y={lane_y}")
-    for net in ("QSPI_SD2", "QSPI_SCLK", "QSPI_SD3"):
-        skipped_nets.append((net, "left for manual routing -- the U1-north "
-                              "escape strip only has room for QSPI_SD1 (F) and "
-                              "QSPI_SD0 (B); every other net's own gathering "
-                              "drop or elevator wall blocks the rest (see "
-                              "run_routes comment)"))
-        print(f"  SKIPPED {net}: left for manual routing")
+    # QSPI_SD2/SCLK/SD3 are skipped further below, AFTER the +3V3/DVDD
+    # expressway block -- see the comment there for why.
 
     # +3V3 (7 pins: 10, 22, 33, 42, 43, 48, 49) and DVDD (pin 23) are the
     # last of U1's power pins missing an escape_fan() stub -- every one
@@ -1030,50 +1082,6 @@ def run_routes():
     # specific order (matching the code below) because, same as
     # everywhere else in this neighborhood, committing one net's via
     # can consume the only legal via point for its own neighbor pin.
-    def _find_via(net, x0, y0, max_r, w=W_ESCAPE):
-        import math
-        step = 0.1
-        candidates = []
-        for d in range(1, int(max_r/step)+1):
-            rad = d*step
-            n_ang = max(8, int(rad*30))
-            for a in range(n_ang):
-                ang = 2*math.pi*a/n_ang
-                x = round(x0 + rad*math.cos(ang), 2)
-                y = round(y0 + rad*math.sin(ang), 2)
-                candidates.append((rad, x, y))
-        candidates.sort()
-        for rad, x, y in candidates:
-            if not clear_for_via(x, y, net):
-                continue
-            if (clear_for_seg("F", x0, y0, x0, y, net, w/2) and
-                    clear_for_seg("F", x0, y, x, y, net, w/2)):
-                must_clear_seg("F", x0, y0, x0, y, net, w)
-                must_clear_seg("F", x0, y, x, y, net, w)
-                must_via(x, y, net)
-                return (x, y)
-            if (clear_for_seg("F", x0, y0, x, y0, net, w/2) and
-                    clear_for_seg("F", x, y0, x, y, net, w/2)):
-                must_clear_seg("F", x0, y0, x, y0, net, w)
-                must_clear_seg("F", x, y0, x, y, net, w)
-                must_via(x, y, net)
-                return (x, y)
-        raise RuntimeError(f"no legal via found for {net} near ({x0},{y0}) within {max_r}mm")
-
-    def _highway(net, src, dst, layer, w=None):
-        if w is None:
-            w = width_for(net)
-        sx, sy = src; dx, dy = dst
-        if clear_for_seg(layer, sx, sy, dx, sy, net, w/2) and clear_for_seg(layer, dx, sy, dx, dy, net, w/2):
-            must_clear_seg(layer, sx, sy, dx, sy, net, w)
-            must_clear_seg(layer, dx, sy, dx, dy, net, w)
-            return True
-        if clear_for_seg(layer, sx, sy, sx, dy, net, w/2) and clear_for_seg(layer, sx, dy, dx, dy, net, w/2):
-            must_clear_seg(layer, sx, sy, sx, dy, net, w)
-            must_clear_seg(layer, sx, dy, dx, dy, net, w)
-            return True
-        return False
-
     # pin 10's own 2-segment L-path search (what _find_via tries) only
     # finds a via 9.2mm due north, at (151.73,22.82) -- the resulting
     # long straight F-layer wall at x=151.73 sits right next to QSPI_SS's
@@ -1141,6 +1149,31 @@ def run_routes():
     v49 = _find_via("+3V3", 154.95, 27.35, 2.0)
     _highway("+3V3", v49, v22, "In2", W_PWR)
     print("  routed +3V3 pins 10/22/33/42/43/48/49 and DVDD pin 23 via In1/In2 expressways")
+
+    # QSPI_SD2/SCLK/SD3 were each attempted with the same In1/In2
+    # "expressway" technique that fixed +3V3/DVDD above (a via near each
+    # net's own escape point, a separate via near its own U5 approach
+    # point, and a long-haul crossing entirely on In1/In2). SCLK alone
+    # can be made to reach U5 (via a detour around BOOTSEL's keepouts,
+    # its own via/descent, and +3V3 pin 42's own In2 crossing), but
+    # SD2/SD3 cannot -- every via candidate east of +3V3 pin 10's own
+    # In2 wall (151.06,34.41)-(151.06,24.0) sits in a pocket boxed in by
+    # QSPI_SD0/SCLK's own F escapes, USB_DP's F escape, the raw N-side
+    # pin row, +3V3 pin 22/42's own In2 L-paths, and GND's large pad.
+    # Worse, SCLK's own fix ends up needing enough of this same
+    # neighborhood (its detour crosses y=23.7 and x=176.5 over a wide
+    # span) that it breaks BOOTSEL's and DVDD's own already-working
+    # routes -- a net loss (1 QSPI data line fixed at the cost of a
+    # button and core power). Left all three unrouted rather than trade
+    # a partial, regression-causing fix for no complete QSPI interface
+    # anyway (SD2/SD3 are required for quad-mode flash access).
+    for net in ("QSPI_SD2", "QSPI_SCLK", "QSPI_SD3"):
+        skipped_nets.append((net, "left for manual routing -- the U1-north "
+                              "escape strip only has room for QSPI_SD1 (F) and "
+                              "QSPI_SD0 (B); every other net's own gathering "
+                              "drop or elevator wall blocks the rest (see "
+                              "run_routes comment)"))
+        print(f"  SKIPPED {net}: left for manual routing")
 
     # VBAT_SENSE's escape point sits in a tiny (~2.6x1.2mm) F/B pocket
     # boxed in by neighboring U1 E-side pins on one side and the
