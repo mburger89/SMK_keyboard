@@ -1264,6 +1264,22 @@ def run_routes():
     # zero-width trace needs, so no route could ever leave it in any
     # direction. That part is a genuine, permanent placement fix and
     # stays regardless of whether DVDD's own routing above ever succeeds.
+    # VREG_VIN's escape point sits only 0.567mm from DVDD's own via at
+    # (156.86,25.99) (part of the pin 45/50 -> C33 gather fix above) --
+    # closer than the 0.625mm a normal-width (W_SIG) departure needs, so
+    # the A* search can't leave its own escape point at all. A short
+    # jog east to (158.0,26.55), still at the escape stub's own narrow
+    # width, clears the via with room to spare before handing off.
+    escape_jog(stage, "VREG_VIN", 158.0, 26.55)
+    # Past that first via, the search still can't reach C34: x=161 is a
+    # solid wall from y=23 to y=32, stacked from several different
+    # nets' own copper -- QSPI_SS/QSPI_SD1 (y=22.8-23.5), a DVDD
+    # crossing (y=25.5), XIN's own pad+wall (y=26-28.5), and the E-side
+    # BT_*/VBAT_SENSE escape_fan cluster (y=29-32, raw pins starting at
+    # x=158.4). The only clear crossings found (y=30.5, 33.5, 34.0) are
+    # south of VREG_VIN's own reachable pocket, and a straight run down
+    # to them hits BT_REG_ON's own raw pad directly. Left unrouted --
+    # same oversaturated-neighborhood story as QSPI_SCLK/SD2/SD3 above.
     try_route_chain("VREG_VIN", [stage["VREG_VIN"], pp("C34", "1")], 20)
 
     # ================= RGB chain =================
