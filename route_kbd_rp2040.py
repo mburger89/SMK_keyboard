@@ -1267,6 +1267,24 @@ def run_routes():
     try_route_chain("VREG_VIN", [stage["VREG_VIN"], pp("C34", "1")], 20)
 
     # ================= RGB chain =================
+    # RGB_GPIO's escape stub runs parallel and immediately adjacent to
+    # COL11's own (wider, W_SIG) trunk trace for its entire length --
+    # both are consecutive S-side escape_fan pins (0.4mm pitch) moving
+    # in the same direction, and COL11 continues past its own escape
+    # depth via s_side_col_fanout's deterministic matrix lane, a long
+    # horizontal at y=39.75 spanning nearly the whole board width (not
+    # just a local pinch). Two W_SIG (0.25mm) traces need 0.45mm pitch
+    # to coexist; confirmed via astar()'s own src-item seeding (every
+    # cell along RGB_GPIO's existing 0.1mm-wide escape stub is within
+    # COL11's clearance zone, so the search can't leave its own escape
+    # point at normal width). Fix: jog east (clears COL11's vertical
+    # stub) and slightly north to y=39.3 (0.45mm from COL11's y=39.75
+    # trunk -- staying at the escape stub's own y=39.45 sits exactly
+    # 0.3mm away, a floating-point tie at the clearance boundary that
+    # fails in practice, same issue documented in escape_fan's own
+    # docstring), at the escape stub's own narrow width, before handing
+    # off to the normal-width A*.
+    escape_jog(stage, "RGB_GPIO", 158.4, 39.3)
     try_route_chain("RGB_GPIO", [stage["RGB_GPIO"], pp("U7", "2")], 40)
     try_route_chain("GND", [pp("U7", "1"), pp("U7", "3")], 4)
     try_route_chain("LEDD0", [pp("U7", "4"), pp("R10", "1")], 6)
