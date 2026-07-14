@@ -1074,7 +1074,20 @@ def run_routes():
             return True
         return False
 
-    v10 = _find_via("+3V3", 151.1, 32.0, 12.0)
+    # pin 10's own 2-segment L-path search (what _find_via tries) only
+    # finds a via 9.2mm due north, at (151.73,22.82) -- the resulting
+    # long straight F-layer wall at x=151.73 sits right next to QSPI_SS's
+    # own escape stub (152.15,23.35, only 0.42mm away -- not enough
+    # clearance for a via) and traps XIN's escape pocket down to 24
+    # cells, breaking both nets. Fix: go south instead of north -- a
+    # short jog to x=151.73 (clearing pin10's own crowded column), then
+    # down to y=34.41 (2.5mm, vs. 9.2mm north) and back to x=151.06,
+    # which is clear of both QSPI_SS's and XIN's own escape stubs.
+    must_clear_seg("F", 151.1, 32.0, 151.73, 32.0, "+3V3", W_ESCAPE)
+    must_clear_seg("F", 151.73, 32.0, 151.73, 34.41, "+3V3", W_ESCAPE)
+    must_clear_seg("F", 151.73, 34.41, 151.06, 34.41, "+3V3", W_ESCAPE)
+    must_via(151.06, 34.41, "+3V3")
+    v10 = (151.06, 34.41)
     _highway("+3V3", v10, (144.725, 24.0), "In2", W_PWR)
     must_via(144.725, 24.0, "+3V3")
 
@@ -1099,6 +1112,21 @@ def run_routes():
     must_clear_seg("F", 171.57, 34.8, 171.57, 35.0, "+3V3", W_PWR)
     must_clear_seg("F", 171.57, 35.0, 171.225, 35.0, "+3V3", W_PWR)
 
+    # pin 42's own via, wherever it lands within several mm of its raw
+    # pad, sits on the RP2040 crystal's (Y1) only viable approach to
+    # XIN's escape point -- confirmed by testing half a dozen candidate
+    # via positions spanning a 3mm arc (both closer and farther from the
+    # pad, in every open direction) and finding XIN's own A* search
+    # fails identically regardless of exactly where pin 42's via goes.
+    # Reordering (routing XIN before this block) doesn't help either --
+    # it just pushes the same conflict onto DVDD pin 23 instead, whose
+    # own via search then finds nothing within 15mm. This pocket (U1's
+    # N side, between the crystal and the QSPI/BOOTSEL cluster) is
+    # already known to be oversaturated -- see QSPI_SCLK/SD2/SD3,
+    # VREG_VIN and RGB_GPIO below, all left unrouted for the same
+    # reason. +3V3 pin 42 is real board power and wins here; XIN is
+    # left for manual routing in KiCad's interactive router, same as
+    # the other nets in this pocket.
     v42 = _find_via("+3V3", 158.4, 28.4, 4.0)
     _highway("+3V3", v42, (175.225, 24.5), "In2", W_PWR)
     must_via(175.225, 24.5, "+3V3")
