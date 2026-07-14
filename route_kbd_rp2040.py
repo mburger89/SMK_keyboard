@@ -1366,6 +1366,30 @@ def run_routes():
     try_route_chain("VBUS", [pp("J1", "A4"), pp("U4", "5")], 14)
     try_route_chain("CC1", [((USBX+1.25, 31.7), "F"), pp("R1", "1")], 8)
     try_route_chain("CC2", [((USBX-1.75, 32.2), "B"), pp("R2", "1")], 8)
+    # USB_DM's own escape point can't depart at normal width: it's
+    # 0.4mm from USB_DP's own parallel escape stub (same 0.4mm-pitch
+    # neighbor problem as everywhere else on U1), and a straight jog
+    # east crosses DVDD's own escape stub (x=156.55, y=25.99-27.35).
+    # Jog north first (to y=25.4, clear of DVDD's stub) then east to
+    # x=159.0 -- confirmed clear at normal width from there. USB_DP's
+    # own escape point has no such local conflict.
+    #
+    # Neither net can complete the long-haul hop to U4 near the USB
+    # connector, though (~90mm away): the whole neighborhood around
+    # U1's N-side escape cluster is only reachable via B layer (F is
+    # blocked solid by DVDD/XIN/QSPI/BOOTSEL geometry), but it also
+    # sits inside U1_ESCAPE_NOVIA (143-165, 24-38) -- generic A* is
+    # barred from creating a via there (by design, to keep it from
+    # sprinkling vias through this delicate escape fan-out), so it can
+    # never bridge from the F-declared escape point down to the
+    # B-reachable region. Placing that via manually (bypassing the
+    # policy, as done for +3V3/DVDD/QSPI elsewhere) doesn't help either
+    # -- every candidate landing point just past the zone boundary
+    # (x=165-176) is itself blocked by a different net's own via or
+    # wall (BOOTSEL's keepout, XOUT's pad, DVDD's pin-23 via, QSPI_SD0's
+    # own B-layer elevator at x=171). Left unrouted.
+    escape_jog(stage, "USB_DM", stage["USB_DM"][0][0], 25.4)
+    escape_jog(stage, "USB_DM", 159.0, 25.4)
     try_route_chain("USB_DM", [pp("U4", "1"), stage["USB_DM"]], 30)
     try_route_chain("USB_DP", [pp("U4", "3"), stage["USB_DP"]], 30)
     try_route_chain("VBUS", [pp("U4", "5"), pp("Q1", "1")], 20)
