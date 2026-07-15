@@ -16,10 +16,24 @@ from shapely.geometry import Point, LineString, box, Polygon
 from shapely.strtree import STRtree
 from shapely import affinity
 
-PCB = "gateron_lp_kbd/gateron_lp_kbd.kicad_pcb"
+# Board path can be overridden on the command line, e.g.:
+#   .routing_venv/bin/python3 drc_check.py gateron_lp_kbd_rp2040/gateron_lp_kbd_rp2040.kicad_pcb
+PCB = sys.argv[1] if len(sys.argv) > 1 else "gateron_lp_kbd/gateron_lp_kbd.kicad_pcb"
 CL_MIN = 0.19
 HOLE_MIN = 0.25
 EDGE_MIN = 0.30
+# All copper layers checked. The RP2040 variant is a 4-layer board with
+# real routing on In1/In2 (row trunks, power/QSPI expressways) -- a
+# 2-layer-only check silently skips those tracks for both clearance and
+# connectivity. Harmless for the 2-layer ESP32 board (inner groups empty).
+LAYERS = ("F", "In1", "In2", "B")
+
+def short_layer(name):
+    name = str(name)
+    for l in ("In1", "In2"):
+        if f"{l}.Cu" in name:
+            return l
+    return "B" if "B.Cu" in name else "F"
 
 def kids(n, name):
     return [x for x in n if isinstance(x, list) and x and x[0] == Symbol(name)]
@@ -77,22 +91,20 @@ for fp in kids(pcb, "footprint"):
             geom = Point(gx, gy).buffer(max(sx, sy)/2, 32)
         lay = " ".join(str(t) for t in kid(p, "layers"))
         if ptype == "thru_hole":
-            copper.append((geom, "F", net, desc))
-            copper.append((geom, "B", net, desc))
+            for L in LAYERS:
+                copper.append((geom, L, net, desc))
             dr = kid(p, "drill")
             if dr:
                 vals = [float(v) for v in dr[1:] if not isinstance(v, (Symbol, list))]
                 dd = max(vals) if vals else 0
                 holes.append((Point(gx, gy).buffer(dd/2, 32), net, desc))
-        elif "B.Cu" in lay:
-            copper.append((geom, "B", net, desc))
         else:
-            copper.append((geom, "F", net, desc))
+            copper.append((geom, short_layer(lay), net, desc))
 
 for sg in kids(pcb, "segment"):
     st, en = kid(sg, "start"), kid(sg, "end")
     w = float(kid(sg, "width")[1])
-    lay = "F" if "F.Cu" in str(kid(sg, "layer")[1]) else "B"
+    lay = short_layer(kid(sg, "layer")[1])
     net = netnames[int(kid(sg, "net")[1])]
     ls = LineString([(float(st[1]), float(st[2])), (float(en[1]), float(en[2]))])
     copper.append((ls.buffer(w/2, 16), lay, net, "track"))
@@ -104,15 +116,15 @@ for v in kids(pcb, "via"):
     dr = float(kid(v, "drill")[1])
     net = netnames[int(kid(v, "net")[1])]
     g = Point(x, y).buffer(sz/2, 32)
-    copper.append((g, "F", net, "via"))
-    copper.append((g, "B", net, "via"))
+    for L in LAYERS:
+        copper.append((g, L, net, "via"))
     holes.append((Point(x, y).buffer(dr/2, 32), net, "via"))
 
 print(f"copper items: {len(copper)}, holes: {len(holes)}")
 
 # ---------------- A. copper-copper clearance ----------------
 viol = 0
-for LAY in ("F", "B"):
+for LAY in LAYERS:
     geoms = [c[0] for c in copper if c[1] == LAY]
     meta = [c for c in copper if c[1] == LAY]
     tree = STRtree(geoms)
@@ -134,7 +146,7 @@ print(f"A. copper clearance violations: {viol}")
 
 # ---------------- B. hole-copper ----------------
 hviol = 0
-for LAY in ("F", "B"):
+for LAY in LAYERS:
     geoms = [c[0] for c in copper if c[1] == LAY]
     meta = [c for c in copper if c[1] == LAY]
     tree = STRtree(geoms)
@@ -193,8 +205,8 @@ for i, (g, lay, net, desc) in enumerate(copper):
 for net, idxs in bynet.items():
     if net is None:
         continue
-    # group by layer for touching; via/THT items appear on both layers
-    for LAY in ("F", "B"):
+    # group by layer for touching; via/THT items appear on all layers
+    for LAY in LAYERS:
         sub = [i for i in idxs if copper[i][1] == LAY]
         geoms = [copper[i][0] for i in sub]
         if not geoms:
