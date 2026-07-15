@@ -957,10 +957,11 @@ def run_routes():
         ("29", "BT_REG_ON"), ("30", "BT_DEV_WAKE"), ("31", "BT_UART_RXD"),
         ("32", "BT_UART_TXD"), ("34", "BT_UART_RTS_N"), ("35", "BT_UART_CTS_N"),
         ("38", "VBAT_SENSE"), ("40", "BT_HOST_WAKE")], "E"))
+    # QSPI pins are NOT in this fan -- their stubs get hand-picked depths
+    # in the QSPI section below (each tip must land at a specific y that
+    # matches U5's pad rows / wrap lanes, not a uniform staircase).
     stage.update(escape_fan([
-        ("44", "VREG_VIN"), ("46", "USB_DM"), ("47", "USB_DP"),
-        ("51", "QSPI_SD3"), ("52", "QSPI_SCLK"), ("53", "QSPI_SD0"),
-        ("54", "QSPI_SD2"), ("55", "QSPI_SD1"), ("56", "QSPI_SS")], "N"))
+        ("44", "VREG_VIN"), ("46", "USB_DM"), ("47", "USB_DP")], "N"))
 
     # escape_fan already lands every net on the front layer, which is
     # nearly empty here except column trunks -- the long-haul A* travels
@@ -981,81 +982,72 @@ def run_routes():
     # "RP2040 minimum system" section (which used to come first) for
     # exactly that reason.
     #
-    # QSPI_SD3/SCLK/SD0/SD2 sit between U1's escape cluster and U1's own
-    # DVDD/BOOTSEL/GND parts (directly north): only ~0.6mm of clear F-layer
-    # room survives there (y 22.5-23.05), enough for one narrow lane, not
-    # four. QSPI_SD1's own escape depth happens to land just below the
-    # DVDD cluster's lower edge, giving it a clear F-only shot to U5 that
-    # none of the others get (kept as-is below).
-    # U5's pin6 (SCLK) additionally has no legal final A* step at all --
-    # every grid cell touching it sits inside the pad-to-pad clearance
-    # zone of its two neighbors, pins 5 and 7 (0.5mm pitch, 0.45x0.25mm
-    # pads) -- so the last inch is placed manually from a verified-clear
-    # approach point instead, the same fix used for the W-side/S-side
-    # fine-pitch escapes.
-    # every U5 pin needs the same manual last-inch treatment -- pins 1/2/3
-    # (west column) approach from between the two pin columns (x=166.025),
-    # pins 5/6 (east column) also from between (x=166.975), and pin 7 only
-    # clears from outside/east of the whole package (x=168.575) -- each
-    # verified individually via clear_for_seg.
-    escape_jog(stage, "QSPI_SD1", 170.0, stage["QSPI_SD1"][0][1])
-    must_clear_seg("F", 170.0, stage["QSPI_SD1"][0][1], 170.0, 37.6, "QSPI_SD1", W_ESCAPE)
-    must_clear_seg("F", 170.0, 37.6, 166.025, 37.6, "QSPI_SD1", W_SIG)
-    must_clear_seg("F", 166.025, 37.6, 166.025, 34.75, "QSPI_SD1", W_SIG)
-    must_clear_seg("F", 166.025, 34.75, *pp("U5", "2")[0], "QSPI_SD1", W_SIG)
-
-    # QSPI_SD3/SCLK/SD0 use B layer instead: B has no DVDD/BOOTSEL copper at
-    # all (those are F-only SMD/switch pads) except BOOTSEL's own
-    # through-hole barrel, which is easily dodged -- y 22.5-24.0 is clear
-    # on B across the width needed (edge-inset-safe range; the true
-    # boundary is board-edge-limited at the shallow end, BOOTSEL-limited
-    # at the deep end). Each net: narrow F jog away from its immediate
-    # physically-adjacent neighbor's escape stub (same 0.4mm-pitch
-    # via-clearance problem fixed on the W/S sides) -> via to B -> narrow
-    # B travel to its own elevator column, offset from QSPI_SD1's own
-    # x=170 column (its horizontal there runs at y=23.75, and its vertical
-    # at x=170.0 spans y 23.75-37.6 -- both must be cleared) -> via back
-    # to F -> south, then west into U5's approach points.
+    # ---- QSPI fanout: U5 sits directly WEST of U1's QSPI pin bank ----
+    # (moved in generate_kbd_rp2040.py from (166.5,35) -- see the comment
+    # there. The old south-east placement forced every QSPI net around
+    # U1's east side; the lane/elevator system that required (SD1's F
+    # lane at y=23.75 spanning x 152.55-170, plus B/F elevators at
+    # x=170-174) sealed the whole U1-north pocket and made QSPI_SD2/
+    # SCLK/SD3, XIN, VREG_VIN and USB_DM/DP unroutable.)
     #
-    # Of the remaining 4, only QSPI_SD0 fits a fully verified deterministic
-    # path here. QSPI_SD0's own F->B via sits at x=158.0, needing a "drop"
-    # segment on B (from its via down to a lane_y within the clear
-    # 22.5-24.0 band) that spans nearly the whole band -- any other net
-    # whose own horizontal needs to cross x=158.0 (which all of them do,
-    # since their jog points and elevator columns straddle it) runs into
-    # that drop somewhere no matter which lane_y or processing order is
-    # tried (confirmed: reordering to process the farthest-reaching net
-    # first avoids ITS horizontal blocking others' elevators, but not the
-    # reverse -- an earlier net's own gathering drop still walls off
-    # anyone needing to cross its jog x). QSPI_SCLK and QSPI_SD3 are left
-    # unrouted (see skipped_nets below) rather than force an unverified
-    # geometry through that same pinch point.
-    qspi_plan = {
-        "QSPI_SD0": (158.0, -0.2, 22.6, 171.0, (166.975, 35.75)),
-    }
-    # QSPI_SD1's own F-layer approach forms an L-shape (horizontal at
-    # y=37.6 from x=166.025 to 170.0, vertical at x=170.0 from y=23.75 to
-    # 37.6) that walls off every U5 pin near it from the east on F -- so
-    # the other 3 nets stay on B for the ENTIRE descent+approach (B has no
-    # copy of SD1's F-only geometry to run into) and only hop to F for the
-    # last inch directly into each real pad.
-    for net, (jogx, jog_shift, lane_y, elevx, (tx, ty)) in qspi_plan.items():
-        ex, ey = stage[net][0]
-        jogy = ey + jog_shift
-        must_clear_seg("F", ex, ey, jogx, ey, net, W_ESCAPE)
-        must_clear_seg("F", jogx, ey, jogx, jogy, net, W_ESCAPE)
-        must_via(jogx, jogy, net)
-        must_clear_seg("B", jogx, jogy, jogx, lane_y, net, W_ESCAPE)
-        must_clear_seg("B", jogx, lane_y, elevx, lane_y, net, W_ESCAPE)
-        must_clear_seg("B", elevx, lane_y, elevx, 38.2, net, W_ESCAPE)
-        must_clear_seg("B", elevx, 38.2, tx, 38.2, net, W_SIG)
-        must_clear_seg("B", tx, 38.2, tx, ty, net, W_SIG)
-        must_via(tx, ty, net)
-        must_clear_seg("F", tx, ty, *pp("U5", {"QSPI_SD3": "7", "QSPI_SCLK": "6",
-                                               "QSPI_SD0": "5"}[net])[0], net, W_SIG)
-        print(f"  routed {net}: deterministic B-layer QSPI lane at y={lane_y}")
-    # QSPI_SD2/SCLK/SD3 are skipped further below, AFTER the +3V3/DVDD
-    # expressway block -- see the comment there for why.
+    # Stub depths are hand-picked per net instead of escape_fan's uniform
+    # staircase (parallel verticals at 0.4mm pin pitch never collide, so
+    # any depth assignment is legal; only the horizontals need distinct,
+    # planned y's):
+    #   SD3/SCLK/SD0 tips land EXACTLY on U5's east-column pad rows
+    #   (pins 7/6/5 at y 23.75/24.25/24.75) -> three dead-straight lanes.
+    #   SS/SD1/SD2 tips land SOUTH of U5's pad field (y 26.15/25.75/
+    #   25.35) -> each runs west under U5, turns north on U5's west side
+    #   (x 147.2/147.55/147.9), and enters its west-column pad (pins
+    #   1/2/3 at y 23.25/23.75/24.25) from the west. Nesting is
+    #   crossing-free by construction: a net's own vertical spans only
+    #   [its pad y, its lane y], and every other net's horizontals sit
+    #   outside that span (checked pairwise; must_clear_seg re-verifies
+    #   every segment against the real accumulated board at emit time).
+    QSPI_STUBS = [
+        ("56", "QSPI_SS",   26.15),
+        ("55", "QSPI_SD1",  25.75),
+        ("54", "QSPI_SD2",  25.35),
+        ("53", "QSPI_SD0",  24.75),   # = U5 pad 5 row
+        ("52", "QSPI_SCLK", 24.25),   # = U5 pad 6 row
+        ("51", "QSPI_SD3",  23.75),   # = U5 pad 7 row
+    ]
+    for num, net, tipy in QSPI_STUBS:
+        px, py, _ = pad_pos[("U1", num)]
+        add_seg("F", px, py, px, tipy, net, W_ESCAPE)
+        stage[net] = ((px, tipy), "F")
+    # east column: straight lanes (tip y == pad row y by construction)
+    for net, padnum in (("QSPI_SD3", "7"), ("QSPI_SCLK", "6"), ("QSPI_SD0", "5")):
+        (ex, ey), _ = stage[net]
+        (tx, ty), _ = pp("U5", padnum)
+        must_clear_seg("F", ex, ey, tx, ty, net, W_ESCAPE)
+        print(f"  routed {net}: straight lane y={ey} into U5.{padnum}")
+    # west column: south lane -> vertical on U5's west flank -> east leg
+    for net, padnum, vx in (("QSPI_SS", "1", 147.2), ("QSPI_SD1", "2", 147.55),
+                            ("QSPI_SD2", "3", 147.9)):
+        (ex, ey), _ = stage[net]
+        (tx, ty), _ = pp("U5", padnum)
+        must_clear_seg("F", ex, ey, vx, ey, net, W_ESCAPE)
+        must_clear_seg("F", vx, ey, vx, ty, net, W_ESCAPE)
+        must_clear_seg("F", vx, ty, tx, ty, net, W_ESCAPE)
+        print(f"  routed {net}: SW wrap via x={vx} into U5.{padnum}")
+    # +3V3 feed for the relocated U5/C15: a dedicated F lane at y=22.7
+    # from C7's own +3V3 pad, riding the strip between the board edge
+    # (copper floor 22.45) and everything U5-related (the wrap verticals
+    # top out at pad-row y>=23.25; U5/C15 pad tops are >=23.0/22.68 --
+    # the lane lands directly ON C15 pad 1, which is the same net).
+    must_clear_seg("F", 144.725, 24.0, 144.725, 22.7, "+3V3", W_SIG)
+    must_clear_seg("F", 144.725, 22.7, 152.215, 22.7, "+3V3", W_SIG)
+    must_clear_seg("F", 152.215, 22.7, 152.215, 23.0, "+3V3", W_SIG)
+    print("  routed +3V3 edge lane C7 -> C15/U5")
+    # USB_DM's two escape jogs and VREG_VIN's jog, hoisted from their
+    # sections further below: they must commit before any long-haul A*
+    # (QSPI_SS to R11, XIN to C13 in particular) is free to claim the
+    # same corridors through the now-open pocket. VREG_VIN's jog exists
+    # because its raw escape point sits 0.567mm from DVDD's pin-45/50
+    # via -- too close for a normal-width A* departure.
+    escape_jog(stage, "USB_DM", stage["USB_DM"][0][0], 25.4)
+    escape_jog(stage, "USB_DM", 159.0, 25.4)
 
     # +3V3 (7 pins: 10, 22, 33, 42, 43, 48, 49) and DVDD (pin 23) are the
     # last of U1's power pins missing an escape_fan() stub -- every one
@@ -1113,28 +1105,22 @@ def run_routes():
     must_via(167.225, 33.0, "DVDD")
 
     v33 = _find_via("+3V3", 158.4, 32.0, 4.0)
-    # same story as pin 22/C8 -- C15 conflicts with QSPI_SD0's own B
-    # elevator for a via.
-    _highway("+3V3", v33, (171.57, 34.8), "In1", W_PWR)
-    must_via(171.57, 34.8, "+3V3")
-    must_clear_seg("F", 171.57, 34.8, 171.57, 35.0, "+3V3", W_PWR)
-    must_clear_seg("F", 171.57, 35.0, 171.225, 35.0, "+3V3", W_PWR)
+    # C15 moved next to U5, west of U1 (see generate_kbd_rp2040.py), so
+    # the old (171.57, 34.8) landing point no longer has +3V3 copper.
+    # Land on C11's own +3V3 pad instead (via-in-pad, same net). A plain
+    # 2-segment _highway L can't get there on In1: DVDD's own riser
+    # (x=170, y 23.5-33) walls In1 at every y in that span, so pass
+    # SOUTH of its bottom end at y=34.2 with an explicit 3-segment path.
+    must_clear_seg("In1", v33[0], v33[1], v33[0], 34.2, "+3V3", W_PWR)
+    must_clear_seg("In1", v33[0], 34.2, 179.225, 34.2, "+3V3", W_PWR)
+    must_clear_seg("In1", 179.225, 34.2, 179.225, 24.5, "+3V3", W_PWR)
+    must_via(179.225, 24.5, "+3V3")
 
-    # pin 42's own via, wherever it lands within several mm of its raw
-    # pad, sits on the RP2040 crystal's (Y1) only viable approach to
-    # XIN's escape point -- confirmed by testing half a dozen candidate
-    # via positions spanning a 3mm arc (both closer and farther from the
-    # pad, in every open direction) and finding XIN's own A* search
-    # fails identically regardless of exactly where pin 42's via goes.
-    # Reordering (routing XIN before this block) doesn't help either --
-    # it just pushes the same conflict onto DVDD pin 23 instead, whose
-    # own via search then finds nothing within 15mm. This pocket (U1's
-    # N side, between the crystal and the QSPI/BOOTSEL cluster) is
-    # already known to be oversaturated -- see QSPI_SCLK/SD2/SD3,
-    # VREG_VIN and RGB_GPIO below, all left unrouted for the same
-    # reason. +3V3 pin 42 is real board power and wins here; XIN is
-    # left for manual routing in KiCad's interactive router, same as
-    # the other nets in this pocket.
+    # (Historical note: with U5 at its old south-east spot, pin 42's via
+    # sat on the crystal's only viable approach and XIN was unroutable no
+    # matter where the via landed. With U5 moved west and the QSPI
+    # lane/elevator system gone, XIN now routes -- via the C13-first,
+    # XIN-before-XOUT ordering in the minimum-system section below.)
     v42 = _find_via("+3V3", 158.4, 28.4, 4.0)
     _highway("+3V3", v42, (175.225, 24.5), "In2", W_PWR)
     must_via(175.225, 24.5, "+3V3")
@@ -1150,30 +1136,28 @@ def run_routes():
     _highway("+3V3", v49, v22, "In2", W_PWR)
     print("  routed +3V3 pins 10/22/33/42/43/48/49 and DVDD pin 23 via In1/In2 expressways")
 
-    # QSPI_SD2/SCLK/SD3 were each attempted with the same In1/In2
-    # "expressway" technique that fixed +3V3/DVDD above (a via near each
-    # net's own escape point, a separate via near its own U5 approach
-    # point, and a long-haul crossing entirely on In1/In2). SCLK alone
-    # can be made to reach U5 (via a detour around BOOTSEL's keepouts,
-    # its own via/descent, and +3V3 pin 42's own In2 crossing), but
-    # SD2/SD3 cannot -- every via candidate east of +3V3 pin 10's own
-    # In2 wall (151.06,34.41)-(151.06,24.0) sits in a pocket boxed in by
-    # QSPI_SD0/SCLK's own F escapes, USB_DP's F escape, the raw N-side
-    # pin row, +3V3 pin 22/42's own In2 L-paths, and GND's large pad.
-    # Worse, SCLK's own fix ends up needing enough of this same
-    # neighborhood (its detour crosses y=23.7 and x=176.5 over a wide
-    # span) that it breaks BOOTSEL's and DVDD's own already-working
-    # routes -- a net loss (1 QSPI data line fixed at the cost of a
-    # button and core power). Left all three unrouted rather than trade
-    # a partial, regression-causing fix for no complete QSPI interface
-    # anyway (SD2/SD3 are required for quad-mode flash access).
-    for net in ("QSPI_SD2", "QSPI_SCLK", "QSPI_SD3"):
-        skipped_nets.append((net, "left for manual routing -- the U1-north "
-                              "escape strip only has room for QSPI_SD1 (F) and "
-                              "QSPI_SD0 (B); every other net's own gathering "
-                              "drop or elevator wall blocks the rest (see "
-                              "run_routes comment)"))
-        print(f"  SKIPPED {net}: left for manual routing")
+    # DVDD pins 45/50 via gather + VREG_VIN's jog, in claim order:
+    # v48/v49 (2.0mm search radius, most fragile) must land first; the
+    # pin 45/50 vias (10mm radius) next -- and both before VREG_VIN's
+    # fixed jog walls off the (156-158, 25.5-27.3) pocket, and before
+    # XIN's now-successful A* (minimum-system section below) is free to
+    # snake through the same cells. The In1 segments emitted here end at
+    # (163.08, 23.5), where the C32->C33 highway (committed later, see
+    # its own comment) has its own In1 lane: same net, copper overlaps,
+    # no via needed at the joint. VREG_VIN's jog exists because its raw
+    # escape point sits 0.567mm from DVDD's pin-45 via -- too close for
+    # a normal-width A* departure.
+    for pin_num, x0, y0 in (("45", 156.55, 27.35), ("50", 154.55, 27.35)):
+        vx, vy = _find_via("DVDD", x0, y0, 10.0)
+        must_clear_seg("In1", vx, vy, vx, 23.7, "DVDD", W_PWR)
+        must_clear_seg("In1", vx, 23.7, 163.08, 23.7, "DVDD", W_PWR)
+        must_clear_seg("In1", 163.08, 23.7, 163.08, 23.5, "DVDD", W_PWR)
+    print("  routed DVDD pins 45/50 to C33 via a y=23.7 In1 lane north of the pocket")
+    escape_jog(stage, "VREG_VIN", 158.0, 26.55)
+
+    # (QSPI_SD2/SCLK/SD3 used to be force-skipped here -- unroutable
+    # around the old south-east U5 placement. All six QSPI nets are now
+    # laid out deterministically in the QSPI section above.)
 
     # VBAT_SENSE's escape point sits in a tiny (~2.6x1.2mm) F/B pocket
     # boxed in by neighboring U1 E-side pins on one side and the
@@ -1194,17 +1178,27 @@ def run_routes():
     try_route_chain("VBAT_SENSE", [stage["VBAT_SENSE"], pp("C5", "1")], 30)
 
     # ================= RP2040 minimum system =================
+    # XIN before XOUT, and C13 (its load cap) as the first target: XIN's
+    # escape tip sits one 0.4mm pin-pitch inside XOUT's, so whichever of
+    # the two routes first claims the only southern corridor out of the
+    # S-side stub comb (the y>38 strip where vias become legal again --
+    # everything shallower is inside U1_ESCAPE_NOVIA). XOUT's own target
+    # (Y1.2, the crystal's EAST pad) is the easier one to reach second.
+    # With the old order, XIN was sealed into a dead pocket every run.
+    try_route_chain("XIN", [stage["XIN"], pp("C13", "1")], 20)
+    try_route_chain("XIN", [pp("C13", "1"), pp("Y1", "1")], 6)
     try_route_chain("XOUT", [stage["XOUT"], pp("Y1", "2")], 20)
-    try_route_chain("XIN", [stage["XIN"], pp("Y1", "1")], 20)
-    try_route_chain("XIN", [pp("Y1", "1"), pp("C13", "1")], 6)
     try_route_chain("XOUT", [pp("Y1", "2"), pp("C14", "1")], 6)
     # QSPI_SS routed here, before RUN/BOOTSEL/+3V3 below: U5 (SPI flash) has
     # 0.5mm-pitch pads, and routing those other chains first was observed to
     # wall off the approach to U5 entirely (confirmed by re-running with
     # only the escape fanouts done -- QSPI_SCLK's own approach succeeds in
     # isolation, and fails only once RUN/QSPI_SS/BOOTSEL are routed first).
+    # (single chain now: U5.1 is already tied to U1.56's stub by the
+    # deterministic SW wrap in the QSPI section, so R11 only needs to
+    # reach the net once -- the old second chain re-crossed the whole
+    # board to connect two already-connected points.)
     try_route_chain("QSPI_SS", [stage["QSPI_SS"], pp("R11", "2")], 30)
-    try_route_chain("QSPI_SS", [pp("R11", "2"), pp("U5", "1")], 20)
     try_route_chain("+3V3", [pp("U5", "8"), pp("C15", "1")], 8)
     try_route_chain("RUN", [stage["RUN"], pp("R9", "1")], 30)
     try_route_chain("RUN", [pp("R9", "1"), pp("C12", "1")], 6)
@@ -1255,25 +1249,22 @@ def run_routes():
     # confirmed clear at that specific y for both pins (23.5 itself is
     # blocked by a BOOTSEL via at (157.3,23.0), and every y tried in the
     # 29-36 pocket is blocked somewhere along the run).
-    for pin_num, x0, y0 in (("45", 156.55, 27.35), ("50", 154.55, 27.35)):
-        vx, vy = _find_via("DVDD", x0, y0, 10.0)
-        must_clear_seg("In1", vx, vy, vx, 23.7, "DVDD", W_PWR)
-        must_clear_seg("In1", vx, 23.7, 163.08, 23.7, "DVDD", W_PWR)
-        must_clear_seg("In1", 163.08, 23.7, 163.08, 23.5, "DVDD", W_PWR)
-    print("  routed DVDD pins 45/50 to C33 via a y=23.7 In1 lane north of the pocket")
+    # (the pins 45/50 via gather itself was hoisted to the early claim
+    # section after the QSPI block: it must grab its via landing spots
+    # in the U1-north pocket before VREG_VIN's jog and XIN's now-
+    # successful A* route consume them. The In1 segs it emits join this
+    # highway's own y=23.5 lane at x=163.08 -- copper overlap on the
+    # same net, no via needed at the joint.)
     # C33 itself was relocated in generate_kbd_rp2040.py (168.0,24.5 ->
     # 168.0,33.0) -- its pad center used to sit 0.89mm from BOOTSEL's own
     # 1.0mm-radius through-hole pad, closer than the 1.2mm even a
     # zero-width trace needs, so no route could ever leave it in any
     # direction. That part is a genuine, permanent placement fix and
     # stays regardless of whether DVDD's own routing above ever succeeds.
-    # VREG_VIN's escape point sits only 0.567mm from DVDD's own via at
-    # (156.86,25.99) (part of the pin 45/50 -> C33 gather fix above) --
-    # closer than the 0.625mm a normal-width (W_SIG) departure needs, so
-    # the A* search can't leave its own escape point at all. A short
-    # jog east to (158.0,26.55), still at the escape stub's own narrow
-    # width, clears the via with room to spare before handing off.
-    escape_jog(stage, "VREG_VIN", 158.0, 26.55)
+    # (VREG_VIN's escape jog to (158.0, 26.55) was hoisted to the early
+    # claim section after the QSPI block -- once XIN started routing
+    # successfully through the reopened pocket, its A* was free to claim
+    # this corridor first and the late jog crashed on clearance.)
     # Past that first via, the search still can't reach C34: x=161 is a
     # solid wall from y=23 to y=32, stacked from several different
     # nets' own copper -- QSPI_SS/QSPI_SD1 (y=22.8-23.5), a DVDD
@@ -1342,8 +1333,38 @@ def run_routes():
     try_route_chain("CYW_VDD1P5", [pp("L3", "2"), pp("C20", "1")], 10)
     # antenna matching network + antenna (0.4mm feed trace, W_RF)
     try_route_chain("WLRF_ANT", [pp("L2", "1"), pp("C17", "1")], 8)
-    try_route_chain("WLRF_ANT_MID", [pp("L2", "2"), pp("C18", "1")], 8)
-    try_route_chain("WLRF_ANT_MID", [pp("C18", "1"), pp("ANT1", "1")], 10)
+    # WLRF_ANT_MID (L2.2 -> C18.1 -> ANT1's FEED pad) is deterministic:
+    # generic A* can never route it. Two structural reasons: (1) the A*
+    # mask rasterizes the ENTIRE antenna keepout rect as a routing ban --
+    # a conservative simplification of the real zone, which only bans
+    # pour/vias and explicitly allows tracks -- and ANT1's feed pad is
+    # inside that rect, so no search reaches it; (2) at W_RF=0.4mm, any
+    # trace leaving L2's 0201 pad at pad center violates clearance to
+    # L2's OTHER pad 0.49mm away -- the attachment must land on the
+    # pad's outer edge (y=34.13, still overlapping copper) and leave
+    # straight away from pad 1.
+    # Path (all F, all W_RF): off L2.2's north edge, east at y=33.4
+    # (0.58 clear of the C17/C18 pad row at 34.5, 0.6 clear of U6's
+    # southmost ball row), a short stub south into C18.1 (the DNP shunt
+    # tuning cap -- 1mm stub, negligible at DNP), then north at x=47.5
+    # through the U6/Y2 gap (U6's easternmost balls end ~46.3; Y2.1's
+    # west edge is 48.2 -- 0.5+ clear both sides; the Y2/C30 corridor
+    # at x=52.3 was tried first and is crossed by the CYW_XTAL_XOP/XON
+    # traces running east from Y2 at y~30), west at y=23.3 across the
+    # keepout (tracks allowed there; 0.3 clear of and north of ANT1's
+    # NC pad 2), and south into the FEED pad. C17 is NOT touched here --
+    # it belongs to WLRF_ANT (the U6 side of L2), routed by the chain
+    # above.
+    # RF caveat (documented in generate_kbd_rp2040.py too): the final
+    # matching values need real tuning on this board, and Johanson's
+    # free layout review should see this exact geometry before fab.
+    must_clear_seg("F", 45.0, 34.13, 45.0, 33.4, "WLRF_ANT_MID", W_RF)
+    must_clear_seg("F", 45.0, 33.4, 52.3, 33.4, "WLRF_ANT_MID", W_RF)
+    must_clear_seg("F", 52.3, 33.4, 52.3, 34.4, "WLRF_ANT_MID", W_RF)
+    must_clear_seg("F", 47.5, 33.4, 47.5, 23.3, "WLRF_ANT_MID", W_RF)
+    must_clear_seg("F", 47.5, 23.3, 43.65, 23.3, "WLRF_ANT_MID", W_RF)
+    must_clear_seg("F", 43.65, 23.3, 43.65, 24.5, "WLRF_ANT_MID", W_RF)
+    print("  routed WLRF_ANT_MID feed: L2 -> C18 stub -> ANT1 at 0.4mm RF width")
 
     # ================= USB / charger / battery / LDO =================
     # Reused near-verbatim from route_kbd.py: U1-U4, J1, J2, Q1, D60, SW60,
@@ -1391,8 +1412,10 @@ def run_routes():
     # (x=165-176) is itself blocked by a different net's own via or
     # wall (BOOTSEL's keepout, XOUT's pad, DVDD's pin-23 via, QSPI_SD0's
     # own B-layer elevator at x=171). Left unrouted.
-    escape_jog(stage, "USB_DM", stage["USB_DM"][0][0], 25.4)
-    escape_jog(stage, "USB_DM", 159.0, 25.4)
+    # (USB_DM's escape jogs were hoisted to right after the QSPI section:
+    # with the U1-north pocket now open, QSPI_SS's own long-haul A* was
+    # free to claim the exact corridor the jog needs -- claiming it
+    # before any A* runs makes the jog deterministic again.)
     try_route_chain("USB_DM", [pp("U4", "1"), stage["USB_DM"]], 30)
     try_route_chain("USB_DP", [pp("U4", "3"), stage["USB_DP"]], 30)
     try_route_chain("VBUS", [pp("U4", "5"), pp("Q1", "1")], 20)

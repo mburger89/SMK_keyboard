@@ -1508,7 +1508,7 @@ def build_schematic():
     labels.append(sch_glabel("QSPI_SCLK", 106.68, 109.22, 0))
     labels.append(sch_glabel("QSPI_SD3", 106.68, 106.68, 0))
     labels.append(sch_glabel("+3V3", 106.68, 104.14, 0))
-    two_pin("C15", "C_kbd", "100n", 96.52, 114.3, "+3V3", "GND", C0603)
+    two_pin("C15", "C_kbd", "100n", 96.52, 114.3, "+3V3", "GND", "kbd:RC_0402")
 
     # ---- CYW43439 wireless (BLE-only) -- datasheet-verified net plan ----
     # Crystal freq, ball map, BT UART interface and power topology are from
@@ -1825,10 +1825,25 @@ def build_pcb():
     fps.append(fp_crystal_smd("Y1", "12MHz", 164.0, 30.0, 0, U("sym", "Y1"), "XIN", "XOUT"))
     fps.append(fp_0603("C13", "18p", 161.5, 26.5, 0, U("sym", "C13"), "XIN", "GND"))
     fps.append(fp_0603("C14", "18p", 166.5, 26.5, 0, U("sym", "C14"), "XOUT", "GND"))
-    fps.append(fp_flash8("U5", 166.5, 35.0, 0, U("sym", "U5"),
+    # U5 was at (166.5, 35.0) -- SOUTH-EAST of U1 while the QSPI pins exit
+    # NORTH. Every QSPI line had to wrap around U1's east side, and the
+    # resulting lane/elevator system (QSPI_SD1's F lane at y=23.75 plus
+    # the x=170-174 elevators) sealed the whole U1-north pocket: QSPI_SD2/
+    # SCLK/SD3, XIN, VREG_VIN and USB_DM/DP were all unroutable behind it
+    # (verified by probing the router's own A* masks). Moved directly WEST
+    # of the QSPI pin bank -- the Pico reference design's arrangement.
+    # At (149.8, 24.0) rot 0, the footprint's east column lands pins
+    # 8/7/6/5 (VCC/SD3/SCLK/SD0) top-to-bottom at x=151.075, y=23.25/
+    # 23.75/24.25/24.75 -- so SD3/SCLK/SD0's escape stubs (x 154.15/
+    # 153.75/153.35) can run dead-straight west into their pads, and
+    # SS/SD1/SD2 wrap around the west column (see route_kbd_rp2040.py's
+    # QSPI section for the verified lane geometry).
+    fps.append(fp_flash8("U5", 149.8, 24.0, 0, U("sym", "U5"),
                          {1: "QSPI_SS", 2: "QSPI_SD1", 3: "QSPI_SD2", 4: "GND",
                           5: "QSPI_SD0", 6: "QSPI_SCLK", 7: "QSPI_SD3", 8: "+3V3"}))
-    fps.append(fp_0603("C15", "100n", 172.0, 35.0, 0, U("sym", "C15"), "+3V3", "GND"))
+    # C15 follows U5 (it's U5's VCC decoupling): 0402 now, tucked into the
+    # band above the QSPI stub tips, pad 1 (+3V3) 1.1mm from U5 pin 8.
+    fps.append(fp_0402("C15", "100n", 152.7, 23.0, 0, U("sym", "C15"), "+3V3", "GND"))
     fps.append(fp_0603("R9", "1k", 184.0, 24.5, 0, U("sym", "R9"), "RUN", "+3V3"))
     fps.append(fp_0603("C12", "100n", 188.0, 24.5, 0, U("sym", "C12"), "RUN", "GND"))
 
