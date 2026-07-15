@@ -1213,11 +1213,14 @@ def run_routes():
     try_route_chain("+3V3", [pp("C10", "1"), pp("C11", "1")], 6)
     try_route_chain("BOOTSEL", [pp("R11", "1"), pp("SW61", "1")], 100)
     # SW61 (6mm THT push button) has 2 physical solder pads for its own
-    # pin "1" -- diagonal legs at (166.75,25.25) and (173.25,25.25), per
-    # fp_btn6mm's own footprint -- sharing a pad NAME doesn't make them
-    # electrically joined in copper; they need their own trace like any
-    # other 2 points on the same net. Never routed before now.
-    try_route_chain("BOOTSEL", [((166.75, 25.25), "F"), pp("SW61", "1")], 10)
+    # pin "1" -- diagonal legs at center +/-3.25 in x, per fp_btn6mm's own
+    # footprint -- sharing a pad NAME doesn't make them electrically
+    # joined in copper; they need their own trace like any other 2 points
+    # on the same net. pp() returns the east leg (last parsed); the west
+    # leg's coordinate is hardcoded here. SW61 moved (170,27.5) ->
+    # (196,27.5) in generate_kbd_rp2040.py (its old THT pads shorted into
+    # Y1/C14/C34), so the legs are now at (192.75,25.25)/(199.25,25.25).
+    try_route_chain("BOOTSEL", [((192.75, 25.25), "F"), pp("SW61", "1")], 10)
     # DVDD pin 23 is now handled earlier (In2 expressway to C33, see the
     # comment before VBAT_SENSE above) -- pins 45/50 already had clean
     # escape stubs and route fine on their own.

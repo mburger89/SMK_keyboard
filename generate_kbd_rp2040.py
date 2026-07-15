@@ -433,8 +433,8 @@ def fp_gateron(ref, x, y, n_pad1, n_pad2, path_uuid, is2u=False):
     return s + "\n".join(body) + "\n  )\n"
 
 # ---- SOD-123 diode on the back --------------------------------------------
-def fp_diode(ref, x, y, rot, n_k, n_a, path_uuid):
-    s = fp_header("kbd:D_SOD-123_Back", ref, "1N4148W", x, y, rot,
+def fp_diode(ref, x, y, rot, n_k, n_a, path_uuid, val="1N4148W"):
+    s = fp_header("kbd:D_SOD-123_Back", ref, val, x, y, rot,
                   layer="B.Cu", attr="smd", ref_at=(0, -2.2), val_at=(0, 2.2),
                   path_uuid=path_uuid)
     b = []
@@ -598,20 +598,21 @@ def fp_0603(ref, val, x, y, rot, path_uuid, n1, n2, led=False):
 # passives use -- a too-large pad here works electrically but doesn't match
 # the real component footprint. VERIFY against the exact vendor's land
 # pattern drawing before fab; these are generic IPC-nominal dimensions.
-def fp_0402(ref, val, x, y, rot, path_uuid, n1, n2):
-    s = fp_header("kbd:RC_0402", ref, val, x, y, rot,
+def fp_0402(ref, val, x, y, rot, path_uuid, n1, n2, side="F"):
+    L = "B" if side == "B" else "F"
+    s = fp_header("kbd:RC_0402", ref, val, x, y, rot, layer=f"{L}.Cu",
                   ref_at=(0, -1.1), path_uuid=path_uuid, val_at=(0, 1.1))
     b = []
     b.append(pad(1, "smd", "roundrect", -0.485, 0, 0.54, 0.64,
-                 '"F.Cu" "F.Paste" "F.Mask"', n1, rot=rot,
+                 f'"{L}.Cu" "{L}.Paste" "{L}.Mask"', n1, rot=rot,
                  extra=" (roundrect_rratio 0.25)"))
     b.append(pad(2, "smd", "roundrect", 0.485, 0, 0.54, 0.64,
-                 '"F.Cu" "F.Paste" "F.Mask"', n2, rot=rot,
+                 f'"{L}.Cu" "{L}.Paste" "{L}.Mask"', n2, rot=rot,
                  extra=" (roundrect_rratio 0.25)"))
-    b.append(fprect(-0.5, -0.25, 0.5, 0.25, "F.Fab"))
-    b.append(fpline(-0.99, -0.55, 0.99, -0.55, "F.SilkS"))
-    b.append(fpline(-0.99, 0.55, 0.99, 0.55, "F.SilkS"))
-    b.append(fprect(-1.0, -0.6, 1.0, 0.6, "F.CrtYd", 0.05))
+    b.append(fprect(-0.5, -0.25, 0.5, 0.25, f"{L}.Fab"))
+    b.append(fpline(-0.99, -0.55, 0.99, -0.55, f"{L}.SilkS"))
+    b.append(fpline(-0.99, 0.55, 0.99, 0.55, f"{L}.SilkS"))
+    b.append(fprect(-1.0, -0.6, 1.0, 0.6, f"{L}.CrtYd", 0.05))
     b.append(model(f"{KICAD3D}/Resistor_SMD.3dshapes/R_0402_1005Metric.step"))
     return s + "\n".join(b) + "\n  )\n"
 
@@ -718,6 +719,24 @@ def fp_btn6mm(ref, val, x, y, rot, path_uuid, n1, n2, side="F"):
     b.append(fprect(-3.0, -3.0, 3.0, 3.0, side + ".Fab"))
     b.append(fprect(-4.4, -3.5, 4.4, 3.5, side + ".CrtYd", 0.05))
     b.append(model(f"{KICAD3D}/Button_Switch_THT.3dshapes/SW_PUSH_6mm.step"))
+    return s + "\n".join(b) + "\n  )\n"
+
+# ---- 1mm fiducial: bare copper dot, 2mm mask opening -----------------------
+# Pick-and-place vision targets. Required in practice for this board's
+# assembly: U1 is a 0.4mm-pitch QFN-56 and U6 a 0.4mm-pitch WLBGA-63, and
+# both sides carry SMD parts (hot-swap sockets, reverse-mount LEDs, diodes
+# on B.Cu). Three per side, in an asymmetric triangle so the vision system
+# can detect a flipped or rotated board.
+def fp_fiducial(ref, x, y, path_uuid, side="F"):
+    layer = "B" if side == "B" else "F"
+    s = fp_header("kbd:FIDUCIAL_1MM", ref, "FIDUCIAL", x, y, 0,
+                  layer=f"{layer}.Cu",
+                  attr="smd exclude_from_pos_files exclude_from_bom",
+                  ref_at=(0, -1.9), path_uuid=path_uuid, val_at=(0, 1.9))
+    b = [pad(1, "smd", "circle", 0, 0, 1.0, 1.0,
+             f'"{layer}.Cu" "{layer}.Mask"', None,
+             extra=" (solder_mask_margin 0.5)"),
+         fprect(-1.5, -1.5, 1.5, 1.5, f"{layer}.CrtYd", 0.05)]
     return s + "\n".join(b) + "\n  )\n"
 
 def fp_hole(ref, x, y):
@@ -1913,7 +1932,24 @@ def build_pcb():
         # is 0.97mm pad-to-pad, so a fix verified against only one pad
         # left the other one still inside a hole's keepout) clears both
         # holes, on both pads, with real margin.
-        fps.append(fp_0402(f"C{100+i}", "100n", x - 1.8, ly + 3.1, 0, U("sym", f"C{100+i}"), "VSYS", "GND"))
+        # Y offset then tightened 3.1 -> 3.0: at +3.1 the GND pad's nearest
+        # corner sat 2.807mm from the switch's 5.2mm center-stem NPTH
+        # (2.6mm hole radius) = 0.207mm hole-to-copper -- legal under the
+        # old 0.2mm search rule but below drc_check.py's 0.25mm HOLE_MIN.
+        # At +3.0 that corner distance is 2.900mm = 0.30mm clearance, and
+        # the LED light-transmission cutout on the other side still has
+        # >0.6mm to spare (its required-clearance zone starts ~2.83mm from
+        # the LED center; this pad corner is ~2.88mm away).
+        # Side moved F -> B: the vendor KS-33 STEP model's bottom housing
+        # is FLUSH at z=0 across this spot (no molded recess -- checked the
+        # model's own point cloud; the only relief is elsewhere, at z=0.5),
+        # so a 0.35mm-tall 0402 on F.Cu here would keep the switch from
+        # seating flat -- on all 59 keys. On B.Cu the same XY keeps every
+        # hole clearance identical by symmetry, sits on the same layer as
+        # the reverse-mount LED pads it decouples (no via needed in its
+        # local loop), and physically shares the back side with the
+        # 3.05mm-tall hot-swap socket, which dwarfs it.
+        fps.append(fp_0402(f"C{100+i}", "100n", x - 1.8, ly + 3.0, 0, U("sym", f"C{100+i}"), "VSYS", "GND", side="B"))
     # ---- USB ----
     usb_net = {"A1": "GND", "B12": "GND", "A12": "GND", "B1": "GND", "S1": "GND",
                "A4": "VBUS", "B9": "VBUS", "A9": "VBUS", "B4": "VBUS",
@@ -1930,7 +1966,10 @@ def build_pcb():
                            5: "VBUS", 6: "USB_DM"}, npins=6))
     fps.append(fp_sot23("Q1", "DMG3415U", 137.0, 31.0, 0, U("sym", "Q1"),
                         {1: "VBUS", 2: "BAT+", 3: "VSYS"}))
-    fps.append(fp_diode("D60", 137.0, 35.5, 0, "VSYS", "VBUS", U("sym", "D60")))
+    # D60 is the B5819W VBUS Schottky, not a 1N4148W like the matrix diodes
+    # sharing this footprint -- the value must say so or a PCB-side BOM/
+    # assembly pass would stuff a 150mA signal diode into the power path.
+    fps.append(fp_diode("D60", 137.0, 35.5, 0, "VSYS", "VBUS", U("sym", "D60"), val="B5819W"))
     # D60 authored on back layer by fp_diode; that's fine (Schottky on back)
     fps.append(fp_0603("R1", "5.1k", 255.8, 34.2, 90, U("sym", "R1"), "CC1", "GND"))
     fps.append(fp_0603("R2", "5.1k", 258.8, 36.2, 90, U("sym", "R2"), "CC2", "GND"))
@@ -1952,7 +1991,17 @@ def build_pcb():
     fps.append(fp_slide("SW62", 105.0, 23.9, 0, U("sym", "SW62"),
                         {1: "VSYS", 2: "EN_LDO", 3: "GND"}))
     fps.append(fp_btn6mm("SW60", "RESET", 93.5, 27.5, 0, U("sym", "SW60"), "RUN", "GND", side="B"))
-    fps.append(fp_btn6mm("SW61", "BOOTSEL", 170.0, 27.5, 0, U("sym", "SW61"), "BOOTSEL", "GND", side="B"))
+    # Was at (170.0, 27.5): that dropped SW61's 6mm body straight onto the
+    # already-populated crystal/QSPI pocket -- its THT pads (2mm annular,
+    # at center +/-3.25, +/-2.25, on ALL copper layers) landed at 0.000mm
+    # from Y1.2 (XOUT), C14.1 (XOUT) and C34.2 (GND): three drilled shorts,
+    # confirmed by the independent drc_check. The same four through-holes
+    # were also the "BOOTSEL keepout" wall that route_kbd_rp2040.py's own
+    # comments repeatedly cite as blocking the U1-north escape pocket
+    # (XIN, QSPI_SD2/SCLK/SD3, VREG_VIN, USB_DM's long-haul). Moved to the
+    # verified-empty band between C12/R11 (x<=188) and C1/U2 (x>=211):
+    # courtyard 191.6-200.4 x 24-31 clears everything with >2mm margin.
+    fps.append(fp_btn6mm("SW61", "BOOTSEL", 196.0, 27.5, 0, U("sym", "SW61"), "BOOTSEL", "GND", side="B"))
     fps.append(fp_0603("R11", "330", 184.0, 27.5, 0, U("sym", "R11"), "BOOTSEL", "QSPI_SS"))
     # ---- mounting holes ----
     hi = 1
@@ -1961,6 +2010,17 @@ def build_pcb():
             hx, hy = key_xy(hr, hc)
             fps.append(fp_hole(f"H{hi}", hx, hy))
             hi += 1
+
+    # ---- fiducials (see fp_fiducial) ----
+    # Same three spots on both sides (both carry SMD). Verified clear:
+    # (42, 135.5) sits between the bottom key row's courtyards (end at
+    # y=133.7) and the board edge (y=138.5), nearest part D49 at 8.3mm;
+    # (267, 135.5) bottom-right corner, nothing within 11mm; (230, 26)
+    # top strip between LED1/R4 (>=7mm) and U4. Deliberately NOT in the
+    # top-left corner -- that's the antenna keepout.
+    for fi, (fx, fy) in enumerate([(42.0, 135.5), (267.0, 135.5), (230.0, 26.0)]):
+        fps.append(fp_fiducial(f"FID{fi+1}", fx, fy, U("sym", f"FID{fi+1}")))
+        fps.append(fp_fiducial(f"FID{fi+4}", fx, fy, U("sym", f"FID{fi+4}"), side="B"))
 
     nets_decl = "\n".join(f'  (net {i} "{n}")' for i, n in enumerate(NETS))
     b = BOARD
@@ -2193,6 +2253,7 @@ def export_libs():
         ("SW_Slide_MSK12C02", fp_slide("REF**", 0, 0, 0, None, empty)),
         ("SW_PUSH_6mm_THT", fp_btn6mm("REF**", "SW", 0, 0, 0, None, None, None)),
         ("MountingHole_M2", fp_hole("REF**", 0, 0)),
+        ("FIDUCIAL_1MM", fp_fiducial("REF**", 0, 0, None)),
         ("RP2040_QFN56", fp_rp2040("REF**", 0, 0, None, empty)),
         ("FLASH_USON8", fp_flash8("REF**", 0, 0, 0, None, empty)),
         ("XTAL_3225", fp_crystal_smd("REF**", "XTAL", 0, 0, 0, None, None, None)),
