@@ -10,13 +10,17 @@ Windows:
 Linux:
   python3 export_fab.py   (with kicad installed system-wide)
 
-Output: fab/ directory + gateron_lp_kbd_gerbers.zip -> upload the zip to PCBWay.
+Output: fab/ directory + gateron_lp_kbd_rp2040_gerbers.zip -> upload the zip to PCBWay.
 """
 import os, zipfile
 import pcbnew
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-BOARD = os.path.join(HERE, "gateron_lp_kbd.kicad_pcb")
+# This is the RP2040 variant's board. A stray copy of the ESP32 board's
+# files also lives in this directory -- do NOT point this at
+# gateron_lp_kbd.kicad_pcb or the wrong (2-layer, ESP32) board gets
+# zone-filled and exported.
+BOARD = os.path.join(HERE, "gateron_lp_kbd_rp2040.kicad_pcb")
 OUT = os.path.join(HERE, "fab")
 os.makedirs(OUT, exist_ok=True)
 
@@ -51,6 +55,11 @@ except Exception:
 
 layers = [
     ("F_Cu",      pcbnew.F_Cu,      "Top copper"),
+    # 4-layer stackup -- the inner layers carry real routing (matrix row
+    # trunks on In1, power/QSPI expressways on In2); omitting them would
+    # fab a broken 2-layer subset of the board.
+    ("In1_Cu",    pcbnew.In1_Cu,    "Inner 1 copper"),
+    ("In2_Cu",    pcbnew.In2_Cu,    "Inner 2 copper"),
     ("B_Cu",      pcbnew.B_Cu,      "Bottom copper"),
     ("F_Mask",    pcbnew.F_Mask,    "Top mask"),
     ("B_Mask",    pcbnew.B_Mask,    "Bottom mask"),
@@ -76,7 +85,7 @@ writer.CreateDrillandMapFilesSet(OUT, True, False)
 print("drill files written")
 
 # 4. zip for PCBWay
-zpath = os.path.join(HERE, "gateron_lp_kbd_gerbers.zip")
+zpath = os.path.join(HERE, "gateron_lp_kbd_rp2040_gerbers.zip")
 with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
     for f in sorted(os.listdir(OUT)):
         z.write(os.path.join(OUT, f), f)
