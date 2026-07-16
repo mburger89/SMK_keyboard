@@ -1932,7 +1932,12 @@ def build_pcb():
     # it outside the antenna_keepout zone. NOT the old 2-layer board's
     # ~3.0mm figure, and NOT the thin digital-signal trace width used
     # elsewhere on this board either.
-    fps.append(fp_0201("L2", "2.7nH (ref: Johanson)", 45.0, 34.5, 90, U("sym", "L2"), "WLRF_ANT", "WLRF_ANT_MID"))
+    # rot 270 (was 90): puts pad 1 (WLRF_ANT, the U6 side) on the NORTH
+    # side facing the chip and pad 2 (WLRF_ANT_MID, the antenna side) on
+    # the SOUTH facing the feed run -- with the original orientation the
+    # chip-side trace and the feed run had to cross each other to reach
+    # their pads (see route_kbd_rp2040.py's U6 fanout section).
+    fps.append(fp_0201("L2", "2.7nH (ref: Johanson)", 45.0, 34.5, 270, U("sym", "L2"), "WLRF_ANT", "WLRF_ANT_MID"))
     fps.append(fp_0402("C17", "1.2p (ref: Johanson)", 49.0, 34.5, 0, U("sym", "C17"), "WLRF_ANT", "GND"))
     fps.append(fp_0402("C18", "DNP (VERIFY, tune)", 53.0, 34.5, 0, U("sym", "C18"), "WLRF_ANT_MID", "GND"))
     # Real antenna, placed inside the antenna_keepout zone (below, y 22-26)

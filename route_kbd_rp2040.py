@@ -17,13 +17,24 @@ itself changed between variants, not the surrounding power/USB circuitry.
 
 KNOWN LIMITATION -- read before assuming full routing: the CYW43439 (U6)
 is a WLBGA-63 package at 0.4mm ball pitch. A standard via (0.6mm diameter)
-physically cannot fit between adjacent balls at that pitch -- this is true
-for ANY board using this exact chip at this pitch on a standard 2-layer
-process, not a flaw introduced here. Every net at U6 reduces to a simple
-2-pin connection to one external part (confirmed by net analysis), so
-this script routes each external part right up to U6's footprint edge and
-stops there; the final hop into U6's own balls needs either a via-in-pad/
-microvia fab process or careful manual routing, and isn't attempted here.
+physically cannot fit between adjacent balls at that pitch. The U6 fanout
+section now hand-routes every ball with a legal straight-ray escape
+(outer columns/rows plus missing-ball channels): 8 nets are FULLY routed
+ball-to-part (XTAL XON/XOP, XTAL_VDD1P2, VDD1P5, VOUT_LNLDO, VOUT_3P3,
+BT_VCO_VDD, WLRF_ANT), and PA_VDD/VSYS reach the chip through one of
+their two balls (H1/B7; the redundant M1/F7 balls are boxed in). Still
+split after this pass -- with committed escape stubs where reachable:
+  - BT_UART_RXD/TXD/RTS_N + BT_DEV_WAKE/BT_HOST_WAKE: the U6-side stub
+    exists, but the U1-side E-fan stage tips are sealed inside the
+    crystal pocket by the XIN/XOUT/VBAT/BOOTSEL weave (routed earlier,
+    and fragile -- see the minimum-system section). Finish manually or
+    rework the E-side pocket.
+  - CYW_SR_VLX, CYW_BT_IF_VDD: stubbed; their A* chains starve on the
+    shared west/north via corridors (sequential greed -- each routed
+    net consumes a slot the next one needed).
+  - BT_UART_CTS_N (B2), BT_REG_ON (E6), CYW_BTFM_PLL_VDD (F2),
+    +3V3 (F6), CYW_VOUT_CLDO (C6/D3/G4): balls geometrically sealed at
+    0.4mm pitch -- these genuinely need via-in-pad/microvia fab (HDI).
 
 Clearance target: 0.2 mm copper-copper, 0.3 mm hole-copper, 0.45 mm edge.
 """
@@ -1318,6 +1329,138 @@ def run_routes():
             nref = f"RGB{i + 1}"
             try_route_chain(f"LEDD{i}", [pp(ref, "2"), pp(nref, "4")], 32)
             try_route_chain("VSYS", [pp(ref, "3"), pp(nref, "3")], 32)
+    # ============ U6 (CYW43439) outer-ball fanout + RF feed ============
+    # The WLBGA-63's 0.4mm ball pitch fits no via or trace between
+    # adjacent balls, so only balls with a clear straight ray off the
+    # package (outer columns/rows, plus channels through MISSING ball
+    # positions) are routable on F.Cu. Everything here is deterministic
+    # (must_clear_seg self-verifies at emit time) or a short stub handed
+    # to A* via a staging point just outside the router's U6 bbox mask.
+    # Escape stubs are W_ESCAPE (0.1mm): lateral clearance to the
+    # neighbouring 0.25mm balls at 0.4mm pitch is 0.225mm.
+    #
+    # Balls with NO legal escape (verified against the ball map, pad
+    # edge +0.19 clearance per 0.1mm trace): B2 (BT_UART_CTS_N -- the
+    # single B3/A3 gap channel is taken by C3/RTS below), E6
+    # (BT_REG_ON), F2 (CYW_BTFM_PLL_VDD), F6 (+3V3), C6/D3/G4
+    # (CYW_VOUT_CLDO), and the interior GND balls. Those stay
+    # via-in-pad/HDI territory (see the file header).
+    # West stubs, ALTERNATING tip depths (42.95 / 42.25): with uniform
+    # tips, each tip's exit cells sit inside the adjacent stubs' A*
+    # clearance masks and the middle nets are sealed at birth -- the
+    # same reason escape_fan staircases. Alternating 0.7mm clears every
+    # tip's west neighbour cell (verified against the mask arithmetic:
+    # adjacent-stub mask reaches tip_x - 0.075 at worst).
+    for desig, net, tipx in (("A1", "BT_UART_RXD", 42.95),
+                             ("B1", "BT_DEV_WAKE", 42.25),
+                             ("C1", "BT_HOST_WAKE", 42.95),
+                             ("F1", "CYW_BT_VCO_VDD", 42.95),
+                             ("G1", "CYW_BT_IF_VDD", 42.25),
+                             ("H1", "CYW_PA_VDD", 42.95)):
+        (bx, by), _ = pp("U6", desig)
+        must_clear_seg("F", bx, by, tipx, by, net, W_ESCAPE)
+    # north stubs: A2/A6 straight out; C3 (BT_UART_RTS_N) escapes through
+    # the B3+A3 missing-ball channel at x=44.6. Tips stay south of the
+    # antenna-keepout mask (y >= 26.4) so A* can start there.
+    for desig, net, tipy in (("A2", "BT_UART_TXD", 26.9),
+                             ("A6", "CYW_SR_VLX", 26.7),
+                             ("C3", "BT_UART_RTS_N", 26.5)):
+        (bx, by), _ = pp("U6", desig)
+        must_clear_seg("F", bx, by, bx, tipy, net, W_ESCAPE)
+    # East pocket: the strip between U6's bbox and Y2 is too narrow for
+    # multiple free A* starting points, so B7/C7/D6 ride a deterministic
+    # LADDER out to the open top strip east of the antenna keepout:
+    # each net gets a vertical on U6's east flank (0.35 pitch), an
+    # eastward lane over Y2 (0.35 pitch, each 0.6 longer than the one
+    # above), and a final north nib that clears every shorter lane --
+    # tips land 0.6mm apart in open board at y=25.5. E7 (CYW_VOUT_3P3)
+    # keeps a simple stub: its row sits below the ladder verticals and
+    # escapes south/via-to-B. F7 is skipped -- same net (VSYS) as B7.
+    for desig, net, vx, laney, nibx in (
+            ("B7", "VSYS",           47.00, 26.30, 52.8),
+            ("C7", "CYW_VDD1P5",     47.35, 26.65, 53.4),
+            ("D6", "CYW_VOUT_LNLDO", 47.70, 27.00, 54.0)):
+        (bx, by), _ = pp("U6", desig)
+        must_clear_seg("F", bx, by, vx, by, net, W_ESCAPE)
+        must_clear_seg("F", vx, by, vx, laney, net, W_ESCAPE)
+        must_clear_seg("F", vx, laney, nibx, laney, net, W_ESCAPE)
+        must_clear_seg("F", nibx, laney, nibx, 25.5, net, W_ESCAPE)
+    (bx, by), _ = pp("U6", "E7")
+    must_clear_seg("F", bx, by, 46.9, by, "CYW_VOUT_3P3", W_ESCAPE)
+    print("  emitted U6 W/N ball stubs + east-pocket ladder")
+
+    # ---- M-row (south) comb: deterministic all the way to the pads ----
+    # Same crossing-free construction as the U1-side combs: every lane
+    # starts AT its own ball's x and runs east, so a ball's descent
+    # never crosses a lane that begins further east; the east-most ball
+    # takes the shallowest lane. North-rising terminations (M5/M4 into
+    # Y2/C30 at y=30) sit west of every longer lane's end; south-dipping
+    # terminations (M3/M2 into the y=34.5 cap row) cross only lanes that
+    # have already ended. Lane pitch 0.32-0.36 keeps every edge-to-edge
+    # gap >= 0.22 (a 0.30 pitch gives exactly 0.20 -- a float tie).
+    # M1 (CYW_PA_VDD) is NOT in the comb: its net also owns H1 in the
+    # west column, routed above -- one lane fewer keeps the stack clear
+    # of the RF feed run at y=35.1.
+    for desig, net, laney, endx, endy in (
+            ("M5", "CYW_XTAL_XON",    32.60, 51.300, 30.50),  # up into Y2.2
+            ("M4", "CYW_XTAL_XOP",    32.92, 53.225, 30.30),  # up into C30.1
+            ("M3", "CYW_XTAL_VDD1P2", 33.24, 61.225, 34.40),  # down into C21.1
+            ("M2", "CYW_VDD1P5",      33.56, 57.225, 34.40)): # down into C20.1
+        (bx, by), _ = pp("U6", desig)
+        must_clear_seg("F", bx, by, bx, laney, net, W_ESCAPE)
+        must_clear_seg("F", bx, laney, endx, laney, net, W_ESCAPE)
+        must_clear_seg("F", endx, laney, endx, endy, net, W_ESCAPE)
+    print("  routed U6 M-row comb: XON/XOP/XTAL_VDD1P2/VDD1P5 to their pads")
+
+    # ---- WLRF_ANT: ball K1 -> L2.1 -> C17.1, deterministic ----
+    # L2 is rotated 270 in the generator so pad 1 (this net) faces NORTH
+    # toward the chip and pad 2 (the feed side) faces SOUTH -- with the
+    # old orientation this trace and the feed run below had to cross.
+    # 0.1mm neck off the ball (a 0.4mm trace would violate the adjacent
+    # J1 ball), then 0.4mm: south between the MID riser (x=41.4) and the
+    # package's west pads, east at y=34.05 (clears M2's lane end-circle
+    # by 0.24), overlapping L2.1's pad top at x=45, then on east to
+    # C17.1 (same net) -- so the whole ANT node is one piece of copper.
+    (k1x, k1y), _ = pp("U6", "K1")
+    must_clear_seg("F", k1x, k1y, 43.15, k1y, "WLRF_ANT", W_ESCAPE)
+    must_clear_seg("F", 43.15, k1y, 43.15, 34.05, "WLRF_ANT", W_RF)
+    must_clear_seg("F", 43.15, 34.05, 48.515, 34.05, "WLRF_ANT", W_RF)
+    # solid dips into the two pads (the run itself only grazes their top
+    # edges by ~0.1mm -- not a fab-robust joint on its own). The L2.1 dip
+    # stops at 34.19: its end-circle then reaches y=34.39, deep in the pad
+    # (bottom edge 34.405) while keeping 0.205 to L2.2 (top edge 34.595).
+    must_clear_seg("F", 45.0, 34.05, 45.0, 34.19, "WLRF_ANT", W_RF)
+    must_clear_seg("F", 48.515, 34.05, 48.515, 34.3, "WLRF_ANT", W_RF)
+    print("  routed WLRF_ANT: K1 -> L2.1 -> C17.1 (0.4mm RF, 0.1mm ball neck)")
+
+    # ---- WLRF_ANT_MID feed: L2.2 -> (C18 branch) -> ANT1, deterministic --
+    # Generic A* can never route this: the mask bans the whole antenna
+    # keepout rect (a conservative simplification -- the real zone only
+    # bans pour/vias and allows tracks) and ANT1's feed pad is inside it.
+    # Path (0.4mm except the DNP C18 branch): south off L2.2, west at
+    # y=35.1 (south of everything U6-related), riser north at x=41.0 --
+    # (41.0 rather than 41.4: the extra 0.4mm leaves room for TWO via
+    # columns between the riser and K1's riser-let, so the west-pocket
+    # nets don't all fight over a single legal via slot on their way
+    # down to B -- with one slot, whichever chain routed first starved
+    # the rest) --
+    # west of the K1 riser-let, the W-comb stub tips (42.95) and the
+    # whole package -- across the keepout, then east into ANT1's FEED
+    # pad. The 0.1mm branch at y=35.1 serves C18.1 (DNP tuning cap).
+    # RF caveat (also in generate_kbd_rp2040.py): matching values need
+    # real tuning and Johanson's free layout review should see this
+    # geometry before fab.
+    # 0.15mm neck off the pad: a 0.4mm attach here would violate L2.1
+    # 0.49mm away (same 0201-pitch constraint as K1's ball neck)
+    must_clear_seg("F", 45.0, 34.745, 45.0, 35.1, "WLRF_ANT_MID", 0.15)
+    must_clear_seg("F", 45.0, 35.1, 41.0, 35.1, "WLRF_ANT_MID", W_RF)
+    must_clear_seg("F", 45.0, 35.1, 52.515, 35.1, "WLRF_ANT_MID", W_ESCAPE)
+    must_clear_seg("F", 52.515, 35.1, 52.515, 34.75, "WLRF_ANT_MID", W_ESCAPE)
+    must_clear_seg("F", 41.0, 35.1, 41.0, 24.5, "WLRF_ANT_MID", W_RF)
+    must_clear_seg("F", 41.0, 24.5, 43.65, 24.5, "WLRF_ANT_MID", W_RF)
+    print("  routed WLRF_ANT_MID feed: L2.2 -> ANT1 (west riser), C18 branch")
+
+
 
     # ================= CYW43439-adjacent externals =================
     # (external-to-U6 parts only -- see file header re: U6's own BGA)
@@ -1331,40 +1474,38 @@ def run_routes():
     try_route_chain("CYW_PA_VDD", [pp("R12", "2"), pp("C25", "1")], 8)
     try_route_chain("CYW_PA_VDD", [pp("C25", "1"), pp("C26", "1")], 8)
     try_route_chain("CYW_VDD1P5", [pp("L3", "2"), pp("C20", "1")], 10)
-    # antenna matching network + antenna (0.4mm feed trace, W_RF)
-    try_route_chain("WLRF_ANT", [pp("L2", "1"), pp("C17", "1")], 8)
-    # WLRF_ANT_MID (L2.2 -> C18.1 -> ANT1's FEED pad) is deterministic:
-    # generic A* can never route it. Two structural reasons: (1) the A*
-    # mask rasterizes the ENTIRE antenna keepout rect as a routing ban --
-    # a conservative simplification of the real zone, which only bans
-    # pour/vias and explicitly allows tracks -- and ANT1's feed pad is
-    # inside that rect, so no search reaches it; (2) at W_RF=0.4mm, any
-    # trace leaving L2's 0201 pad at pad center violates clearance to
-    # L2's OTHER pad 0.49mm away -- the attachment must land on the
-    # pad's outer edge (y=34.13, still overlapping copper) and leave
-    # straight away from pad 1.
-    # Path (all F, all W_RF): off L2.2's north edge, east at y=33.4
-    # (0.58 clear of the C17/C18 pad row at 34.5, 0.6 clear of U6's
-    # southmost ball row), a short stub south into C18.1 (the DNP shunt
-    # tuning cap -- 1mm stub, negligible at DNP), then north at x=47.5
-    # through the U6/Y2 gap (U6's easternmost balls end ~46.3; Y2.1's
-    # west edge is 48.2 -- 0.5+ clear both sides; the Y2/C30 corridor
-    # at x=52.3 was tried first and is crossed by the CYW_XTAL_XOP/XON
-    # traces running east from Y2 at y~30), west at y=23.3 across the
-    # keepout (tracks allowed there; 0.3 clear of and north of ANT1's
-    # NC pad 2), and south into the FEED pad. C17 is NOT touched here --
-    # it belongs to WLRF_ANT (the U6 side of L2), routed by the chain
-    # above.
-    # RF caveat (documented in generate_kbd_rp2040.py too): the final
-    # matching values need real tuning on this board, and Johanson's
-    # free layout review should see this exact geometry before fab.
-    must_clear_seg("F", 45.0, 34.13, 45.0, 33.4, "WLRF_ANT_MID", W_RF)
-    must_clear_seg("F", 45.0, 33.4, 52.3, 33.4, "WLRF_ANT_MID", W_RF)
-    must_clear_seg("F", 52.3, 33.4, 52.3, 34.4, "WLRF_ANT_MID", W_RF)
-    must_clear_seg("F", 47.5, 33.4, 47.5, 23.3, "WLRF_ANT_MID", W_RF)
-    must_clear_seg("F", 47.5, 23.3, 43.65, 23.3, "WLRF_ANT_MID", W_RF)
-    must_clear_seg("F", 43.65, 23.3, 43.65, 24.5, "WLRF_ANT_MID", W_RF)
-    print("  routed WLRF_ANT_MID feed: L2 -> C18 stub -> ANT1 at 0.4mm RF width")
+
+    # ---- A* chains: ball stubs/ladder tips to each net's copper ----
+    # Runs AFTER the externals chains below: those are short constrained
+    # local hops (C25<->C26 etc.) that an earlier long-haul is free to
+    # squeeze out; these chains have the whole board to adapt in.
+    # BT_* long-hauls go to U1's E-side escape stage points (~115mm:
+    # south past the MID riser, east through the y~36-37 corridor and
+    # the open top strip).
+    for net, tip, target, margin in (
+            ("BT_UART_RXD",   (42.95, 27.8), stage["BT_UART_RXD"],   40),
+            ("BT_DEV_WAKE",   (42.25, 28.2), stage["BT_DEV_WAKE"],   40),
+            ("BT_HOST_WAKE",  (42.95, 28.6), stage["BT_HOST_WAKE"],  40),
+            ("BT_UART_TXD",   (44.2, 26.9),  stage["BT_UART_TXD"],   40),
+            ("BT_UART_RTS_N", (44.6, 26.5),  stage["BT_UART_RTS_N"], 40),
+            ("CYW_BT_VCO_VDD", (42.95, 29.8), pp("C27", "1"), 30),
+            ("CYW_BT_IF_VDD",  (42.25, 30.2), pp("C29", "1"), 30),
+            ("CYW_PA_VDD",     (42.95, 30.6), pp("C25", "1"), 30),
+            ("CYW_SR_VLX",     (45.8, 26.7),  pp("L3", "1"),  30),
+            ("VSYS",           (52.8, 25.5),  pp("RGB1", "3"), 30),
+            ("CYW_VDD1P5",     (53.4, 25.5),  pp("C20", "1"), 30),
+            ("CYW_VOUT_LNLDO", (54.0, 25.5),  pp("C23", "1"), 40),
+            ("CYW_VOUT_3P3",   (46.9, 29.4),  pp("R12", "1"), 40)):
+        # both stage[...] entries and pp() results are already ((x,y), layer)
+        try_route_chain(net, [(tip, "F"), target], margin)
+
+    for net, why in (("BT_UART_CTS_N", "ball B2 sealed (B3/A3 channel taken by RTS)"),
+                     ("BT_REG_ON", "ball E6 sealed by B5"),
+                     ("CYW_BTFM_PLL_VDD", "ball F2 sealed by B5"),
+                     ("+3V3", "ball F6 fully interior"),
+                     ("CYW_VOUT_CLDO", "balls C6/D3/G4 fully interior")):
+        skipped_nets.append((net, f"U6 via-in-pad/HDI required -- {why}"))
+        print(f"  SKIPPED U6 ball for {net}: {why}")
 
     # ================= USB / charger / battery / LDO =================
     # Reused near-verbatim from route_kbd.py: U1-U4, J1, J2, Q1, D60, SW60,
