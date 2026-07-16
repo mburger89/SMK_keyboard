@@ -450,8 +450,24 @@ def fp_gateron(ref, x, y, n_pad1, n_pad2, path_uuid, is2u=False):
     # socket), scaled 2.54 per its own inch-like native units (verified
     # against usb_c_hro.wrl's body block, which matches this footprint's
     # real 8.94x7.30mm F.Fab size exactly at that scale).
-    body.append(model(f"{PROJ3D}/Gateron_KS-33.step"))
-    body.append(model(f"{PROJ3D}/gateron_socket.wrl", scale=(2.54, 2.54, 2.54)))
+    # Both models were authored for the old F.Cu-anchored footprint
+    # (switch above the board, socket behind). With the anchor now on
+    # B.Cu, the 3D viewer applies its back-side transform (180-degree
+    # flip about the footprint origin plus re-basing to the bottom
+    # surface) to every attached model -- which put the socket on top
+    # and the switch underneath. The stored rotate/offset below is the
+    # exact inverse of that transform, so both models render in their
+    # original, physically-correct world positions. Axis determined
+    # empirically with kicad-cli renders against the pre-flip board:
+    # the viewer's back-side flip is 180 degrees about the footprint's
+    # Y axis (an X-axis guess left every switch 180 degrees rotated
+    # in-plane -- visible as the body's corner tabs swapping edges).
+    flip_rot = (0, 180, 0)
+    flip_off = (0, 0, -1.6)   # board thickness
+    body.append(model(f"{PROJ3D}/Gateron_KS-33.step",
+                      rotate=flip_rot, offset=flip_off))
+    body.append(model(f"{PROJ3D}/gateron_socket.wrl", scale=(2.54, 2.54, 2.54),
+                      rotate=flip_rot, offset=flip_off))
     return s + "\n".join(body) + "\n  )\n"
 
 # ---- SOD-123 diode on the back --------------------------------------------
