@@ -393,7 +393,10 @@ def fp_header(lib_fp, ref, val, x, y, rot, layer="F.Cu", attr="smd",
 
 # ---- Gateron KS-33 hot-swap socket footprint (pads on back copper) --------
 def fp_gateron(ref, x, y, n_pad1, n_pad2, path_uuid, is2u=False):
-    s = fp_header("kbd:SW_Gateron_KS33_HS", ref, "KS-33", x, y, 0,
+    # Value = the hot-swap SOCKET (the soldered part, and the BOM line);
+    # the KS-33 switch plugs into it and is ordered separately. Matches
+    # the schematic symbols' value so sch/PCB cross-checks stay clean.
+    s = fp_header("kbd:SW_Gateron_KS33_HS", ref, "KS-2P02B01-02", x, y, 0,
                   layer="F.Cu", attr="smd exclude_from_pos_files",
                   ref_at=(0, -8.7), path_uuid=path_uuid, val_at=(0, 8.7))
     body = []
@@ -1389,9 +1392,15 @@ def build_lib_symbols():
     return "\n".join(L)
 
 # ---- schematic symbol instance ---------------------------------------------
-def sym_inst(lib, ref, val, x, y, rot, pin_nums, footprint=""):
+def sym_inst(lib, ref, val, x, y, rot, pin_nums, footprint="", props=None):
     rr = f" {rot}" if rot else ""
     pins = "\n".join(f'    (pin "{n}" (uuid "{NU("ipin", ref, n)}"))' for n in pin_nums)
+    # extra BOM-relevant properties (MPN, Manufacturer, BOM Comments, ...)
+    # -- hidden on the sheet, read by BOM tooling.
+    extra = "".join(
+        f'\n    (property "{k}" "{v}" (at {g(x)} {g(y)} 0) '
+        f'(effects (font (size 1.27 1.27)) (hide yes)))'
+        for k, v in (props or {}).items())
     return f'''  (symbol (lib_id "kbd:{lib}") (at {g(x)} {g(y)}{rr}) (unit 1)
     (exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced yes)
     (uuid "{U("sym", ref)}")
@@ -1399,7 +1408,7 @@ def sym_inst(lib, ref, val, x, y, rot, pin_nums, footprint=""):
     (property "Value" "{val}" (at {g(x)} {g(y + 5.08)} 0) {FONT})
     (property "Footprint" "{footprint}" (at {g(x)} {g(y)} 0) (effects (font (size 1.27 1.27)) (hide yes)))
     (property "Datasheet" "~" (at {g(x)} {g(y)} 0) (effects (font (size 1.27 1.27)) (hide yes)))
-    (property "Description" "" (at {g(x)} {g(y)} 0) (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Description" "" (at {g(x)} {g(y)} 0) (effects (font (size 1.27 1.27)) (hide yes))){extra}
 {pins}
     (instances (project "{PROJ}" (path "/{ROOT_UUID}" (reference "{ref}") (unit 1))))
   )'''
@@ -1421,9 +1430,21 @@ def build_schematic():
         dref = f"D{i+1}"
         labels.append(sch_glabel(f"COL{c}", xo, yo, 180))
         wires.append(sch_wire(xo, yo, xo + 2.54, yo))
-        parts.append(sym_inst("SW_Push", swref, "2U" if u2 else "KS-33",
+        # The BOM line for each key position is the HOT-SWAP SOCKET (the
+        # part actually soldered to the PCB), not the KS-33 switch that
+        # plugs into it -- switches and keycaps are user-installed and
+        # ordered separately (keyboard vendors, not DigiKey/LCSC).
+        sock_note = ("Hot-swap socket (soldered, PCB assembly). The Gateron "
+                     "KS-33 switch + keycap plug in and are ordered "
+                     "separately -- keyboard vendors, not on DigiKey.")
+        if u2:
+            sock_note += " 2U key position: needs a 2U keycap + stabilizer."
+        parts.append(sym_inst("SW_Push", swref, "KS-2P02B01-02",
                               xo + 5.08, yo, 180, ["1", "2"],
-                              "kbd:SW_Gateron_KS33_HS"))
+                              "kbd:SW_Gateron_KS33_HS",
+                              props={"MPN": "KS-2P02B01-02",
+                                     "Manufacturer": "Gateron",
+                                     "BOM Comments": sock_note}))
         wires.append(sch_wire(xo + 7.62, yo, xo + 10.16, yo))
         parts.append(sym_inst("D_kbd", dref, "1N4148W", xo + 13.97, yo, 180,
                               ["1", "2"], "kbd:D_SOD-123_Back"))

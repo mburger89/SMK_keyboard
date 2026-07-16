@@ -4,7 +4,7 @@
   (property "Reference" "REF**" (at 0 -8.7 0) (layer "F.SilkS") (uuid "c90f7e64-e210-5b2b-824d-f1d26c25b81b")
     (effects (font (size 1 1) (thickness 0.15)))
   )
-  (property "Value" "KS-33" (at 0 8.7 0) (layer "F.Fab") (uuid "2850e2ce-d42a-528d-a953-5e76771ccfbe")
+  (property "Value" "KS-2P02B01-02" (at 0 8.7 0) (layer "F.Fab") (uuid "2850e2ce-d42a-528d-a953-5e76771ccfbe")
     (effects (font (size 1 1) (thickness 0.15)))
   )
   (property "Footprint" "kbd:SW_Gateron_KS33_HS" (at 0 0 0) (layer "F.Fab") (hide yes) (uuid "e2415b78-5093-5e17-b452-e6182558dea0")
