@@ -13,7 +13,7 @@
     (effects (font (size 1.27 1.27))))
   (property "Description" "" (at 0 0 0) (layer "F.Fab") (hide yes) (uuid "c62be956-879c-50dc-91ed-99e6970f1e7f")
     (effects (font (size 1.27 1.27))))
-  (attr smd exclude_from_pos_files)
+  (attr smd)
     (fp_rect (start -7 -7) (end 7 7) (stroke (width 0.1) (type solid)) (fill none) (layer "F.Fab") (uuid "165ab7a2-e46d-5fa0-ac70-07da845425fc"))
     (fp_rect (start -7.5 -7.5) (end 7.5 7.5) (stroke (width 0.05) (type solid)) (fill none) (layer "F.CrtYd") (uuid "432e60e9-ec28-5201-a483-85fe9a147416"))
     (fp_rect (start -9.7 -7.5) (end 7.9 7.5) (stroke (width 0.05) (type solid)) (fill none) (layer "B.CrtYd") (uuid "e1ebd1f0-0d9d-5fa3-a58b-8c9d028277ce"))

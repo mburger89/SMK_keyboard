@@ -396,8 +396,17 @@ def fp_gateron(ref, x, y, n_pad1, n_pad2, path_uuid, is2u=False):
     # Value = the hot-swap SOCKET (the soldered part, and the BOM line);
     # the KS-33 switch plugs into it and is ordered separately. Matches
     # the schematic symbols' value so sch/PCB cross-checks stay clean.
+    # No exclude_from_pos_files: the socket is a real reflowed SMD part
+    # (the BOM line for each key position), so it must appear in the
+    # placement files if an assembly service places it. The flag was a
+    # leftover from when this footprint's value modeled the plug-in
+    # switch. Caveat for assembly quoting: the footprint is anchored on
+    # F.Cu (KiCad buckets it into the TOP-side position file) but its
+    # solder pads are on B.Cu -- the socket is physically placed and
+    # reflowed on the BOTTOM. Tell the assembly house, or hand-move
+    # these 59 rows into the bottom CPL when preparing assembly files.
     s = fp_header("kbd:SW_Gateron_KS33_HS", ref, "KS-2P02B01-02", x, y, 0,
-                  layer="F.Cu", attr="smd exclude_from_pos_files",
+                  layer="F.Cu", attr="smd",
                   ref_at=(0, -8.7), path_uuid=path_uuid, val_at=(0, 8.7))
     body = []
     # switch body / keycap guides
