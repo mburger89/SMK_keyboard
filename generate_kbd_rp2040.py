@@ -398,15 +398,25 @@ def fp_gateron(ref, x, y, n_pad1, n_pad2, path_uuid, is2u=False):
     # the schematic symbols' value so sch/PCB cross-checks stay clean.
     # No exclude_from_pos_files: the socket is a real reflowed SMD part
     # (the BOM line for each key position), so it must appear in the
-    # placement files if an assembly service places it. The flag was a
-    # leftover from when this footprint's value modeled the plug-in
-    # switch. Caveat for assembly quoting: the footprint is anchored on
-    # F.Cu (KiCad buckets it into the TOP-side position file) but its
-    # solder pads are on B.Cu -- the socket is physically placed and
-    # reflowed on the BOTTOM. Tell the assembly house, or hand-move
-    # these 59 rows into the bottom CPL when preparing assembly files.
+    # placement files if an assembly service places it.
+    #
+    # Anchored on B.Cu so KiCad buckets it into the BOTTOM-side position
+    # file -- that's where the socket is physically placed and reflowed
+    # (its solder pads have always been on B.Cu; only the anchor layer
+    # changes here). No stored coordinate changes: this generator
+    # authors footprints in final stored coordinates, exactly as KiCad
+    # itself stores back-side footprints (KiCad's flip bakes the mirror
+    # into the file rather than reinterpreting at render time -- see
+    # fp_sk6812mini's comment), so every pad/hole/graphic stays at the
+    # same global position and all existing routing remains valid.
+    # fp_header handles the B.Cu text conventions (ref -> B.SilkS,
+    # value -> B.Fab, both justify-mirrored). Known cosmetic caveat:
+    # the two attached 3D models (switch on front, socket behind) were
+    # oriented for a front-anchored footprint; the 3D viewer applies
+    # its back-side transform to models of B.Cu footprints, so the
+    # preview may show them flipped -- fab outputs are unaffected.
     s = fp_header("kbd:SW_Gateron_KS33_HS", ref, "KS-2P02B01-02", x, y, 0,
-                  layer="F.Cu", attr="smd",
+                  layer="B.Cu", attr="smd",
                   ref_at=(0, -8.7), path_uuid=path_uuid, val_at=(0, 8.7))
     body = []
     # switch body / keycap guides
