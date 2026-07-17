@@ -68,12 +68,26 @@ for fp in kids(pcb, "footprint"):
         pat = kid(p, "at")
         px, py = float(pat[1]), float(pat[2])
         prot = float(pat[3]) if len(pat) > 3 else 0
+        # NOTE: verified empirically (see /tmp/mirror_test2.py-style check
+        # against real trace/via endpoint coincidence across 599 back-layer
+        # SMD pads) that this generator's back-layer (B.Cu) footprints
+        # already store pad-local coordinates in final/placed form -- no
+        # extra runtime mirroring is needed or correct here. An earlier
+        # attempt to "fix" this by mirroring was itself wrong; left as a
+        # note in case this is revisited.
         dx, dy = rot_pt(px, py, frot)
         gx, gy = fx+dx, fy+dy
         sz = kid(p, "size")
         sx, sy = float(sz[1]), float(sz[2])
         nt = kid(p, "net")
-        net = str(nt[2]) if nt else None
+        if nt is None:
+            net = None
+        elif isinstance(nt[1], str):
+            net = nt[1]          # (net "NAME") -- no index, as some scripted edits emit
+        elif len(nt) > 2:
+            net = str(nt[2])     # (net <index> "NAME")
+        else:
+            net = None
         desc = f"{ref}.{num}"
         if ptype == "np_thru_hole":
             holes.append((Point(gx, gy).buffer(sx/2, 32), None, desc))
@@ -101,11 +115,20 @@ for fp in kids(pcb, "footprint"):
         else:
             copper.append((geom, short_layer(lay), net, desc))
 
+def seg_net(sg):
+    # Normally (net <index>) referencing the top (net <index> "<name>")
+    # table. Some recently hand/script-added segments (the RGB chain hops)
+    # instead store (net "<name>") directly -- tolerate both.
+    raw = kid(sg, "net")[1]
+    if isinstance(raw, str):
+        return raw
+    return netnames[int(raw)]
+
 for sg in kids(pcb, "segment"):
     st, en = kid(sg, "start"), kid(sg, "end")
     w = float(kid(sg, "width")[1])
     lay = short_layer(kid(sg, "layer")[1])
-    net = netnames[int(kid(sg, "net")[1])]
+    net = seg_net(sg)
     ls = LineString([(float(st[1]), float(st[2])), (float(en[1]), float(en[2]))])
     copper.append((ls.buffer(w/2, 16), lay, net, "track"))
 
@@ -114,7 +137,8 @@ for v in kids(pcb, "via"):
     x, y = float(at[1]), float(at[2])
     sz = float(kid(v, "size")[1])
     dr = float(kid(v, "drill")[1])
-    net = netnames[int(kid(v, "net")[1])]
+    vraw = kid(v, "net")[1]
+    net = vraw if isinstance(vraw, str) else netnames[int(vraw)]
     g = Point(x, y).buffer(sz/2, 32)
     for L in LAYERS:
         copper.append((g, L, net, "via"))
