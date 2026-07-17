@@ -14,6 +14,6 @@
   (property "Description" "" (at 0 0 0) (layer "F.Fab") (hide yes) (uuid "c62be956-879c-50dc-91ed-99e6970f1e7f")
     (effects (font (size 1.27 1.27))))
   (attr smd exclude_from_pos_files exclude_from_bom)
-    (pad "1" smd circle (at 0 0) (size 1 1) (layers "F.Cu" "F.Mask")  (solder_mask_margin 0.5) (uuid "fa09d358-cf81-5ea9-89ec-ddac656c45be"))
-    (fp_rect (start -1.5 -1.5) (end 1.5 1.5) (stroke (width 0.05) (type solid)) (fill none) (layer "F.CrtYd") (uuid "04cc25ac-23db-541b-b654-4ce75a3665ba"))
+    (pad "1" smd circle (at 0 0) (size 1 1) (layers "F.Cu" "F.Mask")  (solder_mask_margin 0.5) (uuid "36284cd7-cb2d-5780-b3f5-8d2f3f498a93"))
+    (fp_rect (start -1.5 -1.5) (end 1.5 1.5) (stroke (width 0.05) (type solid)) (fill none) (layer "F.CrtYd") (uuid "8ffef8ef-a25e-5003-a697-35ce77737793"))
   )

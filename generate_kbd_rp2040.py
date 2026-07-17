@@ -796,15 +796,22 @@ def fp_hole(ref, x, y):
 # LEFT=1-14 (top->bottom), BOTTOM=15-28 (left->right), RIGHT=29-42
 # (bottom->top), TOP=43-56 (right->left). An earlier version of this file
 # had all four sides rotated by one position (e.g. treating 1-14 as the
-# bottom side) -- pad SIZE/pitch (0.25 x 0.6mm, 0.4mm pitch) is still a
-# generic IPC-nominal QFN56 land pattern, not copied from Infineon/Raspberry
-# Pi's own land pattern drawing, so verify that specifically before fab.
+# bottom side).
+#
+# Pad size: RPi's own "Recommended PCB Footprint" (RP2040 datasheet
+# sec. 5.1.2, Fig. 167) specifies 0.20mm-wide pads at the 0.4mm pitch, not
+# the 0.25mm generic IPC-nominal width this used to have. That 0.05mm
+# matters: at 0.25mm width the gap between adjacent pads is only 0.15mm,
+# below PCBWay's (and most fabs') 0.19mm minimum solder-mask-bridge
+# clearance -- they can't put mask between the pads at that gap, meaning
+# the whole row opens up as one exposed-copper slot. 0.20mm-wide pads
+# (RPi's own number) leave a 0.20mm gap, just clearing the 0.19mm minimum.
 def fp_rp2040(ref, x, y, path_uuid, pinnet):
     s = fp_header("kbd:RP2040_QFN56", ref, "RP2040", x, y, 0,
                   ref_at=(0, -4.5), path_uuid=path_uuid, val_at=(0, 4.8))
     b = []
     half_body = 3.5
-    pad_len, pad_w = 0.6, 0.25
+    pad_len, pad_w = 0.6, 0.20
     pitch = 0.4
     n_side = 14
     offs = [(-((n_side - 1) / 2) + i) * pitch for i in range(n_side)]

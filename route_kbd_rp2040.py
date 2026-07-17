@@ -1287,6 +1287,51 @@ def run_routes():
     # same oversaturated-neighborhood story as QSPI_SCLK/SD2/SD3 above.
     try_route_chain("VREG_VIN", [stage["VREG_VIN"], pp("C34", "1")], 20)
 
+    # ---- SR_VLX + BT_IF_VDD: deterministic via-pairs to B ----
+    # (Committed BEFORE the RGB chain: LEDD0_R's adaptive A* used to draw
+    # a B-layer wall at x=47.3 crossing both lanes; deterministic first,
+    # adaptive routes around it.)
+    # Their A* chains starve on the shared west/north surface corridors
+    # (each routed net consumes the slot the next one needed), so both
+    # drop to B right at their own stubs: via #1 sits ON the stub --
+    # outside the antenna zone's via ban (edge >= 0.55mm south of it)
+    # and >= 0.5mm from every foreign copper item -- then a straight
+    # B run under the open field south of U6, and a rise into the
+    # target pad's own column. The two B lanes are staggered 0.65mm so
+    # the second net's rise-via clears the first net's lane.
+    must_via(45.8, 26.85, "CYW_SR_VLX")            # on A6's north stub
+    must_clear_seg("B", 45.8, 26.85, 45.8, 36.7, "CYW_SR_VLX", W_SIG)
+    must_clear_seg("B", 45.8, 36.7, 68.225, 36.7, "CYW_SR_VLX", W_SIG)
+    must_via(68.225, 36.7, "CYW_SR_VLX")
+    must_clear_seg("F", 68.225, 36.7, 68.225, 38.3, "CYW_SR_VLX", W_SIG)
+    must_via(42.25, 30.2, "CYW_BT_IF_VDD")         # on G1's stub tip
+    # jog east on B before descending: a vertical at x=42.25 leaves no
+    # legal via column between itself and the RF feed riser (x=41.2
+    # edge) for PA_VDD's under-pass below
+    must_clear_seg("B", 42.25, 30.2, 43.6, 30.2, "CYW_BT_IF_VDD", W_SIG)
+    must_clear_seg("B", 43.6, 30.2, 43.6, 37.35, "CYW_BT_IF_VDD", W_SIG)
+    must_clear_seg("B", 43.6, 37.35, 64.225, 37.35, "CYW_BT_IF_VDD", W_SIG)
+    must_via(64.225, 37.35, "CYW_BT_IF_VDD")
+    must_clear_seg("F", 64.225, 37.35, 64.225, 38.3, "CYW_BT_IF_VDD", W_SIG)
+    print("  routed CYW_SR_VLX + CYW_BT_IF_VDD via B-layer under-passes")
+    # PA_VDD gets the third staggered underpass (lane y=38.0, vertical
+    # x=41.75 -- WEST of IF's lane start so the two never cross; the
+    # crossing-free rule here is the same as the M-comb's: a lane only
+    # conflicts with a vertical whose x its span contains). Its old A*
+    # chain was the one net the SR/IF lanes squeezed out. The F approach
+    # jogs south-then-west off H1's stub tip because a via anywhere on
+    # the tip itself sits 0.4mm from G1's stub / IF's via (needs 0.5).
+    must_clear_seg("F", 42.95, 30.6, 42.95, 30.95, "CYW_PA_VDD", W_ESCAPE)
+    must_clear_seg("F", 42.95, 30.95, 41.75, 30.95, "CYW_PA_VDD", W_ESCAPE)
+    must_clear_seg("F", 41.75, 30.95, 41.75, 32.0, "CYW_PA_VDD", W_ESCAPE)
+    must_via(41.75, 32.0, "CYW_PA_VDD")
+    must_clear_seg("B", 41.75, 32.0, 41.75, 38.0, "CYW_PA_VDD", W_SIG)
+    must_clear_seg("B", 41.75, 38.0, 48.225, 38.0, "CYW_PA_VDD", W_SIG)
+    must_via(48.225, 38.0, "CYW_PA_VDD")
+    must_clear_seg("F", 48.225, 38.0, 48.225, 38.3, "CYW_PA_VDD", W_SIG)
+    print("  routed CYW_PA_VDD via the third (y=38.0) B-layer under-pass")
+
+
     # ================= RGB chain =================
     # RGB_GPIO's escape stub runs parallel and immediately adjacent to
     # COL11's own (wider, W_SIG) trunk trace for its entire length --
@@ -1377,7 +1422,7 @@ def run_routes():
     # keeps a simple stub: its row sits below the ladder verticals and
     # escapes south/via-to-B. F7 is skipped -- same net (VSYS) as B7.
     for desig, net, vx, laney, nibx in (
-            ("B7", "VSYS",           47.00, 26.30, 52.8),
+            ("B7", "VSYS",           47.00, 26.30, 52.8),   # nib extended to 25.1 below
             ("C7", "CYW_VDD1P5",     47.35, 26.65, 53.4),
             ("D6", "CYW_VOUT_LNLDO", 47.70, 27.00, 54.0)):
         (bx, by), _ = pp("U6", desig)
@@ -1387,6 +1432,22 @@ def run_routes():
         must_clear_seg("F", nibx, laney, nibx, 25.5, net, W_ESCAPE)
     (bx, by), _ = pp("U6", "E7")
     must_clear_seg("F", bx, by, 46.9, by, "CYW_VOUT_3P3", W_ESCAPE)
+    # VSYS: the B7 ladder tip continues as a deterministic F-only run to
+    # SW62's own VSYS pad (pad 1) along the empty top strip -- no via,
+    # so it can pass just north of the C7/D6 nib tips (y=25.1, 0.225
+    # edge clearance) and needs no B corridor at all. Its old A* chain
+    # to RGB1.3 needed a B descent that every staggered lane south of
+    # U6 now walls off, and the healer's patch died with it. The lane
+    # runs at y=23.5: 2.0mm north of the C7/D6 ladder tips (a first cut
+    # at y=25.1 sat 0.4mm from them -- inside the A* clearance mask --
+    # and landlocked VDD1P5's chain start), 1.75mm north of SW60's THT
+    # pads, and east of the antenna zone (x >= 52.8 > its 52.0 edge).
+    # The final descent at x=102.5 clears SW62's no-net west mounting
+    # pad (x 100.0-101.2) by 1.3mm and lands on pad 1 at its own y.
+    must_clear_seg("F", 52.8, 25.5, 52.8, 23.5, "VSYS", W_ESCAPE)
+    must_clear_seg("F", 52.8, 23.5, 102.5, 23.5, "VSYS", W_SIG)
+    must_clear_seg("F", 102.5, 23.5, 102.5, 25.9, "VSYS", W_SIG)
+    print("  routed VSYS: B7 ladder -> SW62 pad 1 via the top strip")
     print("  emitted U6 W/N ball stubs + east-pocket ladder")
 
     # ---- M-row (south) comb: deterministic all the way to the pads ----
@@ -1489,10 +1550,6 @@ def run_routes():
             ("BT_UART_TXD",   (44.2, 26.9),  stage["BT_UART_TXD"],   40),
             ("BT_UART_RTS_N", (44.6, 26.5),  stage["BT_UART_RTS_N"], 40),
             ("CYW_BT_VCO_VDD", (42.95, 29.8), pp("C27", "1"), 30),
-            ("CYW_BT_IF_VDD",  (42.25, 30.2), pp("C29", "1"), 30),
-            ("CYW_PA_VDD",     (42.95, 30.6), pp("C25", "1"), 30),
-            ("CYW_SR_VLX",     (45.8, 26.7),  pp("L3", "1"),  30),
-            ("VSYS",           (52.8, 25.5),  pp("RGB1", "3"), 30),
             ("CYW_VDD1P5",     (53.4, 25.5),  pp("C20", "1"), 30),
             ("CYW_VOUT_LNLDO", (54.0, 25.5),  pp("C23", "1"), 40),
             ("CYW_VOUT_3P3",   (46.9, 29.4),  pp("R12", "1"), 40)):
