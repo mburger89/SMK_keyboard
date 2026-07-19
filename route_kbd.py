@@ -57,7 +57,7 @@ def rot_pt(px, py, deg):
     t = math.radians(deg)
     return (px*math.cos(t) + py*math.sin(t), -px*math.sin(t) + py*math.cos(t))
 
-pcb = sexpdata.loads(open(os.path.join(HERE, "gateron_lp_kbd/gateron_lp_kbd.kicad_pcb")).read())
+pcb = sexpdata.loads(open(os.path.join(HERE, "smk_kbd/smk_kbd.kicad_pcb")).read())
 pad_pos = {}   # (ref,padnum) -> (x,y,layerset)
 for fp in kids(pcb, "footprint"):
     ref = [str(pr[2]) for pr in kids(fp, "property") if str(pr[1]) == "Reference"][0]

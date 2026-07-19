@@ -10,8 +10,8 @@ scripts** rather than hand-drawn in the KiCad GUI. The `.kicad_pcb` /
 `.kicad_sch` files are build artifacts of these scripts, not the source of
 truth — the source of truth is the Python that generates them.
 
-- `gateron_lp_kbd/` — ESP32-C6-MINI-1 variant (BLE/802.15.4, module-based, no RGB).
-- `gateron_lp_kbd_rp2040/` — RP2040 chip-down variant: RP2040 QFN-56 + external
+- `smk_kbd/` — ESP32-C6-MINI-1 variant (BLE/802.15.4, module-based, no RGB).
+- `smk_kbd_rp2040/` — RP2040 chip-down variant: RP2040 QFN-56 + external
   W25Q16JV QSPI flash + 12 MHz crystal + Infineon CYW43439 (BLE-only, WLAN held
   in reset) + 59× SK6812MINI-E per-key RGB over a single-wire chain through a
   SN74AHCT1G125 level shifter.
@@ -26,7 +26,7 @@ pipeline is:
 
 1. `generate_kbd.py` / `generate_kbd_rp2040.py` — emits the full KiCad project
    (schematic + PCB, footprints, symbols) from scratch into
-   `gateron_lp_kbd/` / `gateron_lp_kbd_rp2040/`. Stdlib only (`uuid`, `os`,
+   `smk_kbd/` / `smk_kbd_rp2040/`. Stdlib only (`uuid`, `os`,
    `json`) — no venv needed.
 2. `add_3d.py` — attaches 3D models (generated VRML + stock KiCad models) to
    footprints, both in the board file and in `kbd.pretty`.
@@ -44,7 +44,7 @@ pipeline is:
    board-edge clearance (≥0.3 mm), and per-net connectivity (one connected
    component per net; GND islands are OK since the pour joins them). Run with
    the same venv: `.routing_venv/bin/python3 drc_check.py`. Exits 1 if any
-   problem is found. Currently hardcoded to check `gateron_lp_kbd/gateron_lp_kbd.kicad_pcb`
+   problem is found. Currently hardcoded to check `smk_kbd/smk_kbd.kicad_pcb`
    — edit the `PCB` constant at the top to point at the RP2040 board instead.
 5. `export_fab.py` (inside each project folder) — must run under **KiCad's
    own bundled Python** (needs `pcbnew`), not the venv:
@@ -58,13 +58,13 @@ given the same generator output.
 
 ### Known gotcha: RP2040 `export_fab.py` targets the wrong board
 
-`gateron_lp_kbd_rp2040/` contains a stray leftover copy of
-`gateron_lp_kbd.kicad_pcb/.kicad_pro/.kicad_sch` (the ESP32 board's files),
-and `gateron_lp_kbd_rp2040/export_fab.py` hardcodes `BOARD =
-"gateron_lp_kbd.kicad_pcb"` — i.e. as-is it fills zones and exports the wrong
+`smk_kbd_rp2040/` contains a stray leftover copy of
+`smk_kbd.kicad_pcb/.kicad_pro/.kicad_sch` (the ESP32 board's files),
+and `smk_kbd_rp2040/export_fab.py` hardcodes `BOARD =
+"smk_kbd.kicad_pcb"` — i.e. as-is it fills zones and exports the wrong
 (ESP32) board file when run from that directory. Before exporting the RP2040
 board for fab, fix `BOARD`/output names in that script to point at
-`gateron_lp_kbd_rp2040.kicad_pcb`, or delete the stray ESP32 copy from that
+`smk_kbd_rp2040.kicad_pcb`, or delete the stray ESP32 copy from that
 folder.
 
 ## Electrical architecture
@@ -79,9 +79,9 @@ DMG3415U P-FET from battery) → VSYS → AP2112K-3.3 LDO, EN gated by a
 side-actuated slide switch (true off state). Battery sense via a 1 MΩ/1 MΩ
 divider into an ADC-capable GPIO.
 
-**ESP32-C6 variant GPIO map and full BOM:** see `gateron_lp_kbd/README.md`.
+**ESP32-C6 variant GPIO map and full BOM:** see `smk_kbd/README.md`.
 
-**RP2040 variant:** ⚠️ `gateron_lp_kbd_rp2040/README.md` is a stale copy of
+**RP2040 variant:** ⚠️ `smk_kbd_rp2040/README.md` is a stale copy of
 the ESP32 README (byte-identical) — do not trust it for RP2040-specific
 pinout/BOM details. The authoritative source for that variant's design intent
 and verification status is the module docstring at the top of

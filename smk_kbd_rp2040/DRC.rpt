@@ -1,0 +1,1645 @@
+** Drc report for gateron_lp_kbd_rp2040.kicad_pcb **
+** Created on 2026-07-18T18:09:05 **
+** Report includes: Errors, Warnings, Exclusions **
+
+** Found 437 DRC violations **
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(66.3000 mm, 117.4000 mm): Track [VSYS] on B.Cu, length 0.8604 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(142.1384 mm, 103.6828 mm): Track [VSYS] on B.Cu, length 0.0543 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(218.7000 mm, 63.8000 mm): Track [LEDD14] on F.Cu, length 2.2000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(65.9000 mm, 63.0000 mm): Track [VSYS] on B.Cu, length 0.8000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(155.7500 mm, 34.6500 mm): Track [SWCLK] on F.Cu, length 3.2000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(156.1500 mm, 34.6500 mm): Track [SWDIO] on F.Cu, length 3.6000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(157.6335 mm, 25.4000 mm): Track [USB_DM] on F.Cu, length 1.4665 mm
+[track_not_centered_on_via]: Track endpoint not centered on via
+    Local override; warning
+    @(249.0000 mm, 27.2000 mm): Track [USB_DM] on In1.Cu, length 0.9724 mm
+    @(249.0000 mm, 27.1000 mm): Via [USB_DM] on F.Cu - B.Cu
+[track_not_centered_on_via]: Track endpoint not centered on via
+    Local override; warning
+    @(154.5000 mm, 23.0000 mm): Track [GND] on In1.Cu, length 3.5354 mm
+    @(154.5000 mm, 23.0000 mm): Via [GND] on F.Cu - B.Cu
+[track_not_centered_on_via]: Track endpoint not centered on via
+    Local override; warning
+    @(259.5592 mm, 27.2000 mm): Track [USB_DM] on F.Cu, length 10.4592 mm
+    @(249.0000 mm, 27.1000 mm): Via [USB_DM] on F.Cu - B.Cu
+[track_not_centered_on_via]: Track endpoint not centered on via
+    Local override; warning
+    @(249.1000 mm, 27.2000 mm): Track [USB_DM] on F.Cu, length 2.4000 mm
+    @(249.0000 mm, 27.1000 mm): Via [USB_DM] on F.Cu - B.Cu
+[track_not_centered_on_via]: Track endpoint not centered on via
+    Local override; warning
+    @(142.3000 mm, 120.0000 mm): Track [VSYS] on F.Cu, length 3.2062 mm
+    @(142.3000 mm, 120.0000 mm): Via [VSYS] on F.Cu - B.Cu
+[track_not_centered_on_via]: Track endpoint not centered on via
+    Local override; warning
+    @(153.1850 mm, 23.0000 mm): Track [GND] on F.Cu, length 1.3150 mm
+    @(154.5000 mm, 23.0000 mm): Via [GND] on F.Cu - B.Cu
+[track_not_centered_on_via]: Track endpoint not centered on via
+    Local override; warning
+    @(260.1000 mm, 32.2000 mm): Track [CC2] on B.Cu, length 1.4000 mm
+    @(260.2500 mm, 32.2000 mm): Via [CC2] on F.Cu - B.Cu
+[track_not_centered_on_via]: Track endpoint not centered on via
+    Local override; warning
+    @(156.5000 mm, 38.6000 mm): Track [RUN] on F.Cu, length 0.2000 mm
+    @(156.3000 mm, 39.0000 mm): Via [RUN] on F.Cu - B.Cu
+[track_not_centered_on_via]: Track endpoint not centered on via
+    Local override; warning
+    @(117.7000 mm, 125.5650 mm): Track [ROW4] on B.Cu, length 2.9650 mm
+    @(118.0000 mm, 122.6000 mm): Via [ROW4] on F.Cu - B.Cu
+[track_not_centered_on_via]: Track endpoint not centered on via
+    Local override; warning
+    @(117.7000 mm, 122.6000 mm): Track [ROW4] on B.Cu, length 1.0000 mm
+    @(118.0000 mm, 122.6000 mm): Via [ROW4] on F.Cu - B.Cu
+[track_not_centered_on_via]: Track endpoint not centered on via
+    Local override; warning
+    @(117.7000 mm, 122.6000 mm): Track [ROW4] on In1.Cu, length 28.5750 mm
+    @(118.0000 mm, 122.6000 mm): Via [ROW4] on F.Cu - B.Cu
+[track_not_centered_on_via]: Track endpoint not centered on via
+    Local override; warning
+    @(98.6500 mm, 122.6000 mm): Track [ROW4] on In1.Cu, length 19.0500 mm
+    @(118.0000 mm, 122.6000 mm): Via [ROW4] on F.Cu - B.Cu
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(37.5500 mm, 22.0500 mm): Zone [GND] on F.Cu, B.Cu and 2 more, priority 1
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)
+    Local override; warning
+    @(152.4000 mm, 25.9000 mm): Track [QSPI_SD2] on F.Cu, length 1.9000 mm
+    @(152.1500 mm, 26.1500 mm): Track [QSPI_SS] on F.Cu, length 4.9500 mm
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)
+    Local override; warning
+    @(152.4000 mm, 25.9000 mm): Track [QSPI_SD2] on F.Cu, length 1.9000 mm
+    @(152.1500 mm, 27.3500 mm): Track [QSPI_SS] on F.Cu, length 1.2000 mm
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1849 mm)
+    Local override; warning
+    @(96.7500 mm, 25.2500 mm): PTH pad 1 [RUN] of SW60
+    @(97.2000 mm, 24.1000 mm): Track [WL_CS] on B.Cu, length 0.1414 mm
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1963 mm)
+    Local override; warning
+    @(53.7750 mm, 39.8000 mm): Via [GND] on F.Cu - B.Cu
+    @(54.2000 mm, 40.3000 mm): Track [LEDD0_R] on B.Cu, length 0.1000 mm
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1963 mm)
+    Local override; warning
+    @(53.7750 mm, 39.8000 mm): Via [GND] on F.Cu - B.Cu
+    @(54.1000 mm, 40.3000 mm): Track [LEDD0_R] on B.Cu, length 0.1414 mm
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1519 mm)
+    Local override; warning
+    @(55.0000 mm, 32.8000 mm): Track [WL_DOUT] on F.Cu, length 7.7002 mm
+    @(53.7500 mm, 33.5000 mm): Pad 17 [<no net>] of U6 on F.Cu
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1849 mm)
+    Local override; warning
+    @(96.7500 mm, 25.2500 mm): PTH pad 1 [RUN] of SW60
+    @(97.2000 mm, 26.4000 mm): Track [WL_CLK] on In2.Cu, length 0.1414 mm
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1849 mm)
+    Local override; warning
+    @(97.4000 mm, 26.4000 mm): Track [WL_CLK] on In2.Cu, length 0.2000 mm
+    @(96.7500 mm, 25.2500 mm): PTH pad 1 [RUN] of SW60
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1849 mm)
+    Local override; warning
+    @(96.7500 mm, 25.2500 mm): PTH pad 1 [RUN] of SW60
+    @(97.4000 mm, 24.1000 mm): Track [WL_CS] on B.Cu, length 0.2000 mm
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1978 mm)
+    Local override; warning
+    @(97.8000 mm, 24.5000 mm): Track [WL_CS] on B.Cu, length 0.5657 mm
+    @(96.7500 mm, 25.2500 mm): PTH pad 1 [RUN] of SW60
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)
+    Local override; warning
+    @(158.4000 mm, 31.6000 mm): Pad 34 [<no net>] of U1 on F.Cu
+    @(158.7000 mm, 31.2000 mm): Track [WL_ON] on F.Cu, length 0.1000 mm
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)
+    Local override; warning
+    @(158.4000 mm, 31.6000 mm): Pad 34 [<no net>] of U1 on F.Cu
+    @(158.7000 mm, 31.3000 mm): Track [WL_ON] on F.Cu, length 0.7000 mm
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1915 mm)
+    Local override; warning
+    @(157.7000 mm, 27.8000 mm): Track [USB_DM] on F.Cu, length 0.1000 mm
+    @(157.3500 mm, 27.3500 mm): Pad 43 [+3V3] of U1 on F.Cu
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1900 mm)
+    Local override; warning
+    @(156.1500 mm, 27.3500 mm): Pad 46 [USB_DM] of U1 on F.Cu
+    @(155.7850 mm, 27.1500 mm): Track [USB_DP] on F.Cu, length 0.9600 mm
+[clearance]: Clearance violation ( clearance 0.2000 mm; actual 0.1900 mm)
+    Local override; warning
+    @(155.7500 mm, 27.1500 mm): Track [USB_DP] on F.Cu, length 0.0350 mm
+    @(156.1500 mm, 27.3500 mm): Pad 46 [USB_DM] of U1 on F.Cu
+[missing_courtyard]: Footprint has no courtyard defined
+    Local override; warning
+    @(47.0000 mm, 30.2500 mm): Footprint U6
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(219.6500 mm, 65.6844 mm): Footprint C114
+    @(221.4500 mm, 69.0500 mm): Footprint SW22
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(220.0910 mm, 84.5820 mm): Footprint C133
+    @(221.4500 mm, 88.1000 mm): Footprint SW34
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(183.3500 mm, 120.1750 mm): Footprint RGB55
+    @(183.3500 mm, 126.2000 mm): Footprint SW55
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(183.3500 mm, 43.9750 mm): Footprint RGB8
+    @(183.3500 mm, 50.0000 mm): Footprint SW8
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(182.2704 mm, 65.5320 mm): Footprint C116
+    @(183.3500 mm, 69.0500 mm): Footprint SW20
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(202.4000 mm, 107.1500 mm): Footprint SW45
+    @(193.9000 mm, 108.1500 mm): Footprint D45
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(202.4000 mm, 107.1500 mm): Footprint SW45
+    @(200.6000 mm, 103.6066 mm): Footprint C139
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(202.4000 mm, 107.1500 mm): Footprint SW45
+    @(202.4000 mm, 101.1250 mm): Footprint RGB40
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(155.8000 mm, 70.0500 mm): Footprint D19
+    @(164.3000 mm, 69.0500 mm): Footprint SW19
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(258.2672 mm, 65.4812 mm): Footprint C112
+    @(259.5500 mm, 69.0500 mm): Footprint SW24
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(258.2672 mm, 65.4812 mm): Footprint C112
+    @(259.5500 mm, 63.0250 mm): Footprint RGB13
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(50.0000 mm, 88.1000 mm): Footprint SW25
+    @(48.4378 mm, 84.5058 mm): Footprint C124
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(50.0000 mm, 88.1000 mm): Footprint SW25
+    @(41.5000 mm, 89.1000 mm): Footprint D25
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(50.0000 mm, 88.1000 mm): Footprint SW25
+    @(50.0000 mm, 82.0750 mm): Footprint RGB25
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(126.2000 mm, 88.1000 mm): Footprint SW29
+    @(117.7000 mm, 89.1000 mm): Footprint D29
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(126.2000 mm, 88.1000 mm): Footprint SW29
+    @(126.2000 mm, 82.0750 mm): Footprint RGB29
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(126.2000 mm, 88.1000 mm): Footprint SW29
+    @(124.4000 mm, 84.6328 mm): Footprint C128
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(107.1500 mm, 126.2000 mm): Footprint SW52
+    @(98.6500 mm, 127.2000 mm): Footprint D52
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(107.1500 mm, 126.2000 mm): Footprint SW52
+    @(105.3500 mm, 122.7328 mm): Footprint C151
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(107.1500 mm, 126.2000 mm): Footprint SW52
+    @(107.1500 mm, 120.1750 mm): Footprint RGB52
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(174.8500 mm, 127.2000 mm): Footprint D55
+    @(183.3500 mm, 126.2000 mm): Footprint SW55
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(219.6084 mm, 103.6574 mm): Footprint C138
+    @(221.4500 mm, 107.1500 mm): Footprint SW46
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(202.4000 mm, 126.2000 mm): Footprint SW56
+    @(193.9000 mm, 127.2000 mm): Footprint D56
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(202.4000 mm, 126.2000 mm): Footprint SW56
+    @(202.4000 mm, 120.1750 mm): Footprint RGB56
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(202.4000 mm, 126.2000 mm): Footprint SW56
+    @(200.6000 mm, 122.6820 mm): Footprint C155
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(240.5000 mm, 69.0500 mm): Footprint SW23
+    @(232.0000 mm, 70.0500 mm): Footprint D23
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(240.5000 mm, 69.0500 mm): Footprint SW23
+    @(240.5000 mm, 63.0250 mm): Footprint RGB14
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(240.5000 mm, 69.0500 mm): Footprint SW23
+    @(238.7000 mm, 65.5828 mm): Footprint C113
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(146.2750 mm, 127.2000 mm): Footprint D54
+    @(154.7750 mm, 126.2000 mm): Footprint SW54
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(240.5000 mm, 107.1500 mm): Footprint SW47
+    @(232.0000 mm, 108.1500 mm): Footprint D47
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(240.5000 mm, 107.1500 mm): Footprint SW47
+    @(240.5000 mm, 101.1250 mm): Footprint RGB38
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(240.5000 mm, 107.1500 mm): Footprint SW47
+    @(239.1918 mm, 103.6574 mm): Footprint C137
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(88.1000 mm, 82.0750 mm): Footprint RGB27
+    @(88.1000 mm, 88.1000 mm): Footprint SW27
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(88.1000 mm, 82.0750 mm): Footprint RGB27
+    @(86.3346 mm, 84.4804 mm): Footprint C126
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(50.0000 mm, 43.9750 mm): Footprint RGB1
+    @(50.0000 mm, 50.0000 mm): Footprint SW1
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(221.4500 mm, 82.0750 mm): Footprint RGB34
+    @(221.4500 mm, 88.1000 mm): Footprint SW34
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(88.1000 mm, 50.0000 mm): Footprint SW3
+    @(79.6000 mm, 51.0000 mm): Footprint D3
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(88.1000 mm, 50.0000 mm): Footprint SW3
+    @(86.3000 mm, 46.5074 mm): Footprint C102
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(88.1000 mm, 50.0000 mm): Footprint SW3
+    @(88.1000 mm, 43.9750 mm): Footprint RGB3
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(162.5000 mm, 103.6574 mm): Footprint C141
+    @(164.3000 mm, 107.1500 mm): Footprint SW43
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(257.7500 mm, 84.6074 mm): Footprint C135
+    @(259.5500 mm, 88.1000 mm): Footprint SW36
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(67.2500 mm, 103.6320 mm): Footprint C146
+    @(69.0500 mm, 107.1500 mm): Footprint SW38
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(174.8500 mm, 108.1500 mm): Footprint D44
+    @(183.3500 mm, 107.1500 mm): Footprint SW44
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(48.2000 mm, 122.7074 mm): Footprint C148
+    @(50.0000 mm, 126.2000 mm): Footprint SW49
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(181.7370 mm, 84.5820 mm): Footprint C131
+    @(183.3500 mm, 88.1000 mm): Footprint SW32
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(164.3000 mm, 101.1250 mm): Footprint RGB42
+    @(164.3000 mm, 107.1500 mm): Footprint SW43
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(163.1442 mm, 84.5312 mm): Footprint C130
+    @(164.3000 mm, 88.1000 mm): Footprint SW31
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(163.1442 mm, 84.5312 mm): Footprint C130
+    @(164.3000 mm, 82.0750 mm): Footprint RGB31
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(50.0000 mm, 50.0000 mm): Footprint SW1
+    @(48.2000 mm, 46.5328 mm): Footprint C100
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(50.0000 mm, 50.0000 mm): Footprint SW1
+    @(41.5000 mm, 51.0000 mm): Footprint D1
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(145.2500 mm, 101.1250 mm): Footprint RGB43
+    @(145.2500 mm, 107.1500 mm): Footprint SW42
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(183.3500 mm, 88.1000 mm): Footprint SW32
+    @(183.3500 mm, 82.0750 mm): Footprint RGB32
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(183.3500 mm, 88.1000 mm): Footprint SW32
+    @(174.8500 mm, 89.1000 mm): Footprint D32
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(155.8000 mm, 51.0000 mm): Footprint D7
+    @(164.3000 mm, 50.0000 mm): Footprint SW7
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(86.6394 mm, 103.6574 mm): Footprint C145
+    @(88.1000 mm, 107.1500 mm): Footprint SW39
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(145.2500 mm, 50.0000 mm): Footprint SW6
+    @(143.4500 mm, 46.5582 mm): Footprint C105
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(145.2500 mm, 50.0000 mm): Footprint SW6
+    @(136.7500 mm, 51.0000 mm): Footprint D6
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(145.2500 mm, 50.0000 mm): Footprint SW6
+    @(145.2500 mm, 43.9750 mm): Footprint RGB6
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(164.3000 mm, 43.9750 mm): Footprint RGB7
+    @(164.3000 mm, 50.0000 mm): Footprint SW7
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(107.1500 mm, 50.0000 mm): Footprint SW4
+    @(105.9688 mm, 46.4820 mm): Footprint C103
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(107.1500 mm, 50.0000 mm): Footprint SW4
+    @(98.6500 mm, 51.0000 mm): Footprint D4
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(107.1500 mm, 50.0000 mm): Footprint SW4
+    @(107.1500 mm, 43.9750 mm): Footprint RGB4
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(251.0500 mm, 51.0000 mm): Footprint D12
+    @(259.5500 mm, 50.0000 mm): Footprint SW12
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(251.0500 mm, 70.0500 mm): Footprint D24
+    @(259.5500 mm, 69.0500 mm): Footprint SW24
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(240.5000 mm, 43.9750 mm): Footprint RGB11
+    @(240.5000 mm, 50.0000 mm): Footprint SW11
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(67.2500 mm, 84.6074 mm): Footprint C125
+    @(69.0500 mm, 88.1000 mm): Footprint SW26
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(251.0500 mm, 108.1500 mm): Footprint D48
+    @(259.5500 mm, 107.1500 mm): Footprint SW48
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(124.4000 mm, 122.7074 mm): Footprint C152
+    @(126.2000 mm, 126.2000 mm): Footprint SW53
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(69.0500 mm, 126.2000 mm): Footprint SW50
+    @(60.5500 mm, 127.2000 mm): Footprint D50
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(69.0500 mm, 126.2000 mm): Footprint SW50
+    @(67.2500 mm, 122.7074 mm): Footprint C149
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(69.0500 mm, 126.2000 mm): Footprint SW50
+    @(69.0500 mm, 120.1750 mm): Footprint RGB50
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(117.7000 mm, 51.0000 mm): Footprint D5
+    @(126.2000 mm, 50.0000 mm): Footprint SW5
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(69.0500 mm, 69.0500 mm): Footprint SW14
+    @(68.1990 mm, 65.5320 mm): Footprint C122
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(69.0500 mm, 69.0500 mm): Footprint SW14
+    @(60.5500 mm, 70.0500 mm): Footprint D14
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(69.0500 mm, 69.0500 mm): Footprint SW14
+    @(69.0500 mm, 63.0250 mm): Footprint RGB23
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(153.7750 mm, 119.7500 mm): Footprint RGB54
+    @(154.7750 mm, 126.2000 mm): Footprint SW54
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(126.2000 mm, 69.0500 mm): Footprint SW17
+    @(117.7000 mm, 70.0500 mm): Footprint D17
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(126.2000 mm, 69.0500 mm): Footprint SW17
+    @(125.3998 mm, 65.5574 mm): Footprint C119
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(126.2000 mm, 69.0500 mm): Footprint SW17
+    @(126.2000 mm, 63.0250 mm): Footprint RGB20
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(238.7000 mm, 122.7074 mm): Footprint C157
+    @(240.5000 mm, 126.2000 mm): Footprint SW58
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(117.7000 mm, 127.2000 mm): Footprint D53
+    @(126.2000 mm, 126.2000 mm): Footprint SW53
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(221.4500 mm, 69.0500 mm): Footprint SW22
+    @(221.4500 mm, 63.0250 mm): Footprint RGB15
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(221.4500 mm, 69.0500 mm): Footprint SW22
+    @(212.9500 mm, 70.0500 mm): Footprint D22
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(164.3000 mm, 107.1500 mm): Footprint SW43
+    @(155.8000 mm, 108.1500 mm): Footprint D43
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(221.4500 mm, 88.1000 mm): Footprint SW34
+    @(212.9500 mm, 89.1000 mm): Footprint D34
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(107.1500 mm, 69.0500 mm): Footprint SW16
+    @(105.9434 mm, 65.5320 mm): Footprint C120
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(107.1500 mm, 69.0500 mm): Footprint SW16
+    @(107.1500 mm, 63.0250 mm): Footprint RGB21
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(107.1500 mm, 69.0500 mm): Footprint SW16
+    @(98.6500 mm, 70.0500 mm): Footprint D16
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(126.2000 mm, 50.0000 mm): Footprint SW5
+    @(124.9426 mm, 46.5074 mm): Footprint C104
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(126.2000 mm, 50.0000 mm): Footprint SW5
+    @(126.2000 mm, 43.9750 mm): Footprint RGB5
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(259.5500 mm, 107.1500 mm): Footprint SW48
+    @(259.5500 mm, 101.1250 mm): Footprint RGB37
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(259.5500 mm, 107.1500 mm): Footprint SW48
+    @(258.0894 mm, 103.6320 mm): Footprint C136
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(86.8680 mm, 65.5320 mm): Footprint C121
+    @(88.1000 mm, 69.0500 mm): Footprint SW15
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(79.6000 mm, 127.2000 mm): Footprint D51
+    @(88.1000 mm, 126.2000 mm): Footprint SW51
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(202.4000 mm, 63.0250 mm): Footprint RGB16
+    @(202.4000 mm, 69.0500 mm): Footprint SW21
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(88.1000 mm, 88.1000 mm): Footprint SW27
+    @(79.6000 mm, 89.1000 mm): Footprint D27
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(88.1000 mm, 88.1000 mm): Footprint SW27
+    @(86.3346 mm, 84.4804 mm): Footprint C126
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(259.5500 mm, 120.1750 mm): Footprint RGB59
+    @(259.5500 mm, 126.2000 mm): Footprint SW59
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(259.5500 mm, 120.1750 mm): Footprint RGB59
+    @(258.8006 mm, 122.6058 mm): Footprint C158
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(69.0500 mm, 88.1000 mm): Footprint SW26
+    @(69.0500 mm, 82.0750 mm): Footprint RGB26
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(69.0500 mm, 88.1000 mm): Footprint SW26
+    @(60.5500 mm, 89.1000 mm): Footprint D26
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(259.5500 mm, 126.2000 mm): Footprint SW59
+    @(251.0500 mm, 127.2000 mm): Footprint D59
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(259.5500 mm, 126.2000 mm): Footprint SW59
+    @(258.8006 mm, 122.6058 mm): Footprint C158
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(48.4378 mm, 84.5058 mm): Footprint C124
+    @(50.0000 mm, 82.0750 mm): Footprint RGB25
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(117.7000 mm, 108.1500 mm): Footprint D41
+    @(126.2000 mm, 107.1500 mm): Footprint SW41
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(126.2000 mm, 107.1500 mm): Footprint SW41
+    @(126.2000 mm, 101.1250 mm): Footprint RGB44
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(126.2000 mm, 107.1500 mm): Footprint SW41
+    @(124.4000 mm, 103.6574 mm): Footprint C143
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(145.2500 mm, 82.0750 mm): Footprint RGB30
+    @(145.2500 mm, 88.1000 mm): Footprint SW30
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(259.5500 mm, 43.9750 mm): Footprint RGB12
+    @(259.5500 mm, 50.0000 mm): Footprint SW12
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(69.0500 mm, 101.1250 mm): Footprint RGB47
+    @(69.0500 mm, 107.1500 mm): Footprint SW38
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(221.4500 mm, 107.1500 mm): Footprint SW46
+    @(221.4500 mm, 101.1250 mm): Footprint RGB39
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(221.4500 mm, 107.1500 mm): Footprint SW46
+    @(212.9500 mm, 108.1500 mm): Footprint D46
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(221.4500 mm, 126.2000 mm): Footprint SW57
+    @(219.6500 mm, 122.7074 mm): Footprint C156
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(221.4500 mm, 126.2000 mm): Footprint SW57
+    @(212.9500 mm, 127.2000 mm): Footprint D57
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(221.4500 mm, 126.2000 mm): Footprint SW57
+    @(221.4500 mm, 120.1750 mm): Footprint RGB57
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(145.2500 mm, 107.1500 mm): Footprint SW42
+    @(143.4500 mm, 103.6828 mm): Footprint C142
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(145.2500 mm, 107.1500 mm): Footprint SW42
+    @(136.7500 mm, 108.1500 mm): Footprint D42
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(193.9000 mm, 51.0000 mm): Footprint D9
+    @(202.4000 mm, 50.0000 mm): Footprint SW9
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(259.5500 mm, 50.0000 mm): Footprint SW12
+    @(257.9878 mm, 46.5074 mm): Footprint C111
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(86.3000 mm, 122.7582 mm): Footprint C150
+    @(88.1000 mm, 126.2000 mm): Footprint SW51
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(69.0500 mm, 107.1500 mm): Footprint SW38
+    @(60.5500 mm, 108.1500 mm): Footprint D38
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(181.5500 mm, 122.7074 mm): Footprint C154
+    @(183.3500 mm, 126.2000 mm): Footprint SW55
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(193.9000 mm, 89.1000 mm): Footprint D33
+    @(202.4000 mm, 88.1000 mm): Footprint SW33
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(50.0000 mm, 101.1250 mm): Footprint RGB48
+    @(50.0000 mm, 107.1500 mm): Footprint SW37
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(181.5500 mm, 46.5836 mm): Footprint C107
+    @(183.3500 mm, 50.0000 mm): Footprint SW8
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(240.5000 mm, 126.2000 mm): Footprint SW58
+    @(240.5000 mm, 120.1750 mm): Footprint RGB58
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(240.5000 mm, 126.2000 mm): Footprint SW58
+    @(232.0000 mm, 127.2000 mm): Footprint D58
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(240.5000 mm, 88.1000 mm): Footprint SW35
+    @(239.0648 mm, 84.5312 mm): Footprint C134
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(240.5000 mm, 88.1000 mm): Footprint SW35
+    @(232.0000 mm, 89.1000 mm): Footprint D35
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(240.5000 mm, 88.1000 mm): Footprint SW35
+    @(240.5000 mm, 82.0750 mm): Footprint RGB35
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(164.3000 mm, 69.0500 mm): Footprint SW19
+    @(163.2712 mm, 65.5320 mm): Footprint C117
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(164.3000 mm, 69.0500 mm): Footprint SW19
+    @(164.3000 mm, 63.0250 mm): Footprint RGB18
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(201.2442 mm, 84.5820 mm): Footprint C132
+    @(202.4000 mm, 88.1000 mm): Footprint SW33
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(67.2500 mm, 46.4820 mm): Footprint C101
+    @(69.0500 mm, 50.0000 mm): Footprint SW2
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(259.5500 mm, 69.0500 mm): Footprint SW24
+    @(259.5500 mm, 63.0250 mm): Footprint RGB13
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(221.4500 mm, 43.9750 mm): Footprint RGB10
+    @(221.4500 mm, 50.0000 mm): Footprint SW10
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(107.1500 mm, 101.1250 mm): Footprint RGB45
+    @(107.1500 mm, 107.1500 mm): Footprint SW40
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(88.1000 mm, 126.2000 mm): Footprint SW51
+    @(88.1000 mm, 120.1750 mm): Footprint RGB51
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(164.3000 mm, 88.1000 mm): Footprint SW31
+    @(155.8000 mm, 89.1000 mm): Footprint D31
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(164.3000 mm, 88.1000 mm): Footprint SW31
+    @(164.3000 mm, 82.0750 mm): Footprint RGB31
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(98.6500 mm, 89.1000 mm): Footprint D28
+    @(107.1500 mm, 88.1000 mm): Footprint SW28
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(162.9156 mm, 46.5328 mm): Footprint C106
+    @(164.3000 mm, 50.0000 mm): Footprint SW7
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(105.3500 mm, 103.6320 mm): Footprint C144
+    @(107.1500 mm, 107.1500 mm): Footprint SW40
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(239.0648 mm, 84.5312 mm): Footprint C134
+    @(240.5000 mm, 82.0750 mm): Footprint RGB35
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(60.5500 mm, 51.0000 mm): Footprint D2
+    @(69.0500 mm, 50.0000 mm): Footprint SW2
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(126.2000 mm, 126.2000 mm): Footprint SW53
+    @(126.2000 mm, 120.1750 mm): Footprint RGB53
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(202.4000 mm, 88.1000 mm): Footprint SW33
+    @(202.4000 mm, 82.0750 mm): Footprint RGB33
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(50.0000 mm, 107.1500 mm): Footprint SW37
+    @(48.2000 mm, 103.6574 mm): Footprint C147
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(50.0000 mm, 107.1500 mm): Footprint SW37
+    @(41.5000 mm, 108.1500 mm): Footprint D37
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(69.0500 mm, 50.0000 mm): Footprint SW2
+    @(69.0500 mm, 43.9750 mm): Footprint RGB2
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(88.1000 mm, 69.0500 mm): Footprint SW15
+    @(79.6000 mm, 70.0500 mm): Footprint D15
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(88.1000 mm, 69.0500 mm): Footprint SW15
+    @(88.1000 mm, 63.0250 mm): Footprint RGB22
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(79.6000 mm, 108.1500 mm): Footprint D39
+    @(88.1000 mm, 107.1500 mm): Footprint SW39
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(88.1000 mm, 101.1250 mm): Footprint RGB46
+    @(88.1000 mm, 107.1500 mm): Footprint SW39
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(221.4500 mm, 50.0000 mm): Footprint SW10
+    @(212.9500 mm, 51.0000 mm): Footprint D10
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(221.4500 mm, 50.0000 mm): Footprint SW10
+    @(219.6500 mm, 46.5328 mm): Footprint C109
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(193.9000 mm, 70.0500 mm): Footprint D21
+    @(202.4000 mm, 69.0500 mm): Footprint SW21
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(145.2500 mm, 88.1000 mm): Footprint SW30
+    @(136.7500 mm, 89.1000 mm): Footprint D30
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(145.2500 mm, 88.1000 mm): Footprint SW30
+    @(143.5354 mm, 84.5820 mm): Footprint C129
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(50.0000 mm, 69.0500 mm): Footprint SW13
+    @(48.2000 mm, 65.5574 mm): Footprint C123
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(50.0000 mm, 69.0500 mm): Footprint SW13
+    @(50.0000 mm, 63.0250 mm): Footprint RGB24
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(50.0000 mm, 69.0500 mm): Footprint SW13
+    @(41.5000 mm, 70.0500 mm): Footprint D13
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(181.3814 mm, 103.6828 mm): Footprint C140
+    @(183.3500 mm, 107.1500 mm): Footprint SW44
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(259.5500 mm, 88.1000 mm): Footprint SW36
+    @(259.5500 mm, 82.0750 mm): Footprint RGB36
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(259.5500 mm, 88.1000 mm): Footprint SW36
+    @(251.0500 mm, 89.1000 mm): Footprint D36
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(183.3500 mm, 50.0000 mm): Footprint SW8
+    @(174.8500 mm, 51.0000 mm): Footprint D8
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(136.7500 mm, 70.0500 mm): Footprint D18
+    @(145.2500 mm, 69.0500 mm): Footprint SW18
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(202.4000 mm, 50.0000 mm): Footprint SW9
+    @(202.4000 mm, 43.9750 mm): Footprint RGB9
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(202.4000 mm, 50.0000 mm): Footprint SW9
+    @(200.8124 mm, 46.5074 mm): Footprint C108
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(50.0000 mm, 120.1750 mm): Footprint RGB49
+    @(50.0000 mm, 126.2000 mm): Footprint SW49
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(232.0000 mm, 51.0000 mm): Footprint D11
+    @(240.5000 mm, 50.0000 mm): Footprint SW11
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(144.2974 mm, 65.5574 mm): Footprint C118
+    @(145.2500 mm, 69.0500 mm): Footprint SW18
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(145.2500 mm, 69.0500 mm): Footprint SW18
+    @(145.2500 mm, 63.0250 mm): Footprint RGB19
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(183.3500 mm, 101.1250 mm): Footprint RGB41
+    @(183.3500 mm, 107.1500 mm): Footprint SW44
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(41.5000 mm, 127.2000 mm): Footprint D49
+    @(50.0000 mm, 126.2000 mm): Footprint SW49
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(105.3500 mm, 84.6074 mm): Footprint C127
+    @(107.1500 mm, 88.1000 mm): Footprint SW28
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(107.1500 mm, 88.1000 mm): Footprint SW28
+    @(107.1500 mm, 82.0750 mm): Footprint RGB28
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(183.3500 mm, 69.0500 mm): Footprint SW20
+    @(174.8500 mm, 70.0500 mm): Footprint D20
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(183.3500 mm, 69.0500 mm): Footprint SW20
+    @(183.3500 mm, 63.0250 mm): Footprint RGB17
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(201.0156 mm, 65.5574 mm): Footprint C115
+    @(202.4000 mm, 69.0500 mm): Footprint SW21
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(98.6500 mm, 108.1500 mm): Footprint D40
+    @(107.1500 mm, 107.1500 mm): Footprint SW40
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; warning
+    @(240.5000 mm, 50.0000 mm): Footprint SW11
+    @(238.7000 mm, 46.5074 mm): Footprint C110
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(37.5000 mm, 22.0000 mm): Rectangle on Edge.Cuts
+    @(257.3000 mm, 23.6000 mm): Segment of J1 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(37.5000 mm, 22.0000 mm): Rectangle on Edge.Cuts
+    @(266.7000 mm, 23.6000 mm): Segment of J1 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(37.5000 mm, 22.0000 mm): Rectangle on Edge.Cuts
+    @(100.5000 mm, 22.0000 mm): Segment of SW62 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(37.5000 mm, 22.0000 mm): Rectangle on Edge.Cuts
+    @(105.0000 mm, 22.0000 mm): Segment of SW62 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(37.5000 mm, 22.0000 mm): Rectangle on Edge.Cuts
+    @(39.7500 mm, 22.0000 mm): Segment of U6 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(37.5000 mm, 22.0000 mm): Rectangle on Edge.Cuts
+    @(39.7500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(37.5000 mm, 22.0000 mm): Rectangle on Edge.Cuts
+    @(54.2500 mm, 22.0000 mm): Segment of U6 on F.Silkscreen
+[footprint_type_mismatch]: Footprint component type doesn't match footprint pads (expected 'Through hole'; actual 'SMD')
+    Local override; warning
+    @(262.0000 mm, 25.6000 mm): Footprint J1
+[lib_footprint_mismatch]: Footprint 'USB_C_Receptacle_HRO_TYPE-C-31-M-12' does not match copy in library 'kbd'
+    Local override; warning
+    @(262.0000 mm, 25.6000 mm): Footprint J1
+[lib_footprint_mismatch]: Footprint 'RP2040_QFN56' does not match copy in library 'kbd'
+    Local override; warning
+    @(154.7500 mm, 31.0000 mm): Footprint U1
+[lib_footprint_mismatch]: Footprint 'RC_0603' does not match copy in library 'kbd'
+    Local override; warning
+    @(58.0000 mm, 34.5000 mm): Footprint R14
+[lib_footprint_issues]: Footprint 'RM2_RMC20452T' not found in library 'kbd'
+    Local override; warning
+    @(47.0000 mm, 30.2500 mm): Footprint U6
+[lib_footprint_mismatch]: Footprint 'RC_0603' does not match copy in library 'kbd'
+    Local override; warning
+    @(62.0000 mm, 34.5000 mm): Footprint R15
+[lib_footprint_mismatch]: Footprint 'SW_PUSH_6mm_THT' does not match copy in library 'kbd'
+    Local override; warning
+    @(196.0000 mm, 27.5000 mm): Footprint SW61
+[lib_footprint_mismatch]: Footprint 'SW_Gateron_KS33_HS' does not match copy in library 'kbd'
+    Local override; warning
+    @(154.7750 mm, 126.2000 mm): Footprint SW54
+[lib_footprint_mismatch]: Footprint 'SW_PUSH_6mm_THT' does not match copy in library 'kbd'
+    Local override; warning
+    @(93.5000 mm, 27.5000 mm): Footprint SW60
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(78.5750 mm, 116.6750 mm): Circle of H2 on F.Silkscreen
+    @(78.5750 mm, 113.8750 mm): Reference field of H2
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(173.8250 mm, 113.8750 mm): Reference field of H4
+    @(173.8250 mm, 116.6750 mm): Circle of H4 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(230.9750 mm, 56.7250 mm): Reference field of H5
+    @(230.9750 mm, 59.5250 mm): Circle of H5 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(230.9750 mm, 113.8750 mm): Reference field of H6
+    @(230.9750 mm, 116.6750 mm): Circle of H6 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(162.5200 mm, 25.2500 mm): Segment of C32 on F.Silkscreen
+    @(166.5000 mm, 25.0000 mm): Reference field of C14
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(162.5200 mm, 25.2500 mm): Segment of C32 on F.Silkscreen
+    @(161.5000 mm, 25.0000 mm): Reference field of C13
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(161.5000 mm, 25.0000 mm): Reference field of C13
+    @(158.5200 mm, 25.2500 mm): Segment of C9 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(56.5200 mm, 33.7500 mm): Segment of R14 on F.Silkscreen
+    @(58.0000 mm, 33.0000 mm): Reference field of R14
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(78.5750 mm, 59.5250 mm): Circle of H1 on F.Silkscreen
+    @(78.5750 mm, 56.7250 mm): Reference field of H1
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(62.0000 mm, 33.0000 mm): Reference field of R15
+    @(60.5200 mm, 33.7500 mm): Segment of R15 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(173.8250 mm, 56.7250 mm): Reference field of H3
+    @(173.8250 mm, 59.5250 mm): Circle of H3 on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(166.5000 mm, 25.0000 mm): Reference field of C14
+    @(164.7750 mm, 24.5000 mm): Pad 2 [GND] of C32 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(161.5000 mm, 25.0000 mm): Reference field of C13
+    @(163.2250 mm, 24.5000 mm): Pad 1 [DVDD] of C32 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(161.5000 mm, 25.0000 mm): Reference field of C13
+    @(160.7750 mm, 24.5000 mm): Pad 2 [GND] of C9 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(58.0000 mm, 33.0000 mm): Reference field of R14
+    @(57.2250 mm, 34.5000 mm): Pad 1 [WL_DOUT] of R14 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(58.0000 mm, 33.0000 mm): Reference field of R14
+    @(58.7750 mm, 34.5000 mm): Pad 2 [WL_DATA] of R14 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(62.0000 mm, 33.0000 mm): Reference field of R15
+    @(61.2250 mm, 34.5000 mm): Pad 1 [WL_IRQ] of R15 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(62.0000 mm, 33.0000 mm): Reference field of R15
+    @(62.7750 mm, 34.5000 mm): Pad 2 [WL_DATA] of R15 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(39.7500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+    @(40.2500 mm, 27.5000 mm): Pad 1 [GND] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(39.7500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+    @(40.2500 mm, 29.0000 mm): Pad 2 [<no net>] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(39.7500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+    @(40.2500 mm, 30.5000 mm): Pad 3 [WL_CLK] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(39.7500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+    @(40.2500 mm, 32.0000 mm): Pad 4 [GND] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(39.7500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+    @(40.2500 mm, 33.5000 mm): Pad 5 [WL_DATA] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(39.7500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+    @(40.2500 mm, 35.0000 mm): Pad 6 [WL_DOUT] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(39.7500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+    @(40.2500 mm, 36.5000 mm): Pad 7 [GND] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(54.2500 mm, 22.0000 mm): Segment of U6 on F.Silkscreen
+    @(53.7500 mm, 33.5000 mm): Pad 17 [<no net>] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(54.2500 mm, 22.0000 mm): Segment of U6 on F.Silkscreen
+    @(53.7500 mm, 32.0000 mm): Pad 18 [<no net>] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(54.2500 mm, 22.0000 mm): Segment of U6 on F.Silkscreen
+    @(53.7500 mm, 30.5000 mm): Pad 19 [<no net>] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(54.2500 mm, 22.0000 mm): Segment of U6 on F.Silkscreen
+    @(53.7500 mm, 29.0000 mm): Pad 20 [<no net>] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(54.2500 mm, 22.0000 mm): Segment of U6 on F.Silkscreen
+    @(53.7500 mm, 27.5000 mm): Pad 21 [GND] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(54.2500 mm, 22.0000 mm): Segment of U6 on F.Silkscreen
+    @(53.7500 mm, 36.5000 mm): Pad 15 [GND] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(54.2500 mm, 22.0000 mm): Segment of U6 on F.Silkscreen
+    @(53.7500 mm, 35.0000 mm): Pad 16 [+3V3] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(54.2500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+    @(42.5000 mm, 38.1000 mm): Pad 8 [<no net>] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(54.2500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+    @(45.5000 mm, 38.1000 mm): Pad 10 [WL_IRQ] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(54.2500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+    @(47.0000 mm, 38.1000 mm): Pad 11 [GND] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(54.2500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+    @(48.5000 mm, 38.1000 mm): Pad 12 [WL_ON] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(54.2500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+    @(50.0000 mm, 38.1000 mm): Pad 13 [WL_ON] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(54.2500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+    @(51.5000 mm, 38.1000 mm): Pad 14 [+3V3] of U6 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(54.2500 mm, 38.5000 mm): Segment of U6 on F.Silkscreen
+    @(44.0000 mm, 38.1000 mm): Pad 9 [WL_CS] of U6 on F.Cu
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(179.7000 mm, 122.0500 mm): Segment of RGB55 on B.Silkscreen
+    @(180.5600 mm, 122.1574 mm): Segment of C154 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(240.5000 mm, 41.3750 mm): Reference field of RGB11
+    @(240.5000 mm, 41.3000 mm): Reference field of SW11
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(180.7470 mm, 84.0320 mm): Segment of C131 on B.Silkscreen
+    @(179.7000 mm, 83.9500 mm): Segment of RGB32 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(183.3500 mm, 79.4750 mm): Reference field of RGB32
+    @(183.3500 mm, 79.4000 mm): Reference field of SW32
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(181.2804 mm, 64.9820 mm): Segment of C116 on B.Silkscreen
+    @(179.7000 mm, 64.9000 mm): Segment of RGB17 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(200.0256 mm, 65.0074 mm): Segment of C115 on B.Silkscreen
+    @(198.7500 mm, 64.9000 mm): Segment of RGB16 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(199.8224 mm, 45.9574 mm): Segment of C108 on B.Silkscreen
+    @(198.7500 mm, 45.8500 mm): Segment of RGB9 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(237.7100 mm, 45.9574 mm): Segment of C110 on B.Silkscreen
+    @(236.8500 mm, 45.8500 mm): Segment of RGB11 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(255.9000 mm, 45.8500 mm): Segment of RGB12 on B.Silkscreen
+    @(256.9978 mm, 45.9574 mm): Segment of C111 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(160.6500 mm, 103.0000 mm): Segment of RGB42 on B.Silkscreen
+    @(161.5100 mm, 103.1074 mm): Segment of C141 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(162.1542 mm, 83.9812 mm): Segment of C130 on B.Silkscreen
+    @(160.6500 mm, 83.9500 mm): Segment of RGB31 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(123.4100 mm, 122.1574 mm): Segment of C152 on B.Silkscreen
+    @(122.5500 mm, 122.0500 mm): Segment of RGB53 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(126.2000 mm, 79.4000 mm): Reference field of SW29
+    @(126.2000 mm, 79.4750 mm): Reference field of RGB29
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(123.4100 mm, 103.1074 mm): Segment of C143 on B.Silkscreen
+    @(122.5500 mm, 103.0000 mm): Segment of RGB44 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(255.9000 mm, 103.0000 mm): Segment of RGB37 on B.Silkscreen
+    @(257.0994 mm, 103.0820 mm): Segment of C136 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(217.8000 mm, 122.0500 mm): Segment of RGB57 on B.Silkscreen
+    @(218.6600 mm, 122.1574 mm): Segment of C156 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(198.7500 mm, 122.0500 mm): Segment of RGB56 on B.Silkscreen
+    @(199.6100 mm, 122.1320 mm): Segment of C155 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(255.9000 mm, 122.0500 mm): Segment of RGB59 on B.Silkscreen
+    @(257.8106 mm, 122.0558 mm): Segment of C158 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(244.1500 mm, 99.2500 mm): Segment of RGB38 on B.Silkscreen
+    @(245.0000 mm, 98.7143 mm): Reference field of SW47
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(245.0000 mm, 98.7143 mm): Reference field of SW47
+    @(244.1500 mm, 102.2750 mm): Segment of RGB38 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(238.2018 mm, 103.1074 mm): Segment of C137 on B.Silkscreen
+    @(236.8500 mm, 103.0000 mm): Segment of RGB38 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(238.0748 mm, 83.9812 mm): Segment of C134 on B.Silkscreen
+    @(236.8500 mm, 83.9500 mm): Segment of RGB35 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(255.9000 mm, 83.9500 mm): Segment of RGB36 on B.Silkscreen
+    @(256.7600 mm, 84.0574 mm): Segment of C135 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(257.2772 mm, 64.9312 mm): Segment of C112 on B.Silkscreen
+    @(255.9000 mm, 64.9000 mm): Segment of RGB13 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(236.8500 mm, 122.0500 mm): Segment of RGB58 on B.Silkscreen
+    @(237.7100 mm, 122.1574 mm): Segment of C157 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(219.1010 mm, 84.0320 mm): Segment of C133 on B.Silkscreen
+    @(217.8000 mm, 83.9500 mm): Segment of RGB34 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(199.6100 mm, 103.0566 mm): Segment of C139 on B.Silkscreen
+    @(198.7500 mm, 103.0000 mm): Segment of RGB40 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(200.2542 mm, 84.0320 mm): Segment of C132 on B.Silkscreen
+    @(198.7500 mm, 83.9500 mm): Segment of RGB33 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(217.8000 mm, 103.0000 mm): Segment of RGB39 on B.Silkscreen
+    @(218.6184 mm, 103.1074 mm): Segment of C138 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(50.0000 mm, 79.4000 mm): Reference field of SW25
+    @(50.0000 mm, 79.4750 mm): Reference field of RGB25
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(46.3500 mm, 83.9500 mm): Segment of RGB25 on B.Silkscreen
+    @(47.4478 mm, 83.9558 mm): Segment of C124 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(65.4000 mm, 83.9500 mm): Segment of RGB26 on B.Silkscreen
+    @(66.2600 mm, 84.0574 mm): Segment of C125 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(69.0500 mm, 79.4000 mm): Reference field of SW26
+    @(69.0500 mm, 79.4750 mm): Reference field of RGB26
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(46.3500 mm, 64.9000 mm): Segment of RGB24 on B.Silkscreen
+    @(47.2100 mm, 65.0074 mm): Segment of C123 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(66.2600 mm, 45.9320 mm): Segment of C101 on B.Silkscreen
+    @(65.4000 mm, 45.8500 mm): Segment of RGB2 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(43.0000 mm, 133.0700 mm): Segment of SW49 on B.Silkscreen
+    @(42.0000 mm, 133.6000 mm): Reference field of FID4
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(43.0000 mm, 132.5700 mm): Segment of SW49 on B.Silkscreen
+    @(42.0000 mm, 133.6000 mm): Reference field of FID4
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(66.2600 mm, 122.1574 mm): Segment of C149 on B.Silkscreen
+    @(65.4000 mm, 122.0500 mm): Segment of RGB50 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(46.3500 mm, 122.0500 mm): Segment of RGB49 on B.Silkscreen
+    @(47.2100 mm, 122.1574 mm): Segment of C148 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(46.3500 mm, 103.0000 mm): Segment of RGB48 on B.Silkscreen
+    @(47.2100 mm, 103.1074 mm): Segment of C147 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(65.4000 mm, 103.0000 mm): Segment of RGB47 on B.Silkscreen
+    @(66.2600 mm, 103.0820 mm): Segment of C146 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(122.5500 mm, 64.9000 mm): Segment of RGB20 on B.Silkscreen
+    @(124.4098 mm, 65.0074 mm): Segment of C119 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(164.3000 mm, 79.4000 mm): Reference field of SW31
+    @(164.3000 mm, 79.4750 mm): Reference field of RGB31
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(160.6500 mm, 64.9000 mm): Segment of RGB18 on B.Silkscreen
+    @(162.2812 mm, 64.9820 mm): Segment of C117 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(123.9526 mm, 45.9574 mm): Segment of C104 on B.Silkscreen
+    @(122.5500 mm, 45.8500 mm): Segment of RGB5 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(141.6000 mm, 83.9500 mm): Segment of RGB30 on B.Silkscreen
+    @(142.5454 mm, 84.0320 mm): Segment of C129 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(141.6000 mm, 64.9000 mm): Segment of RGB19 on B.Silkscreen
+    @(143.3074 mm, 65.0074 mm): Segment of C118 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(104.3600 mm, 103.0820 mm): Segment of C144 on B.Silkscreen
+    @(103.5000 mm, 103.0000 mm): Segment of RGB45 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(88.1000 mm, 79.4750 mm): Reference field of RGB27
+    @(88.1000 mm, 79.4000 mm): Reference field of SW27
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(85.3446 mm, 83.9304 mm): Segment of C126 on B.Silkscreen
+    @(84.4500 mm, 83.9500 mm): Segment of RGB27 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(103.5000 mm, 83.9500 mm): Segment of RGB28 on B.Silkscreen
+    @(104.3600 mm, 84.0574 mm): Segment of C127 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(85.6494 mm, 103.1074 mm): Segment of C145 on B.Silkscreen
+    @(84.4500 mm, 103.0000 mm): Segment of RGB46 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(67.2090 mm, 64.9820 mm): Segment of C122 on B.Silkscreen
+    @(65.4000 mm, 64.9000 mm): Segment of RGB23 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(85.3100 mm, 45.9574 mm): Segment of C102 on B.Silkscreen
+    @(84.4500 mm, 45.8500 mm): Segment of RGB3 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(85.8780 mm, 64.9820 mm): Segment of C121 on B.Silkscreen
+    @(84.4500 mm, 64.9000 mm): Segment of RGB22 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(104.9788 mm, 45.9320 mm): Segment of C103 on B.Silkscreen
+    @(103.5000 mm, 45.8500 mm): Segment of RGB4 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(103.5000 mm, 64.9000 mm): Segment of RGB21 on B.Silkscreen
+    @(104.9534 mm, 64.9820 mm): Segment of C120 on B.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(193.0000 mm, 24.5000 mm): Rectangle of SW61 on B.Silkscreen
+    @(192.7500 mm, 25.2500 mm): PTH pad 1 [BOOTSEL] of SW61
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(193.0000 mm, 24.5000 mm): Rectangle of SW61 on B.Silkscreen
+    @(199.2500 mm, 25.2500 mm): PTH pad 1 [BOOTSEL] of SW61
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(193.0000 mm, 24.5000 mm): Rectangle of SW61 on B.Silkscreen
+    @(199.2500 mm, 29.7500 mm): PTH pad 2 [GND] of SW61
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(193.0000 mm, 24.5000 mm): Rectangle of SW61 on B.Silkscreen
+    @(192.7500 mm, 29.7500 mm): PTH pad 2 [GND] of SW61
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(90.5000 mm, 24.5000 mm): Rectangle of SW60 on B.Silkscreen
+    @(90.2500 mm, 25.2500 mm): PTH pad 1 [RUN] of SW60
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(90.5000 mm, 24.5000 mm): Rectangle of SW60 on B.Silkscreen
+    @(96.7500 mm, 25.2500 mm): PTH pad 1 [RUN] of SW60
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(90.5000 mm, 24.5000 mm): Rectangle of SW60 on B.Silkscreen
+    @(96.7500 mm, 29.7500 mm): PTH pad 2 [GND] of SW60
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(90.5000 mm, 24.5000 mm): Rectangle of SW60 on B.Silkscreen
+    @(90.2500 mm, 29.7500 mm): PTH pad 2 [GND] of SW60
+
+** Found 0 unconnected pads **
+
+** Found 0 Footprint errors **
+
+** Ignored checks **
+    - None
+
+** End of Report **

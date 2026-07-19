@@ -85,7 +85,7 @@ def rot_pt(px, py, deg):
     t = math.radians(deg)
     return (px*math.cos(t) + py*math.sin(t), -px*math.sin(t) + py*math.cos(t))
 
-PCBFILE = os.path.join(HERE, "gateron_lp_kbd_rp2040/gateron_lp_kbd_rp2040.kicad_pcb")
+PCBFILE = os.path.join(HERE, "smk_kbd_rp2040/smk_kbd_rp2040.kicad_pcb")
 pcb = sexpdata.loads(open(PCBFILE).read())
 pad_pos = {}   # (ref,padnum) -> (x,y,layerset)
 for fp in kids(pcb, "footprint"):
@@ -1768,7 +1768,7 @@ def emit():
         lines.append(
             f'  (via (at {x:.3f} {y:.3f}) (size {VIA_R*2:g}) (drill {VIA_DRILL:g}) '
             f'(layers "F.Cu" "B.Cu") (net {NETI[net]}) (uuid "{gen.NU("rvia", i)}"))')
-    with open(os.path.join(HERE, "gateron_lp_kbd_rp2040", "tracks_rp2040.sexp"), "w") as f:
+    with open(os.path.join(HERE, "smk_kbd_rp2040", "tracks_rp2040.sexp"), "w") as f:
         f.write("\n".join(lines) + "\n")
     print(f"emitted {len(segs_out)} segments, {len(vias_out)} vias")
     if skipped_nets:

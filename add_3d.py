@@ -11,7 +11,7 @@ their own model).
 import os, re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-PRJ = os.path.join(HERE, "gateron_lp_kbd")
+PRJ = os.path.join(HERE, "smk_kbd")
 M3D = os.path.join(PRJ, "3dmodels")
 os.makedirs(M3D, exist_ok=True)
 
@@ -179,5 +179,5 @@ def patch_pretty():
         print(f"kbd.pretty/{fn}: model added")
 
 if __name__ == "__main__":
-    patch_board(os.path.join(PRJ, "gateron_lp_kbd.kicad_pcb"))
+    patch_board(os.path.join(PRJ, "smk_kbd.kicad_pcb"))
     patch_pretty()

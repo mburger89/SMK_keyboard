@@ -17,8 +17,8 @@ from shapely.strtree import STRtree
 from shapely import affinity
 
 # Board path can be overridden on the command line, e.g.:
-#   .routing_venv/bin/python3 drc_check.py gateron_lp_kbd_rp2040/gateron_lp_kbd_rp2040.kicad_pcb
-PCB = sys.argv[1] if len(sys.argv) > 1 else "gateron_lp_kbd/gateron_lp_kbd.kicad_pcb"
+#   .routing_venv/bin/python3 drc_check.py smk_kbd_rp2040/smk_kbd_rp2040.kicad_pcb
+PCB = sys.argv[1] if len(sys.argv) > 1 else "smk_kbd/smk_kbd.kicad_pcb"
 CL_MIN = 0.19
 HOLE_MIN = 0.25
 EDGE_MIN = 0.30

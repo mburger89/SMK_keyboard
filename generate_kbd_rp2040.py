@@ -173,7 +173,7 @@ Files are written in KiCad 8 format, which KiCad 9 opens natively.
 import uuid, os, json
 
 OUT = os.path.dirname(os.path.abspath(__file__))
-PROJ = "gateron_lp_kbd_rp2040"
+PROJ = "smk_kbd_rp2040"
 PRJDIR = os.path.join(OUT, PROJ)
 os.makedirs(PRJDIR, exist_ok=True)
 
